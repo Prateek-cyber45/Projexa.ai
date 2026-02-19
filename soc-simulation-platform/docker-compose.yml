@@ -1,0 +1,59 @@
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: soc_postgres
+    environment:
+      POSTGRES_USER: soc_user
+      POSTGRES_PASSWORD: soc_pass
+      POSTGRES_DB: soc_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soc_user -d soc_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend        # ✅ FIXED
+      dockerfile: Dockerfile    # ✅ because file is backend/Dockerfile
+    container_name: soc_backend
+    env_file:
+      - ./backend/.env          # safer if .env is inside backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://soc_user:soc_pass@postgres:5432/soc_db
+      DATABASE_SYNC_URL: postgresql://soc_user:soc_pass@postgres:5432/soc_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - model_data:/app/backend/ml/models
+    command: >
+      sh -c "python -m backend.ml.train_models &&
+             uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # ── React Frontend ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend       # ✅ already correct
+      dockerfile: Dockerfile    # ✅ because file is frontend/Dockerfile
+    container_name: soc_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:8000
+
+volumes:
+  postgres_data:
+  model_data:
