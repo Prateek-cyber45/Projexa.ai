@@ -1,43 +1,101 @@
+/* ── Tailwind base layers ─────────────────────────────────────────────────── */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Base styles ──────────────────────────────────────────────────────────── */
 @layer base {
-  body {
-    @apply bg-gray-950 text-gray-100;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
-  * { box-sizing: border-box; }
+
+  html {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', ui-monospace, monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-100 min-h-screen;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Prevent layout shift from scrollbar appearing */
+  html {
+    overflow-y: scroll;
+  }
 }
 
 /* ── Custom scrollbar ─────────────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #111827; }
-::-webkit-scrollbar-thumb { background: #14532d; border-radius: 3px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #14532d; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #16a34a; }
+* { scrollbar-width: thin; scrollbar-color: #14532d #0f172a; }
+
+/* ── Utility: hide boot screen once React mounts ──────────────────────────── */
+#boot-screen { display: none !important; }
 
 /* ── Animations ───────────────────────────────────────────────────────────── */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateX(16px); }
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(12px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-.animate-fade-in { animation: fade-in 0.2s ease-out; }
 
-@keyframes pulse-slow {
+@keyframes pulseSlow {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.6; }
+  50%       { opacity: 0.55; }
 }
-.animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
 
-/* ── Green glow text util ─────────────────────────────────────────────────── */
-.text-glow-green { text-shadow: 0 0 12px rgba(34, 197, 94, 0.7); }
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
 
-/* ── Terminal cursor blink ────────────────────────────────────────────────── */
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-.cursor::after { content: '_'; animation: blink 1s step-end infinite; }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Utility classes ──────────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-fade-slide-in { animation: fadeSlideIn 0.2s ease-out; }
+  .animate-pulse-slow     { animation: pulseSlow 3s ease-in-out infinite; }
+  .cursor-blink::after    { content: '_'; animation: blink 1s step-end infinite; }
+
+  /* Glow effects */
+  .glow-green  { filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.7)); }
+  .glow-red    { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)); }
+  .glow-yellow { filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.7)); }
+
+  /* Text shadow glow */
+  .text-glow-green  { text-shadow: 0 0 12px rgba(34, 197, 94, 0.8); }
+  .text-glow-red    { text-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+  .text-glow-yellow { text-shadow: 0 0 12px rgba(234, 179, 8, 0.8); }
+
+  /* Terminal-style grid background */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}
+
+/* ── Recharts custom tooltip ──────────────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #111827 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 6px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: #d1fae5 !important;
+}
 
 /* ── Print styles ─────────────────────────────────────────────────────────── */
 @media print {
-  body { background: white; color: black; }
-  nav, button { display: none !important; }
+  nav, button, .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .print-visible { display: block !important; }
 }
