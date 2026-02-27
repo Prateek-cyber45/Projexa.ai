@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>pirata6 Labs | AI SOC Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --black:      #000000;
+      --black-1:    #07070a;
+      --black-2:    #0d0d11;
+      --black-3:    #141418;
+      --black-4:    #1c1c22;
+      --black-5:    #26262e;
+      --blue:       #0a84ff;
+      --blue-dim:   #0055bb;
+      --blue-glow:  rgba(10,132,255,0.18);
+      --blue-faint: rgba(10,132,255,0.07);
+      --white:      #f5f5f7;
+      --white-dim:  #9898a8;
+      --white-faint:#4a4a58;
+      --red:        #ff3b30;
+      --orange:     #ff9f0a;
+      --green:      #30d158;
+      --purple:     #bf5af2;
+      --mono:       'Space Mono', monospace;
+      --sans:       'DM Sans', sans-serif;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    ::selection { background: var(--blue); color: #000; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black-1); }
+    ::-webkit-scrollbar-thumb { background: var(--blue-dim); border-radius: 2px; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Grid noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(10,132,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(10,132,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Ambient glow blobs ── */
+    .glow-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      animation: blobDrift 20s ease-in-out infinite alternate;
+    }
+    .glow-blob-1 { width: 600px; height: 600px; background: var(--blue); top: -200px; right: -100px; }
+    .glow-blob-2 { width: 400px; height: 400px; background: var(--purple); bottom: 0; left: -100px; animation-delay: -7s; }
+    @keyframes blobDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px, 30px) scale(1.1); } }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--black-5);
+      padding: 0.85rem 2rem;
+    }
+
+    .nav-inner {
+      max-width: 1560px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 1.3rem;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+
+    .logo-hex {
+      width: 28px; height: 28px;
+      background: var(--blue);
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      animation: hexPulse 3s ease-in-out infinite;
+    }
+    @keyframes hexPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(10,132,255,0.6); } 50% { box-shadow: 0 0 20px 8px rgba(10,132,255,0.2); } }
+
+    .logo-hex svg { width: 14px; height: 14px; fill: #000; }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      background: var(--blue);
+      color: #000;
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 1.8rem; }
+
+    .nav-links a {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--white-dim);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    .nav-links a.active::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--blue);
+      box-shadow: 0 0 8px var(--blue);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    .pill-btn {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.4rem 1.1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .pill-btn.ghost {
+      background: transparent;
+      border: 1px solid var(--black-5);
+      color: var(--white-dim);
+    }
+    .pill-btn.ghost:hover { border-color: var(--blue); color: var(--white); }
+
+    .pill-btn.solid {
+      background: var(--blue);
+      color: #000;
+    }
+    .pill-btn.solid:hover { background: #2d9aff; }
+
+    /* connection indicator */
+    .conn-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      animation: connPulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes connPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(48,209,88,0.5); }
+      50% { box-shadow: 0 0 0 5px rgba(48,209,88,0); }
+    }
+    .conn-dot.offline { background: var(--red); animation: none; }
+
+    .conn-status {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--white-faint);
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      background: var(--black-1);
+      border-bottom: 1px solid var(--black-4);
+      padding: 0.4rem 2rem;
+      position: relative; z-index: 10;
+    }
+    .status-inner {
+      max-width: 1560px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+    }
+    .status-items { display: flex; gap: 2rem; align-items: center; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.68rem;
+    }
+    .stat-chip .label { color: var(--white-faint); }
+    .stat-chip .value { color: var(--white); font-weight: 700; }
+    .stat-chip .value.red   { color: var(--red);    }
+    .stat-chip .value.green { color: var(--green);  }
+    .stat-chip .value.blue  { color: var(--blue);   }
+    .stat-chip .value.orange{ color: var(--orange); }
+
+    .incident-flash {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.68rem;
+      color: var(--red);
+      animation: flashText 1.5s ease-in-out infinite;
+    }
+    @keyframes flashText { 0%,100% { opacity:1; } 50% { opacity: 0.4; } }
+
+    /* ── Dashboard Layout ── */
+    .dashboard {
+      position: relative; z-index: 1;
+      max-width: 1560px; margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 280px 1fr 340px;
+      grid-template-rows: auto auto;
+      gap: 1.2rem;
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: var(--black-2);
+      border: 1px solid var(--black-5);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .card:hover {
+      border-color: rgba(10,132,255,0.3);
+      box-shadow: 0 0 40px -10px rgba(10,132,255,0.15);
+    }
+
+    .card-header {
+      padding: 1rem 1.2rem 0.8rem;
+      border-bottom: 1px solid var(--black-4);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-family: var(--mono);
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--white-dim);
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card-body { padding: 1rem 1.2rem; }
+
+    /* ── Honeypot Column ── */
+    .honeypots-col { grid-row: 1 / 3; }
+
+    .pot-item {
+      background: var(--black-3);
+      border: 1px solid var(--black-4);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pot-item:hover { border-color: var(--blue-dim); background: var(--black-4); }
+    .pot-item.alert { border-color: var(--red); animation: alertPulse 2s ease-in-out infinite; }
+    @keyframes alertPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,59,48,0.2); } 50% { box-shadow: 0 0 12px 4px rgba(255,59,48,0.1); } }
+
+    .pot-name { font-family: var(--mono); font-size: 0.78rem; color: var(--white); }
+    .pot-meta { font-size: 0.65rem; color: var(--white-faint); margin-top: 2px; }
+    .pot-hits { font-family: var(--mono); font-size: 0.65rem; color: var(--blue); }
+
+    .status-dot-row { display: flex; align-items: center; gap: 0.5rem; }
+    .status-pill {
+      font-family: var(--mono); font-size: 0.6rem; font-weight: 700;
+      padding: 0.15rem 0.55rem; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .status-pill.active  { background: rgba(48,209,88,0.15);  color: var(--green); }
+    .status-pill.monitor { background: rgba(10,132,255,0.15); color: var(--blue); }
+    .status-pill.alert   { background: rgba(255,59,48,0.15);  color: var(--red);   }
+    .status-pill.idle    { background: rgba(150,150,160,0.1); color: var(--white-faint); }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 36px; height: 20px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--black-5);
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: var(--white-dim);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle input:checked ~ .toggle-track { background: var(--blue); }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(16px); background: white; }
+
+    /* Capture stats */
+    .capture-box {
+      background: var(--black-3);
+      border: 1px solid var(--black-4);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-top: 0.8rem;
+    }
+    .capture-label { font-size: 0.7rem; color: var(--white-faint); margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+    .capture-num { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: var(--blue); line-height: 1; }
+    .capture-sub { font-size: 0.65rem; color: var(--green); margin-top: 2px; }
+
+    .progress-bar { background: var(--black-5); height: 3px; border-radius: 2px; margin: 0.4rem 0; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width 1s ease; }
+    .progress-fill.red    { background: var(--red); }
+    .progress-fill.green  { background: var(--green); }
+    .progress-fill.orange { background: var(--orange); }
+
+    /* ── Terminal ── */
+    .terminal-col { grid-column: 2; grid-row: 1; }
+
+    .terminal-topbar {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--black-4);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .incident-badge-live {
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 4px;
+      background: rgba(255,59,48,0.15); color: var(--red);
+      border: 1px solid rgba(255,59,48,0.3);
+      display: flex; align-items: center; gap: 0.4rem;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+    @keyframes badgePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+    .dot-blink { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: dotBlink 1s step-end infinite; }
+    @keyframes dotBlink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+    .terminal-screen {
+      background: #050507;
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      min-height: 320px;
+      max-height: 320px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .log-entry {
+      display: grid;
+      grid-template-columns: 80px 60px 1fr;
+      gap: 0.5rem;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      animation: logFadeIn 0.4s ease;
+    }
+    @keyframes logFadeIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
+
+    .log-ts    { color: #3a3a50; }
+    .log-level { font-weight: 700; }
+    .log-level.critical { color: var(--red); }
+    .log-level.warning  { color: var(--orange); }
+    .log-level.info     { color: var(--blue); }
+    .log-msg.critical   { color: #ffb0ac; }
+    .log-msg.warning    { color: #ffd490; }
+    .log-msg.info       { color: #8e8e9a; }
+
+    /* Scanline effect */
+    .terminal-screen::after {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    }
+
+    /* Action bar */
+    .action-bar {
+      padding: 0.8rem 1.2rem;
+      border-top: 1px solid var(--black-4);
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      background: var(--black-3);
+    }
+
+    .action-btn {
+      font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 0.45rem 0.9rem;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 0.35rem;
+      user-select: none;
+    }
+
+    .action-btn.primary   { background: var(--blue); color: #000; }
+    .action-btn.primary:hover { background: #2d9aff; transform: translateY(-1px); }
+    .action-btn.primary:active { transform: translateY(0); }
+
+    .action-btn.danger    { background: rgba(255,59,48,0.12); color: var(--red); border: 1px solid rgba(255,59,48,0.25); }
+    .action-btn.danger:hover { background: rgba(255,59,48,0.22); }
+
+    .action-btn.ghost     { background: var(--black-4); color: var(--white-dim); border: 1px solid var(--black-5); }
+    .action-btn.ghost:hover { border-color: var(--blue); color: var(--white); }
+
+    .action-btn.success   { background: rgba(48,209,88,0.12); color: var(--green); border: 1px solid rgba(48,209,88,0.25); }
+    .action-btn.success:hover { background: rgba(48,209,88,0.22); }
+
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+    /* AI progress bar */
+    .ai-progress-row {
+      padding: 0.5rem 1.2rem 0.7rem;
+      display: flex; align-items: center; gap: 0.7rem;
+      border-top: 1px dashed var(--black-5);
+    }
+    .ai-label { font-family: var(--mono); font-size: 0.65rem; color: var(--white-faint); white-space: nowrap; }
+    .ai-bar { flex: 1; background: var(--black-5); height: 3px; border-radius: 2px; overflow: hidden; }
+    .ai-fill { height: 100%; background: linear-gradient(90deg, var(--blue-dim), var(--blue)); border-radius: 2px; animation: aiBarScan 3s ease-in-out infinite; }
+    @keyframes aiBarScan { 0% { width: 40%; } 50% { width: 95%; } 100% { width: 65%; } }
+
+    /* ── Incidents Column (center row 2) ── */
+    .incidents-col { grid-column: 2; grid-row: 2; }
+
+    .incident-list { max-height: 260px; overflow-y: auto; }
+
+    .incident-row {
+      display: grid;
+      grid-template-columns: 70px 1fr auto auto;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.65rem 1.2rem;
+      border-bottom: 1px solid var(--black-4);
+      transition: background 0.15s;
+      cursor: pointer;
+      animation: rowSlide 0.35s ease;
+    }
+    @keyframes rowSlide { from { opacity:0; transform: translateX(-10px); } to { opacity:1; transform: translateX(0); } }
+    .incident-row:hover { background: var(--black-3); }
+    .incident-row:last-child { border-bottom: none; }
+
+    .sev-badge {
+      font-family: var(--mono); font-size: 0.58rem; font-weight: 700;
+      padding: 0.2rem 0.4rem; border-radius: 3px;
+      text-transform: uppercase; letter-spacing: 0.04em; text-align: center;
+    }
+    .sev-badge.critical { background: rgba(255,59,48,0.15); color: var(--red); border: 1px solid rgba(255,59,48,0.3); }
+    .sev-badge.warning  { background: rgba(255,159,10,0.15); color: var(--orange); border: 1px solid rgba(255,159,10,0.3); }
+    .sev-badge.info     { background: rgba(10,132,255,0.15); color: var(--blue); border: 1px solid rgba(10,132,255,0.3); }
+
+    .inc-type { font-weight: 500; font-size: 0.82rem; color: var(--white); }
+    .inc-meta { font-size: 0.65rem; color: var(--white-faint); margin-top: 1px; font-family: var(--mono); }
+
+    .inc-status-pill {
+      font-family: var(--mono); font-size: 0.58rem; font-weight: 700;
+      padding: 0.15rem 0.45rem; border-radius: 3px; text-transform: uppercase;
+    }
+    .inc-status-pill.active    { color: var(--orange); background: rgba(255,159,10,0.1); }
+    .inc-status-pill.isolated  { color: var(--blue); background: rgba(10,132,255,0.1); }
+    .inc-status-pill.contained { color: var(--green); background: rgba(48,209,88,0.1); }
+
+    /* ── Score / Right Column ── */
+    .score-col { grid-row: 1 / 3; }
+
+    .dual-score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 0.8rem; }
+
+    .score-box {
+      background: var(--black-3);
+      border: 1px solid var(--black-4);
+      border-radius: 10px;
+      padding: 1rem 0.8rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .score-box::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--blue);
+    }
+    .score-box.behavior::before { background: var(--purple); }
+
+    .score-num {
+      font-family: var(--mono); font-size: 2.2rem; font-weight: 700;
+      line-height: 1; transition: all 0.5s;
+    }
+    .score-box:not(.behavior) .score-num { color: var(--blue); }
+    .score-box.behavior .score-num { color: var(--purple); }
+
+    .score-lbl { font-size: 0.65rem; color: var(--white-faint); margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* Threat gauge */
+    .gauge-wrap { position: relative; margin: 0.5rem 0; }
+    .gauge-label { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+    .gauge-label span { font-size: 0.7rem; color: var(--white-faint); }
+    .gauge-label strong { font-family: var(--mono); font-size: 0.7rem; }
+
+    /* Metric quad */
+    .metric-quad { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .metric-tile {
+      background: var(--black-3);
+      border: 1px solid var(--black-4);
+      border-radius: 9px;
+      padding: 0.7rem 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .metric-tile:hover { border-color: var(--blue-dim); }
+    .metric-lbl { font-size: 0.62rem; color: var(--white-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric-val { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--white); margin-top: 2px; }
+    .metric-trend { font-size: 0.65rem; margin-top: 2px; }
+    .metric-trend.up   { color: var(--green); }
+    .metric-trend.down { color: var(--red); }
+    .metric-trend.flat { color: var(--white-faint); }
+
+    /* ML Insights */
+    .ml-card {
+      background: linear-gradient(135deg, rgba(10,132,255,0.05), rgba(191,90,242,0.05));
+      border: 1px solid rgba(10,132,255,0.2);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .ml-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .ml-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); flex-shrink: 0; animation: connPulse 2s infinite; }
+    .ml-title { font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; color: var(--white-dim); text-transform: uppercase; }
+
+    .ml-profile {
+      font-size: 0.82rem; color: var(--white-dim); margin-bottom: 0.6rem;
+      line-height: 1.4;
+    }
+    .ml-profile strong { color: var(--white); }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.8rem; }
+    .tag {
+      font-family: var(--mono); font-size: 0.6rem;
+      background: rgba(10,132,255,0.08); color: #7ab8ff;
+      border: 1px solid rgba(10,132,255,0.2);
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      letter-spacing: 0.03em;
+    }
+
+    .ml-toggle-row { display: flex; align-items: center; justify-content: space-between; padding-top: 0.6rem; border-top: 1px solid rgba(10,132,255,0.1); }
+    .ml-toggle-lbl { font-size: 0.75rem; color: var(--white-dim); display: flex; align-items: center; gap: 0.4rem; }
+
+    /* Recommendations */
+    .rec-item {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--black-4);
+      font-size: 0.78rem;
+      color: var(--white-dim);
+      line-height: 1.4;
+      animation: rowSlide 0.3s ease;
+    }
+    .rec-item:last-child { border-bottom: none; }
+    .rec-icon { color: var(--blue); font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Blocked IPs */
+    .ip-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.4rem 0;
+      font-family: var(--mono); font-size: 0.7rem;
+      border-bottom: 1px solid var(--black-4);
+      color: var(--white-dim);
+      animation: rowSlide 0.3s ease;
+    }
+    .ip-row .ip { color: var(--red); }
+    .ip-row .ip-ts { color: var(--white-faint); }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+      z-index: 999; max-width: 320px;
+    }
+    .toast {
+      background: var(--black-3);
+      border: 1px solid var(--black-5);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-size: 0.78rem;
+      color: var(--white);
+      animation: toastIn 0.3s ease;
+      display: flex; align-items: flex-start; gap: 0.6rem;
+    }
+    @keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+    .toast.success { border-color: rgba(48,209,88,0.3); }
+    .toast.error   { border-color: rgba(255,59,48,0.3); }
+    .toast.warning { border-color: rgba(255,159,10,0.3); }
+    .toast-icon { font-size: 1rem; flex-shrink: 0; }
+    .toast-body { flex: 1; }
+    .toast-title { font-weight: 600; margin-bottom: 2px; }
+    .toast-msg { color: var(--white-dim); font-size: 0.72rem; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--black-2);
+      border: 1px solid var(--black-5);
+      border-radius: 16px;
+      width: 520px; max-width: 95vw;
+      padding: 1.5rem;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+    .modal-title { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .modal-field { margin-bottom: 0.8rem; }
+    .modal-label { font-size: 0.7rem; color: var(--white-faint); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--mono); }
+    .modal-value { font-size: 0.82rem; color: var(--white); font-family: var(--mono); background: var(--black-3); padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--black-4); }
+    .modal-footer { display: flex; gap: 0.6rem; margin-top: 1.2rem; justify-content: flex-end; }
+
+    /* Footer */
+    footer {
+      position: relative; z-index: 1;
+      max-width: 1560px; margin: 2rem auto 1.5rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--black-4);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-size: 0.72rem; color: var(--white-faint); font-family: var(--mono); }
+    .footer-copy a { color: var(--blue); text-decoration: none; }
+    .footer-status { display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.65rem; color: var(--white-faint); }
+
+    /* Utility */
+    .sep { width: 1px; height: 1rem; background: var(--black-5); }
+    .flex-row { display: flex; align-items: center; gap: 0.5rem; }
+    .loader {
+      width: 12px; height: 12px;
+      border: 2px solid rgba(10,132,255,0.2);
+      border-top: 2px solid var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive tweaks */
+    @media (max-width: 1200px) {
+      .dashboard { grid-template-columns: 260px 1fr 300px; }
+    }
+    @media (max-width: 900px) {
+      .dashboard { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .honeypots-col, .score-col { grid-row: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Glow blobs -->
+<div class="glow-blob glow-blob-1"></div>
+<div class="glow-blob glow-blob-2"></div>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-hex">
+        <svg viewBox="0 0 16 16"><path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5Z"/></svg>
+      </div>
+      pirata6 <span class="badge">labs</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#" class="active">SOC Sim</a>
+      <a href="#">Incidents</a>
+      <a href="#">Honeypots</a>
+      <a href="#">Analytics</a>
+      <a href="#">Academy</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="conn-status">
+        <div class="conn-dot" id="conn-dot"></div>
+        <span id="conn-label">Connecting…</span>
+      </div>
+      <div class="sep"></div>
+      <button class="pill-btn ghost" onclick="openModal()">View Incidents</button>
+      <button class="pill-btn solid">Profile</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Status Bar ── -->
+<div class="status-bar">
+  <div class="status-inner">
+    <div class="status-items">
+      <div class="stat-chip">
+        <span class="label">Active Incidents</span>
+        <span class="value red" id="stat-incidents">—</span>
+      </div>
+      <div class="sep"></div>
+      <div class="stat-chip">
+        <span class="label">Threats Blocked</span>
+        <span class="value green" id="stat-blocked">—</span>
+      </div>
+      <div class="sep"></div>
+      <div class="stat-chip">
+        <span class="label">Total Captures</span>
+        <span class="value blue" id="stat-captures">—</span>
+      </div>
+      <div class="sep"></div>
+      <div class="stat-chip">
+        <span class="label">Avg Response</span>
+        <span class="value" id="stat-response">—</span>
+      </div>
+      <div class="sep"></div>
+      <div class="stat-chip">
+        <span class="label">SSE Clients</span>
+        <span class="value orange" id="stat-clients">1</span>
+      </div>
+    </div>
+    <div class="incident-flash" id="incident-flash" style="display:none;">
+      <div class="dot-blink"></div>
+      <span id="incident-flash-text">ACTIVE INCIDENT</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dashboard ── -->
+<div class="dashboard">
+
+  <!-- LEFT: Honeypots -->
+  <div class="card honeypots-col">
+    <div class="card-header">
+      <div class="card-title">🕸️ Honeypot Grid</div>
+      <div class="flex-row">
+        <div class="loader" id="hny-loader" style="display:none;"></div>
+        <span style="font-size:0.65rem;color:var(--white-faint);font-family:var(--mono);" id="hny-count">5 nodes</span>
+      </div>
+    </div>
+    <div class="card-body" style="padding-bottom:0.5rem;">
+      <div id="honeypot-list"></div>
+
+      <div class="capture-box">
+        <div class="capture-label">
+          <span>Captured Payloads</span>
+          <span id="cap-pct">—%</span>
+        </div>
+        <div class="capture-num" id="cap-total">—</div>
+        <div class="progress-bar"><div class="progress-fill" id="cap-bar" style="width:0%"></div></div>
+        <div class="capture-sub" id="cap-trend">loading…</div>
+      </div>
+
+      <div class="capture-box" style="margin-top:0.6rem;">
+        <div class="capture-label"><span>Blocked IPs</span></div>
+        <div id="blocked-ip-list" style="max-height:100px;overflow-y:auto;">
+          <div style="font-size:0.7rem;color:var(--white-faint);font-family:var(--mono);padding:0.2rem 0;">No IPs blocked yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: Terminal -->
+  <div class="card terminal-col">
+    <div class="terminal-topbar">
+      <div>
+        <div style="font-weight:600;font-size:0.95rem;">Active SOC Simulation</div>
+        <div style="font-size:0.72rem;color:var(--white-faint);margin-top:2px;font-family:var(--mono);">honeypot network · real-time detection · <span id="log-count">0</span> events</div>
+      </div>
+      <div class="flex-row" style="gap:0.6rem;">
+        <button class="action-btn ghost" style="font-size:0.62rem;padding:0.3rem 0.7rem;" onclick="clearLogs()">✕ Clear</button>
+        <div class="incident-badge-live" id="incident-badge"><div class="dot-blink"></div>⚡ ACTIVE INCIDENT</div>
+      </div>
+    </div>
+
+    <div class="terminal-screen" id="terminal"></div>
+
+    <div class="action-bar" id="action-bar">
+      <button class="action-btn danger"   onclick="doAction('isolate')">🚨 Isolate</button>
+      <button class="action-btn ghost"    onclick="doAction('block_ip')">⛔ Block IP</button>
+      <button class="action-btn primary"  onclick="doAction('contain')">🛡️ Contain</button>
+      <button class="action-btn ghost"    onclick="doAction('ticket')">🎫 Ticket</button>
+      <button class="action-btn ghost"    onclick="doAction('scan')">🔍 Full Scan</button>
+      <button class="action-btn success"  onclick="doAction('escalate')">▲ Escalate</button>
+    </div>
+
+    <div class="ai-progress-row">
+      <div class="loader"></div>
+      <span class="ai-label">AI correlation</span>
+      <div class="ai-bar"><div class="ai-fill"></div></div>
+      <span style="font-family:var(--mono);font-size:0.65rem;color:var(--blue);" id="ai-pct">87%</span>
+    </div>
+  </div>
+
+  <!-- CENTER ROW 2: Incidents -->
+  <div class="card incidents-col">
+    <div class="card-header">
+      <div class="card-title">🔴 Incident Feed</div>
+      <div class="flex-row">
+        <span style="font-size:0.65rem;color:var(--white-faint);font-family:var(--mono);" id="inc-count">0 active</span>
+      </div>
+    </div>
+    <div class="incident-list" id="incident-list">
+      <div style="padding:1rem 1.2rem;font-size:0.78rem;color:var(--white-faint);font-family:var(--mono);">Waiting for incidents…</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Scoring + Metrics -->
+  <div class="score-col" style="display:flex;flex-direction:column;gap:1rem;">
+
+    <!-- Dual Score -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">🧠 Dual AI Scoring</div></div>
+      <div class="card-body">
+        <div class="dual-score-grid">
+          <div class="score-box">
+            <div class="score-num" id="score-knowledge">—</div>
+            <div class="score-lbl">Knowledge</div>
+          </div>
+          <div class="score-box behavior">
+            <div class="score-num" id="score-behavior">—</div>
+            <div class="score-lbl">Behavior</div>
+          </div>
+        </div>
+
+        <div class="gauge-wrap">
+          <div class="gauge-label">
+            <span>Threat Level</span>
+            <strong id="threat-label" style="color:var(--red);">HIGH</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill red" id="threat-bar" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.65rem;color:var(--white-faint);margin-top:4px;">
+            <span id="conf-label">confidence —%</span>
+            <span id="threat-type" style="color:var(--blue);">ransomware</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metric Quad -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 Performance</div></div>
+      <div class="card-body">
+        <div class="metric-quad">
+          <div class="metric-tile">
+            <div class="metric-lbl">Decision Time</div>
+            <div class="metric-val" id="m-decision">—</div>
+            <div class="metric-trend down" id="m-decision-t">—</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-lbl">Accuracy</div>
+            <div class="metric-val" id="m-accuracy">—</div>
+            <div class="metric-trend up" id="m-accuracy-t">—</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-lbl">Containment</div>
+            <div class="metric-val" id="m-containment">—</div>
+            <div class="metric-trend flat" id="m-containment-t">—</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-lbl">Pattern Match</div>
+            <div class="metric-val" id="m-pattern">—</div>
+            <div class="metric-trend up" id="m-pattern-t">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ML Insights -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">🤖 ML Analysis</div></div>
+      <div class="card-body">
+        <div class="ml-card">
+          <div class="ml-header">
+            <div class="ml-dot"></div>
+            <div class="ml-title">Pattern Recognition</div>
+          </div>
+          <div class="ml-profile">Decisions match a <strong>threat hunter</strong> profile — methodical approach with high pattern confidence.</div>
+          <div class="tag-row" id="tag-row">
+            <span class="tag">methodical</span>
+            <span class="tag">fast containment</span>
+            <span class="tag">ransomware specialist</span>
+          </div>
+          <div class="ml-toggle-row">
+            <div class="ml-toggle-lbl">⚡ auto-response</div>
+            <label class="toggle" id="auto-toggle-wrap">
+              <input type="checkbox" id="auto-toggle" checked onchange="toggleAutoResponse(this.checked)"/>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">💡 Recommendations</div></div>
+      <div class="card-body" id="rec-list">
+        <div class="rec-item"><span class="rec-icon">›</span>faster isolation improves score</div>
+        <div class="rec-item"><span class="rec-icon">›</span>forensics work: exceptional</div>
+        <div class="rec-item"><span class="rec-icon">›</span>you excel at ransomware patterns</div>
+        <div class="rec-item"><span class="rec-icon">›</span>consider blocking entire ASNs</div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ── Incident Detail Modal ── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">🔴 <span id="modal-title">Incident Detail</span></div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="action-btn ghost" onclick="closeModal()">Close</button>
+      <button class="action-btn danger" onclick="modalAction('isolate')">🚨 Isolate</button>
+      <button class="action-btn primary" onclick="modalAction('contain')">🛡️ Contain</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Container ── -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-copy">
+    © 2025 pirata6 Labs · <a href="#">privacy</a> · <a href="#">terms</a>
+  </div>
+  <div class="footer-status">
+    <div class="conn-dot" id="footer-dot"></div>
+    <span id="footer-label">SSE live · 0 events received</span>
+  </div>
+</footer>
+
+<script>
+  // ─── Configuration ──────────────────────────────────────────────────────────
+  const API = 'http://localhost:3000/api';
+
+  // ─── State ──────────────────────────────────────────────────────────────────
+  let incidents       = [];
+  let honeypots       = [];
+  let metrics         = {};
+  let blockedIPs      = [];
+  let eventCount      = 0;
+  let logCount        = 0;
+  let selectedIncident = null;
+  let prevMetrics     = {};
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function toast(type, title, msg) {
+    const icons = { success:'✅', error:'🔴', warning:'⚠️', info:'ℹ️' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<div class="toast-icon">${icons[type]||'•'}</div>
+      <div class="toast-body"><div class="toast-title">${esc(title)}</div>
+      <div class="toast-msg">${esc(msg)}</div></div>`;
+    document.getElementById('toasts').prepend(el);
+    setTimeout(() => el.style.opacity='0', 3500);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  // ─── Metrics render ─────────────────────────────────────────────────────────
+  function updateMetrics(m) {
+    const old = prevMetrics;
+    prevMetrics = { ...m };
+
+    document.getElementById('stat-incidents').textContent = m.activeIncidents ?? '—';
+    document.getElementById('stat-blocked').textContent   = m.threatsBlocked ?? '—';
+    document.getElementById('stat-captures').textContent  = m.totalCaptures  ?? '—';
+    document.getElementById('stat-response').textContent  = (m.avgResponseTime ?? '—') + 's';
+
+    const scoreK = document.getElementById('score-knowledge');
+    const scoreB = document.getElementById('score-behavior');
+    animateNum(scoreK, old.knowledgeScore ?? 0, m.knowledgeScore ?? 0);
+    animateNum(scoreB, old.behaviorScore  ?? 0, m.behaviorScore  ?? 0);
+
+    const tl = m.threatLevel ?? 0;
+    document.getElementById('threat-bar').style.width = tl + '%';
+    const tlEl = document.getElementById('threat-label');
+    if (tl > 75)      { tlEl.textContent = 'CRITICAL'; tlEl.style.color = 'var(--red)'; }
+    else if (tl > 50) { tlEl.textContent = 'HIGH';     tlEl.style.color = 'var(--orange)'; }
+    else if (tl > 30) { tlEl.textContent = 'MEDIUM';   tlEl.style.color = 'var(--blue)'; }
+    else              { tlEl.textContent = 'LOW';       tlEl.style.color = 'var(--green)'; }
+
+    document.getElementById('conf-label').textContent   = `confidence ${m.accuracy ?? 0}%`;
+    document.getElementById('m-decision').textContent   = (m.avgResponseTime ?? '—') + 's';
+    document.getElementById('m-accuracy').textContent   = (m.accuracy ?? '—') + '%';
+    document.getElementById('m-containment').textContent = (m.behaviorScore ?? '—') + '%';
+    document.getElementById('m-pattern').textContent    = (m.patternMatch ?? '—') + '%';
+
+    // Trend indicators
+    setTrend('m-decision-t',   old.avgResponseTime, m.avgResponseTime, true);
+    setTrend('m-accuracy-t',   old.accuracy, m.accuracy);
+    setTrend('m-containment-t',old.behaviorScore, m.behaviorScore);
+    setTrend('m-pattern-t',    old.patternMatch, m.patternMatch);
+
+    document.getElementById('inc-count').textContent = `${m.activeIncidents ?? 0} active`;
+  }
+
+  function animateNum(el, from, to) {
+    const dur = 600, step = 16;
+    const steps = dur / step;
+    const delta = (to - from) / steps;
+    let cur = from, n = 0;
+    const iv = setInterval(() => {
+      cur += delta; n++;
+      el.textContent = Math.round(cur);
+      if (n >= steps) { el.textContent = to; clearInterval(iv); }
+    }, step);
+  }
+
+  function setTrend(id, prev, cur, invertGood) {
+    const el = document.getElementById(id);
+    if (!el || prev === undefined) return;
+    const diff = (cur - prev).toFixed(1);
+    if (diff > 0) {
+      el.className = 'metric-trend ' + (invertGood ? 'down' : 'up');
+      el.textContent = '▲ +' + diff;
+    } else if (diff < 0) {
+      el.className = 'metric-trend ' + (invertGood ? 'up' : 'down');
+      el.textContent = '▼ ' + diff;
+    } else {
+      el.className = 'metric-trend flat';
+      el.textContent = '— stable';
+    }
+  }
+
+  // ─── Honeypot render ─────────────────────────────────────────────────────────
+  function renderHoneypots(pots) {
+    honeypots = pots;
+    const el = document.getElementById('honeypot-list');
+    el.innerHTML = pots.map(p => `
+      <div class="pot-item ${p.status === 'alert' ? 'alert' : ''}"
+           onclick="toggleHoneypot('${esc(p.id)}', ${!p.active})">
+        <div>
+          <div class="pot-name">${esc(p.id)}</div>
+          <div class="pot-meta">${esc(p.ip)} · <span class="pot-hits">${p.hits} hits / ${p.payloads} payloads</span></div>
+        </div>
+        <div class="status-dot-row">
+          <span class="status-pill ${esc(p.status)}">${esc(p.status)}</span>
+          ${p.status === 'alert'
+            ? '<div class="loader" style="width:10px;height:10px;"></div>'
+            : `<label class="toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" ${p.active ? 'checked' : ''}
+                  onchange="toggleHoneypot('${esc(p.id)}', this.checked)"/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>`}
+        </div>
+      </div>`).join('');
+    document.getElementById('hny-count').textContent = `${pots.length} nodes`;
+  }
+
+  function updateCaptures(total) {
+    const pct = Math.min(100, Math.round((total / 5000) * 100));
+    document.getElementById('cap-total').textContent = total.toLocaleString();
+    document.getElementById('cap-pct').textContent   = pct + '%';
+    document.getElementById('cap-bar').style.width   = pct + '%';
+    document.getElementById('cap-trend').textContent = `▲ ${(Math.random() * 15 + 5).toFixed(1)}% vs last week`;
+  }
+
+  // ─── Log render ──────────────────────────────────────────────────────────────
+  function addLog(entry) {
+    const term = document.getElementById('terminal');
+    const div  = document.createElement('div');
+    div.className = 'log-entry';
+    const lvl = entry.level || 'info';
+    const lvlLabel = lvl.toUpperCase().padEnd(8);
+    div.innerHTML = `
+      <span class="log-ts">[${esc(entry.ts)}]</span>
+      <span class="log-level ${esc(lvl)}">${lvlLabel}</span>
+      <span class="log-msg ${esc(lvl)}">${esc(entry.message)}</span>`;
+    term.insertBefore(div, term.firstChild);
+
+    // Trim old logs
+    while (term.children.length > 40) term.removeChild(term.lastChild);
+
+    logCount++;
+    document.getElementById('log-count').textContent = logCount;
+
+    // Flash badge on critical
+    if (lvl === 'critical') {
+      const badge = document.getElementById('incident-badge');
+      badge.style.background = 'rgba(255,59,48,0.3)';
+      setTimeout(() => badge.style.background = '', 800);
+    }
+  }
+
+  function clearLogs() {
+    document.getElementById('terminal').innerHTML = '';
+    logCount = 0;
+    document.getElementById('log-count').textContent = 0;
+    toast('info', 'Terminal cleared', 'All log entries removed');
+  }
+
+  // ─── Incident render ─────────────────────────────────────────────────────────
+  function renderIncidents(list) {
+    incidents = list;
+    const el = document.getElementById('incident-list');
+    if (!list.length) {
+      el.innerHTML = '<div style="padding:1rem 1.2rem;font-size:0.78rem;color:var(--white-faint);font-family:var(--mono);">No incidents recorded</div>';
+      return;
+    }
+    el.innerHTML = list.slice(0, 15).map(inc => `
+      <div class="incident-row" onclick="showIncident('${esc(inc.id)}')">
+        <span class="sev-badge ${esc(inc.severity)}">${esc(inc.severity)}</span>
+        <div>
+          <div class="inc-type">${esc(inc.type.replace(/_/g,' '))}</div>
+          <div class="inc-meta">${esc(inc.sourceIp)} → ${esc(inc.honeypot)} · ${esc(inc.ts)}</div>
+        </div>
+        <span class="inc-status-pill ${esc(inc.status)}">${esc(inc.status)}</span>
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--blue);">${inc.confidence}%</div>
+      </div>`).join('');
+
+    // Flash indicator
+    const active = list.filter(i => i.status === 'active');
+    const flash  = document.getElementById('incident-flash');
+    if (active.length) {
+      flash.style.display = 'flex';
+      document.getElementById('incident-flash-text').textContent = `${active.length} ACTIVE INCIDENT${active.length > 1 ? 'S' : ''}`;
+    } else {
+      flash.style.display = 'none';
+    }
+  }
+
+  // ─── Blocked IPs ────────────────────────────────────────────────────────────
+  function renderBlockedIPs(ips) {
+    blockedIPs = ips;
+    const el   = document.getElementById('blocked-ip-list');
+    if (!ips.length) {
+      el.innerHTML = '<div style="font-size:0.7rem;color:var(--white-faint);font-family:var(--mono);padding:0.2rem 0;">No IPs blocked yet</div>';
+      return;
+    }
+    el.innerHTML = ips.slice(-6).reverse().map(ip => `
+      <div class="ip-row">
+        <span class="ip">${esc(ip)}</span>
+        <span class="ip-ts">blocked</span>
+      </div>`).join('');
+  }
+
+  // ─── Action handlers ─────────────────────────────────────────────────────────
+  async function doAction(action) {
+    const inc = incidents.find(i => i.status === 'active');
+    if (!inc) { toast('warning', 'No active incident', 'No active incident to act on'); return; }
+
+    const btns = document.querySelectorAll('.action-btn');
+    btns.forEach(b => b.disabled = true);
+
+    try {
+      const res = await fetch(`${API}/incidents/${inc.id}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+
+      if (action === 'scan') {
+        await fetch(`${API}/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: inc.target }),
+        });
+        toast('info', 'Scan initiated', `Full scan launched on ${inc.target}`);
+      } else {
+        const msgs = {
+          isolate:  'Host isolated from network',
+          contain:  'Threat contained successfully',
+          block_ip: `IP ${inc.sourceIp} blocked`,
+          ticket:   'Incident ticket created',
+          escalate: 'Escalated to senior analyst',
+        };
+        toast('success', action.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()), msgs[action] || 'Action applied');
+      }
+    } catch(e) {
+      toast('error', 'Action failed', e.message);
+    }
+
+    btns.forEach(b => b.disabled = false);
+  }
+
+  async function toggleHoneypot(id, active) {
+    try {
+      await fetch(`${API}/honeypots/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      });
+      toast('info', `Honeypot ${id}`, active ? 'Activated' : 'Deactivated');
+    } catch(e) {
+      toast('error', 'Toggle failed', e.message);
+    }
+  }
+
+  async function toggleAutoResponse(enabled) {
+    try {
+      await fetch(`${API}/autoresponse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      });
+      toast(enabled ? 'success' : 'warning', 'Auto-response', enabled ? 'Enabled' : 'Disabled');
+    } catch(e) {
+      toast('error', 'Toggle failed', e.message);
+    }
+  }
+
+  // ─── Modal ───────────────────────────────────────────────────────────────────
+  function showIncident(id) {
+    const inc = incidents.find(i => i.id === id);
+    if (!inc) return;
+    selectedIncident = inc;
+    document.getElementById('modal-title').textContent = `Incident — ${inc.type.replace(/_/g,' ')}`;
+    document.getElementById('modal-body').innerHTML = `
+      <div class="modal-field"><div class="modal-label">Severity</div><div class="modal-value" style="color:${inc.severity==='critical'?'var(--red)':'var(--orange)'};">${inc.severity.toUpperCase()}</div></div>
+      <div class="modal-field"><div class="modal-label">Source IP</div><div class="modal-value">${esc(inc.sourceIp)}</div></div>
+      <div class="modal-field"><div class="modal-label">Target</div><div class="modal-value">${esc(inc.target)}</div></div>
+      <div class="modal-field"><div class="modal-label">Pattern</div><div class="modal-value">${esc(inc.pattern)}</div></div>
+      <div class="modal-field"><div class="modal-label">Honeypot</div><div class="modal-value">${esc(inc.honeypot)}</div></div>
+      <div class="modal-field"><div class="modal-label">Confidence</div><div class="modal-value">${inc.confidence}%</div></div>
+      <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value">${esc(inc.status)}</div></div>
+      ${inc.actions.length ? `<div class="modal-field"><div class="modal-label">Actions taken</div><div class="modal-value">${inc.actions.map(a=>`${a.action} @ ${a.ts}`).join('<br>')}</div></div>` : ''}`;
+    document.getElementById('modal').classList.add('show');
+  }
+
+  function openModal() {
+    if (incidents.length) showIncident(incidents[0].id);
+    else toast('info', 'No incidents', 'No incidents to display yet');
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+  async function modalAction(action) {
+    if (!selectedIncident) return;
+    await fetch(`${API}/incidents/${selectedIncident.id}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    toast('success', action, `Applied to incident ${selectedIncident.id}`);
+    closeModal();
+  }
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  // ─── SSE Connection ──────────────────────────────────────────────────────────
+  function setConnected(on) {
+    const dot    = document.getElementById('conn-dot');
+    const label  = document.getElementById('conn-label');
+    const fdot   = document.getElementById('footer-dot');
+    const flabel = document.getElementById('footer-label');
+    dot.className  = 'conn-dot' + (on ? '' : ' offline');
+    fdot.className = 'conn-dot' + (on ? '' : ' offline');
+    label.textContent  = on ? 'Live · SSE connected' : 'Reconnecting…';
+    flabel.textContent = on ? `SSE live · ${eventCount} events received` : 'Disconnected';
+  }
+
+  function connectSSE() {
+    const es = new EventSource(`${API}/stream`);
+
+    es.addEventListener('connected', () => {
+      setConnected(true);
+      toast('success', 'Connected', 'Real-time SSE stream established');
+    });
+
+    es.addEventListener('state', e => {
+      const d = JSON.parse(e.data);
+      renderHoneypots(d.honeypots);
+      updateMetrics(d.metrics);
+      renderIncidents(d.incidents);
+      if (d.blockedIPs) renderBlockedIPs(d.blockedIPs);
+      updateCaptures(d.metrics.totalCaptures);
+      d.logs.forEach(l => addLog(l));
+    });
+
+    es.addEventListener('log', e => {
+      eventCount++;
+      const d = JSON.parse(e.data);
+      addLog(d);
+      updateCaptures(metrics.totalCaptures ? metrics.totalCaptures + 1 : d.id);
+      document.getElementById('footer-label').textContent = `SSE live · ${eventCount} events`;
+    });
+
+    es.addEventListener('incident', e => {
+      eventCount++;
+      const d = JSON.parse(e.data);
+      incidents.unshift(d);
+      renderIncidents(incidents);
+      if (d.severity === 'critical') toast('error', 'CRITICAL INCIDENT', `${d.type.replace(/_/g,' ')} · ${d.sourceIp}`);
+      else toast('warning', 'New Incident', `${d.type.replace(/_/g,' ')} · ${d.confidence}% confidence`);
+    });
+
+    es.addEventListener('incident_update', e => {
+      const d = JSON.parse(e.data);
+      const idx = incidents.findIndex(i => i.id === d.id);
+      if (idx >= 0) incidents[idx] = d;
+      renderIncidents(incidents);
+      if (d.status === 'contained') toast('success', 'Threat Contained', `Incident ${d.id} auto-contained`);
+    });
+
+    es.addEventListener('metrics', e => {
+      const d = JSON.parse(e.data);
+      metrics = d;
+      updateMetrics(d);
+    });
+
+    es.addEventListener('honeypot_update', e => {
+      const d   = JSON.parse(e.data);
+      const idx = honeypots.findIndex(h => h.id === d.id);
+      if (idx >= 0) honeypots[idx] = d;
+      renderHoneypots(honeypots);
+    });
+
+    es.addEventListener('ip_blocked', e => {
+      const d = JSON.parse(e.data);
+      if (!blockedIPs.includes(d.ip)) blockedIPs.push(d.ip);
+      renderBlockedIPs(blockedIPs);
+    });
+
+    es.addEventListener('scan_complete', e => {
+      const d = JSON.parse(e.data);
+      toast('info', 'Scan Complete', `${d.vulnsFound} vulns · risk ${d.riskScore}/100`);
+    });
+
+    es.onerror = () => {
+      setConnected(false);
+      es.close();
+      setTimeout(connectSSE, 3000);
+    };
+  }
+
+  // ─── AI % counter ────────────────────────────────────────────────────────────
+  setInterval(() => {
+    const pct = Math.round(Math.random() * 30 + 65);
+    document.getElementById('ai-pct').textContent = pct + '%';
+  }, 3000);
+
+  // ─── Boot ────────────────────────────────────────────────────────────────────
+  setConnected(false);
+  connectSSE();
+</script>
+</body>
+</html>
