@@ -1220,6 +1220,7 @@
       toast('success', 'Academy connected', 'Real-time stream established');
     });
 
+
     es.addEventListener('state', e => {
       const d = JSON.parse(e.data);
       updatePathsUI(d.paths);
