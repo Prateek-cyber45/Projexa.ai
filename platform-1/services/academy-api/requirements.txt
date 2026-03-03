@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+redis
+psycopg2-binary
+fastapi
+uvicorn
+reportlab
+httpx
