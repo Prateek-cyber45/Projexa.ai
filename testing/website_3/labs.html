@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -689,4 +690,697 @@
         // small interaction: toggle switches do nothing but look nice
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pirata6 Labs | AI SOC · Black & Blue</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%230066cc' d='M50 5 L95 30 L95 70 L50 95 L5 70 L5 30 Z'/%3E%3Ctext x='50' y='68' font-size='40' text-anchor='middle' fill='white' font-family='Arial'%3EL%3C/text%3E%3C/svg%3E">
+    <style>
+        /* ----- RESET & GLOBAL (Apple inspired: black, blue, clean white) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: #000000; /* pure black background */
+            color: #f5f5f7;       /* almost white, Apple-like */
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ----- navigation (black, subtle blue accent) ----- */
+        .nav-container {
+            background: #0a0a0c;
+            border-bottom: 1px solid #1d1d1f;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff, #aaccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+        }
+
+        .domain-badge {
+            background: #0066cc;    /* apple blue */
+            padding: 0.2rem 0.9rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            margin-left: 0.75rem;
+            border: none;
+            text-transform: uppercase;
+        }
+
+        .nav-links a {
+            color: #f5f5f7;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.95rem;
+            font-weight: 400;
+            transition: color 0.2s;
+            opacity: 0.9;
+        }
+
+        .nav-links a:hover {
+            color: #0066cc; /* apple blue */
+            opacity: 1;
+        }
+
+        .nav-links .btn-outline {
+            border: 1px solid #0066cc;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            background: transparent;
+            color: white;
+        }
+
+        .nav-links .btn-outline:hover {
+            background: #0066cc;
+            color: black;
+        }
+
+        /* ----- dashboard layout (expanded, three columns) ----- */
+        .dashboard {
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;  /* left | center | right */
+            gap: 1.8rem;
+        }
+
+        /* ----- common card style (Uiverse-inspired, black/blue/white) ----- */
+        .card {
+            background: #0c0c0e;
+            border-radius: 20px;
+            border: 1px solid #1d1d1f;
+            padding: 1.5rem 1.2rem;
+            box-shadow: 0 10px 30px -15px rgba(0, 102, 204, 0.2);
+            transition: all 0.25s;
+        }
+
+        .card:hover {
+            border-color: #0066cc;
+            box-shadow: 0 15px 35px -12px rgba(0, 102, 204, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1.2rem;
+            color: white;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title span {
+            color: #0066cc;
+            font-size: 1.3rem;
+        }
+
+        /* ----- left column: honeypot status (Uiverse elements) ----- */
+        .honeypot-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Uiverse-inspired card with neon line (custom) */
+        .pot-item {
+            background: #111113;
+            border-radius: 18px;
+            padding: 1rem;
+            border-left: 4px solid #0066cc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+            border: 1px solid #2c2c2e;
+        }
+
+        .pot-item:hover {
+            border-color: #0066cc;
+            background: #18181a;
+        }
+
+        .pot-name {
+            font-weight: 500;
+            color: white;
+        }
+
+        .pot-status {
+            font-size: 0.75rem;
+            background: #1e3a5f;
+            color: #99c6ff;
+            padding: 0.2rem 0.7rem;
+            border-radius: 100px;
+        }
+
+        /* Uiverse toggle (from memory: clean, with blue) */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+            margin-left: 0.5rem;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2c2c2e;
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #0066cc;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Uiverse loader (pulsing circle) */
+        .loader-mini {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,102,204,0.3);
+            border-top: 2px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ----- center column: terminal (refined) ----- */
+        .simulator-area {
+            background: #0c0c0e;
+            border-radius: 24px;
+            border: 1px solid #1d1d1f;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .simulator-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #1d1d1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .incident-badge {
+            background: #0066cc;
+            color: black;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            animation: softPulse 2s infinite;
+        }
+        @keyframes softPulse {
+            0% { opacity: 1; background: #0066cc; }
+            50% { opacity: 0.75; background: #004999; }
+            100% { opacity: 1; background: #0066cc; }
+        }
+
+        .terminal {
+            background: #070708;
+            padding: 1.5rem;
+            font-family: 'SF Mono', 'Courier New', monospace;
+            min-height: 340px;
+            font-size: 0.9rem;
+        }
+
+        .log-line {
+            margin-bottom: 0.6rem;
+            color: #a1a1a8;
+        }
+        .log-line.warning {
+            color: #ffb340;
+        }
+        .log-line.critical {
+            color: #ff3b30; /* red but keep blue as main; only critical red */
+        }
+        .timestamp {
+            color: #5e5e6b;
+            margin-right: 1.2rem;
+        }
+
+        /* Uiverse buttons (black/blue/white) - action row */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1.2rem;
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+
+        /* from uiverse.io style: glossy blue button */
+        .uiverse-button {
+            background: transparent;
+            border: 1px solid #2c2c2e;
+            padding: 0.6rem 1.2rem;
+            border-radius: 100px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .uiverse-button.primary {
+            background: #0066cc;
+            border-color: #0066cc;
+            color: black;
+            font-weight: 600;
+        }
+
+        .uiverse-button.primary:hover {
+            background: #004999;
+            border-color: #004999;
+            color: white;
+        }
+
+        .uiverse-button.outline-blue:hover {
+            border-color: #0066cc;
+            background: rgba(0,102,204,0.1);
+        }
+
+        /* ----- right column: AI scoring (refined with Uiverse touches) ----- */
+        .score-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .dual-score {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-circle {
+            flex: 1;
+            background: #111113;
+            border-radius: 20px;
+            padding: 1.2rem 0.5rem;
+            text-align: center;
+            border: 1px solid #1d1d1f;
+        }
+
+        .circle-value {
+            font-size: 2.4rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .knowledge-score { color: #5e9eff; } /* light blue */
+        .behavior-score { color: #0066cc; }   /* main blue */
+        .circle-label {
+            color: #8e8e98;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
+        }
+
+        /* Uiverse progress bar (subtle) */
+        .progress-bar-bg {
+            background: #222225;
+            height: 8px;
+            border-radius: 100px;
+            overflow: hidden;
+            margin: 0.8rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #0066cc;
+            border-radius: 100px;
+            width: 0%;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-item {
+            background: #111113;
+            border-radius: 16px;
+            padding: 0.8rem;
+            border: 1px solid #1d1d1f;
+        }
+        .metric-label {
+            color: #8e8e98;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: white;
+        }
+        .trend-up { color: #30d158; font-size: 0.7rem; }
+        .trend-neutral { color: #8e8e98; font-size: 0.7rem; }
+
+        /* Uiverse "insight" card with glass */
+        .ml-insights {
+            background: rgba(0,102,204,0.05);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid #1d4a7c;
+            border-radius: 24px;
+            padding: 1.3rem;
+        }
+
+        .pattern-tag {
+            display: inline-block;
+            background: #1a2a3a;
+            border: 1px solid #0066cc;
+            color: #aad0ff;
+            padding: 0.2rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            margin: 0.2rem 0.1rem;
+        }
+
+        /* recommendations list */
+        .rec-list {
+            list-style: none;
+            color: #b0b0ba;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        .rec-list li::before {
+            content: "•";
+            color: #0066cc;
+            font-weight: bold;
+            display: inline-block;
+            width: 1rem;
+        }
+
+        /* footer (new) */
+        .footer {
+            max-width: 1400px;
+            margin: 4rem auto 2rem;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #1d1d1f;
+            text-align: center;
+            color: #5e5e6b;
+            font-size: 0.8rem;
+        }
+        .footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="nav-content">
+            <a href="/" class="logo">pirata6<span class="domain-badge">labs</span></a>
+            <div class="nav-links">
+                <a href="#" class="active">SOC Sim</a>
+                <a href="#">Incident Response</a>
+                <a href="#">Honeypots</a>
+                <a href="#">Analytics</a>
+                <a href="#">Academy</a>
+                <a href="#">Main</a>
+                <a href="#" class="btn-outline">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- expanded dashboard: three columns -->
+    <div class="dashboard">
+        <!-- LEFT COLUMN: Honeypot status + Uiverse toggles & loader -->
+        <div class="card" style="padding: 1.2rem;">
+            <div class="card-title"><span>🕸️</span> Honeypot Grid</div>
+            <div class="honeypot-list">
+                <div class="pot-item">
+                    <span class="pot-name">hny-web-01</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="pot-status">active</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pot-item">
+                    <span class="pot-name">hny-db-02</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="pot-status">monitor</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="pot-item">
+                    <span class="pot-name">hny-iot-03</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="pot-status">🔴 alert</span>
+                        <div class="loader-mini"></div>
+                    </div>
+                </div>
+                <div class="pot-item">
+                    <span class="pot-name">hny-cloud-04</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="pot-status">idle</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- Uiverse-inspired stat block -->
+            <div style="margin-top: 1.5rem; background: #111113; border-radius: 20px; padding: 1rem; border: 1px solid #1d1d1f;">
+                <div style="display: flex; justify-content: space-between; color: #8e8e98; font-size: 0.8rem;">
+                    <span>captured payloads</span>
+                    <span style="color: white; font-weight: 500;">2.4k</span>
+                </div>
+                <div class="progress-bar-bg" style="margin: 0.5rem 0;">
+                    <div class="progress-fill" style="width: 78%;"></div>
+                </div>
+                <div style="color: #30d158; font-size: 0.75rem;">▲ 12% vs last week</div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN: Simulator / Terminal + Uiverse buttons -->
+        <div class="simulator-area">
+            <div class="simulator-header">
+                <div>
+                    <h2 style="font-weight: 500;">Active SOC simulation</h2>
+                    <p style="color: #8e8e98; font-size: 0.8rem;">honeypot network • real‑time detection</p>
+                </div>
+                <span class="incident-badge">⚡ ACTIVE INCIDENT</span>
+            </div>
+
+            <div class="terminal" id="log-terminal">
+                <div class="log-line critical">
+                    <span class="timestamp">[14:23:45]</span> ALERT: Lateral movement from 10.0.1.45
+                </div>
+                <div class="log-line warning">
+                    <span class="timestamp">[14:23:12]</span> WARN: Multiple failed auth (SSH)
+                </div>
+                <div class="log-line">
+                    <span class="timestamp">[14:22:58]</span> INFO: Honeypot-01 connection
+                </div>
+                <div class="log-line critical">
+                    <span class="timestamp">[14:22:30]</span> CRITICAL: Ransomware pattern (Sodinokibi)
+                </div>
+                <div class="log-line warning">
+                    <span class="timestamp">[14:21:15]</span> WARN: unusual egress traffic
+                </div>
+                <div class="log-line">
+                    <span class="timestamp">[14:20:00]</span> INFO: SIEM correlation finished
+                </div>
+            </div>
+
+            <!-- Uiverse action buttons (black/blue/white) -->
+            <div class="action-buttons">
+                <button class="uiverse-button primary">🚨 Isolate</button>
+                <button class="uiverse-button outline-blue">⛔ Block IP</button>
+                <button class="uiverse-button primary" style="background: black; border-color: #0066cc; color: white;">🛡️ Contain</button>
+                <button class="uiverse-button outline-blue">🎫 Ticket</button>
+                <button class="uiverse-button outline-blue">🔍 Scan</button>
+                <button class="uiverse-button outline-blue">▲ Escalate</button>
+            </div>
+            <!-- extra Uiverse element: tiny loader + text -->
+            <div style="padding: 0 1.5rem 1rem 1.5rem; display: flex; align-items: center; gap: 10px; border-top: 1px dashed #1d1d1f; margin-top: 0.5rem;">
+                <div class="loader-mini"></div>
+                <span style="color: #8e8e98; font-size: 0.75rem;">AI correlation in progress · 87%</span>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: AI scoring (Uiverse infused) -->
+        <div class="score-panel">
+            <div class="card">
+                <div class="card-title"><span>🧠</span> Dual AI scoring</div>
+                <div class="dual-score">
+                    <div class="score-circle">
+                        <div class="circle-value knowledge-score">78</div>
+                        <div class="circle-label">Knowledge</div>
+                    </div>
+                    <div class="score-circle">
+                        <div class="circle-value behavior-score">64</div>
+                        <div class="circle-label">Behavior</div>
+                    </div>
+                </div>
+                <!-- Uiverse progress for threat level -->
+                <div style="margin: 1rem 0 0.2rem; display: flex; justify-content: space-between;">
+                    <span style="color: #8e8e98;">threat level</span>
+                    <span style="color: #ff3b30; font-weight: 600;">HIGH</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: 85%; background: #ff3b30;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0 0; color: #8e8e98; font-size: 0.75rem;">
+                    <span>confidence 92%</span>
+                    <span style="color: #0066cc;">ransomware</span>
+                </div>
+            </div>
+
+            <!-- Uiverse metric grid (with trends) -->
+            <div class="card" style="padding: 1rem;">
+                <div class="metric-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">decision time</div>
+                        <div class="metric-value">2.4s</div>
+                        <span class="trend-up">▼ 0.3s</span>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">accuracy</div>
+                        <div class="metric-value">78%</div>
+                        <span class="trend-up">▲ 5%</span>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">containment</div>
+                        <div class="metric-value">64%</div>
+                        <span class="trend-neutral">–</span>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">pattern match</div>
+                        <div class="metric-value">91%</div>
+                        <span class="trend-up">▲ 12%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uiverse glassmorphism insight + pattern tags -->
+            <div class="ml-insights">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 0.8rem;">
+                    <span style="background: #0066cc; width: 8px; height: 8px; border-radius: 50%;"></span>
+                    <span style="font-weight: 500;">ML pattern analysis</span>
+                </div>
+                <p style="color: #b0b0ba; font-size: 0.85rem;">Your decisions match a <strong style="color: white;">threat hunter</strong> profile</p>
+                <div style="margin: 0.7rem 0;">
+                    <span class="pattern-tag">methodical</span>
+                    <span class="pattern-tag">fast containment</span>
+                    <span class="pattern-tag">ransomware specialist</span>
+                </div>
+                <!-- Uiverse toggle for auto-response -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem;">
+                    <span style="font-size: 0.8rem;">⚡ auto-response</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- recommendations with bullet (apple style) -->
+            <div class="card" style="padding: 1.2rem;">
+                <h4 style="font-weight: 500; margin-bottom: 1rem;">recommendations</h4>
+                <ul class="rec-list">
+                    <li>faster isolation improves score</li>
+                    <li>forensics work: exceptional</li>
+                    <li>you excel at ransomware patterns</li>
+                    <li>consider blocking ASN</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer with apple-like subtlety -->
+    <div class="footer">
+        <p>© 2025 pirata6 Labs · <a href="#">privacy</a> · <a href="#">terms</a> · AI SOC simulator (black/blue edition)</p>
+        <p style="margin-top: 0.5rem;">UI elements inspired by <a href="https://uiverse.io" target="_blank">Uiverse</a> · open-source</p>
+    </div>
+
+    <script>
+        // Simulate real-time logs (keep updated, now with black/blue style)
+        setInterval(() => {
+            const terminal = document.getElementById('log-terminal');
+            const logs = [
+                `<div class="log-line warning"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> ⚠️ Suspicious PowerShell invoked</div>`,
+                `<div class="log-line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> 📡 Honeypot-03: SMB traffic capture</div>`,
+                `<div class="log-line critical"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> 🔴 CRITICAL: LSASS dump attempt</div>`,
+                `<div class="log-line warning"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> ⚠️ DNS beaconing detected</div>`
+            ];
+            
+            if (terminal.children.length > 8) {
+                terminal.removeChild(terminal.lastElementChild);
+            }
+            terminal.insertAdjacentHTML('afterbegin', logs[Math.floor(Math.random() * logs.length)]);
+        }, 5200);
+
+        // small interaction: toggle switches do nothing but look nice
+    </script>
+</body>
+>>>>>>> ae50ee36fa1955a00a3d89ed2ea63087ac849453
 </html>

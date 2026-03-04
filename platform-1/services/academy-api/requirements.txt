@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fastapi
 uvicorn
 redis
@@ -6,3 +7,13 @@ fastapi
 uvicorn
 reportlab
 httpx
+=======
+fastapi
+uvicorn
+redis
+psycopg2-binary
+fastapi
+uvicorn
+reportlab
+httpx
+>>>>>>> ae50ee36fa1955a00a3d89ed2ea63087ac849453
