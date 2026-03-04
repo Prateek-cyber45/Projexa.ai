@@ -1,0 +1,870 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pirata6 | Master Offensive & Defensive Security</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ff6b4a' d='M50 5 L95 30 L95 70 L50 95 L5 70 L5 30 Z'/%3E%3Ctext x='50' y='68' font-size='40' text-anchor='middle' fill='white' font-family='Arial'%3E6%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0c0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .bg-layer-zero {
+            background: #0a0c0f;
+        }
+
+        .text-primary { color: #ffffff; }
+        .text-secondary { color: #9aa8b9; }
+        .text-accent { color: #ff6b4a; }
+        .bg-accent { background: #ff6b4a; }
+        .border-accent { border-color: #ff6b4a; }
+        .bg-card { background: #14181f; }
+        .border-card { border-color: #2a313c; }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 12, 15, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #2a313c;
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b4a, #ff8a6c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #9aa8b9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #ff6b4a;
+        }
+
+        .domain-badge {
+            background: #2a313c;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #ff6b4a;
+            border: 1px solid #ff6b4a;
+        }
+
+        .btn-primary {
+            background: #ff6b4a;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2a313c;
+            color: #e0e0e0;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline:hover {
+            border-color: #ff6b4a;
+            color: #ff6b4a;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            margin-top: 4rem;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #0a0c0f 0%, #1a1f2a 100%);
+            z-index: -1;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ff6b4a" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            width: 100%;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            max-width: 800px;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #9aa8b9;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .domain-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .domain-card {
+            background: #14181f;
+            border: 1px solid #2a313c;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .domain-card:hover {
+            border-color: #ff6b4a;
+            transform: translateY(-4px);
+        }
+
+        .domain-card h3 {
+            color: white;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .domain-card p {
+            color: #9aa8b9;
+            font-size: 0.9rem;
+        }
+
+        .domain-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 107, 74, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #ff6b4a;
+            font-size: 2rem;
+        }
+
+        .stats-section {
+            background: #14181f;
+            border-top: 1px solid #2a313c;
+            border-bottom: 1px solid #2a313c;
+            padding: 4rem 2rem;
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ff6b4a;
+        }
+
+        .footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h4 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: #9aa8b9;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-column a:hover {
+            color: #ff6b4a;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid #2a313c;
+            color: #9aa8b9;
+        }
+
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .domain-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <a href="/" class="logo">pirata6</a>
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="./academy.html">Academy <span class="domain-badge">sub</span></a>
+                <a href="./labs.html">Labs <span class="domain-badge">sub</span></a>
+                <a href="#">Pricing</a>
+                <a href="#">Company</a>
+                <a href="#" class="btn-outline">Sign in</a>
+                <a href="#" class="btn-primary">Start Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>Master Cybersecurity Through Three Powerful Domains</h1>
+            <p>One platform. Three specialized environments. Complete security mastery.</p>
+            
+            <div class="domain-cards">
+                <a href="academy.html" class="domain-card">
+                    <div class="domain-icon">📚</div>
+                    <h3>pirata6 Academy</h3>
+                    <p>Structured learning paths, certifications, and hands-on courses</p>
+                </a>
+                
+                <a href="./labs.html" class="domain-card">
+                    <div class="domain-icon">🔬</div>
+                    <h3>pirata6 Labs</h3>
+                    <p>AI-powered SOC simulator with dual-scoring behavioral analysis</p>
+                </a>
+                
+                <a href="#" class="domain-card">
+                    <div class="domain-icon">⚔️</div>
+                    <h3>pirata6 Core</h3>
+                    <p>Main platform - CTF, challenges, and community</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-number">500K+</div>
+                <div class="stat-label">Security Professionals</div>
+            </div>
+            <div>
+                <div class="stat-number">2.5M+</div>
+                <div class="stat-label">Labs Completed</div>
+            </div>
+            <div>
+                <div class="stat-number">150+</div>
+                <div class="stat-label">Enterprise Partners</div>
+            </div>
+            <div>
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Skill Improvement</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <div class="logo" style="margin-bottom: 1rem;">pirata6</div>
+                <p style="color: #9aa8b9; margin-bottom: 1.5rem;">Three domains. Complete security mastery.</p>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="https://academy.pirata6.com">Academy</a></li>
+                    <li><a href="https://labs.pirata6.com">Labs (SOC Simulator)</a></li>
+                    <li><a href="#">CTF Challenges</a></li>
+                    <li><a href="#">Enterprise</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#">Red Team</a></li>
+                    <li><a href="#">Blue Team</a></li>
+                    <li><a href="#">Purple Team</a></li>
+                    <li><a href="#">Incident Response</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div>© 2025 pirata6. All rights reserved.</div>
+            <div class="social-links">
+                <a href="#">𝕏</a>
+                <a href="#">in</a>
+                <a href="#">▶</a>
+            </div>
+        </div>
+    </footer>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pirata6 | Master Offensive & Defensive Security</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ff6b4a' d='M50 5 L95 30 L95 70 L50 95 L5 70 L5 30 Z'/%3E%3Ctext x='50' y='68' font-size='40' text-anchor='middle' fill='white' font-family='Arial'%3E6%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0c0f;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .bg-layer-zero {
+            background: #0a0c0f;
+        }
+
+        .text-primary { color: #ffffff; }
+        .text-secondary { color: #9aa8b9; }
+        .text-accent { color: #ff6b4a; }
+        .bg-accent { background: #ff6b4a; }
+        .border-accent { border-color: #ff6b4a; }
+        .bg-card { background: #14181f; }
+        .border-card { border-color: #2a313c; }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 12, 15, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #2a313c;
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b4a, #ff8a6c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #9aa8b9;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #ff6b4a;
+        }
+
+        .domain-badge {
+            background: #2a313c;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #ff6b4a;
+            border: 1px solid #ff6b4a;
+        }
+
+        .btn-primary {
+            background: #ff6b4a;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2a313c;
+            color: #e0e0e0;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline:hover {
+            border-color: #ff6b4a;
+            color: #ff6b4a;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            margin-top: 4rem;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #0a0c0f 0%, #1a1f2a 100%);
+            z-index: -1;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ff6b4a" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            width: 100%;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            max-width: 800px;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #9aa8b9;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .domain-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .domain-card {
+            background: #14181f;
+            border: 1px solid #2a313c;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .domain-card:hover {
+            border-color: #ff6b4a;
+            transform: translateY(-4px);
+        }
+
+        .domain-card h3 {
+            color: white;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .domain-card p {
+            color: #9aa8b9;
+            font-size: 0.9rem;
+        }
+
+        .domain-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 107, 74, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #ff6b4a;
+            font-size: 2rem;
+        }
+
+        .stats-section {
+            background: #14181f;
+            border-top: 1px solid #2a313c;
+            border-bottom: 1px solid #2a313c;
+            padding: 4rem 2rem;
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ff6b4a;
+        }
+
+        .footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h4 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: #9aa8b9;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-column a:hover {
+            color: #ff6b4a;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid #2a313c;
+            color: #9aa8b9;
+        }
+
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .domain-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <a href="/" class="logo">pirata6</a>
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="./academy.html">Academy <span class="domain-badge">sub</span></a>
+                <a href="./labs.html">Labs <span class="domain-badge">sub</span></a>
+                <a href="#">Pricing</a>
+                <a href="#">Company</a>
+                <a href="#" class="btn-outline">Sign in</a>
+                <a href="#" class="btn-primary">Start Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>Master Cybersecurity Through Three Powerful Domains</h1>
+            <p>One platform. Three specialized environments. Complete security mastery.</p>
+            
+            <div class="domain-cards">
+                <a href="academy.html" class="domain-card">
+                    <div class="domain-icon">📚</div>
+                    <h3>pirata6 Academy</h3>
+                    <p>Structured learning paths, certifications, and hands-on courses</p>
+                </a>
+                
+                <a href="./labs.html" class="domain-card">
+                    <div class="domain-icon">🔬</div>
+                    <h3>pirata6 Labs</h3>
+                    <p>AI-powered SOC simulator with dual-scoring behavioral analysis</p>
+                </a>
+                
+                <a href="#" class="domain-card">
+                    <div class="domain-icon">⚔️</div>
+                    <h3>pirata6 Core</h3>
+                    <p>Main platform - CTF, challenges, and community</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-number">500K+</div>
+                <div class="stat-label">Security Professionals</div>
+            </div>
+            <div>
+                <div class="stat-number">2.5M+</div>
+                <div class="stat-label">Labs Completed</div>
+            </div>
+            <div>
+                <div class="stat-number">150+</div>
+                <div class="stat-label">Enterprise Partners</div>
+            </div>
+            <div>
+                <div class="stat-number">98%</div>
+                <div class="stat-label">Skill Improvement</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <div class="logo" style="margin-bottom: 1rem;">pirata6</div>
+                <p style="color: #9aa8b9; margin-bottom: 1.5rem;">Three domains. Complete security mastery.</p>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="https://academy.pirata6.com">Academy</a></li>
+                    <li><a href="https://labs.pirata6.com">Labs (SOC Simulator)</a></li>
+                    <li><a href="#">CTF Challenges</a></li>
+                    <li><a href="#">Enterprise</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#">Red Team</a></li>
+                    <li><a href="#">Blue Team</a></li>
+                    <li><a href="#">Purple Team</a></li>
+                    <li><a href="#">Incident Response</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div>© 2025 pirata6. All rights reserved.</div>
+            <div class="social-links">
+                <a href="#">𝕏</a>
+                <a href="#">in</a>
+                <a href="#">▶</a>
+            </div>
+        </div>
+    </footer>
+</body>
+>>>>>>> ec6c9cc220a272d1307a3025739bdd65455f0571
+</html>

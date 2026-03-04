@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>pirata6 Academy | Security Learning Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --ink:        #0c0d10;
+      --ink-1:      #111318;
+      --ink-2:      #181b22;
+      --ink-3:      #20242e;
+      --ink-4:      #2c3140;
+      --ink-5:      #3a4055;
+      --blue:       #4d9fff;
+      --blue-dim:   #2d6bb5;
+      --blue-glow:  rgba(77,159,255,0.15);
+      --blue-faint: rgba(77,159,255,0.06);
+      --green:      #34c759;
+      --orange:     #ff9f0a;
+      --red:        #ff453a;
+      --purple:     #bf5af2;
+      --gold:       #ffd60a;
+      --white:      #f0f0f5;
+      --white-dim:  #8b8fa8;
+      --white-faint:#4a4e63;
+      --syne:       'Syne', sans-serif;
+      --mono:       'IBM Plex Mono', monospace;
+      --serif:      'Lora', serif;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    ::selection { background: var(--blue); color: #000; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--ink-1); }
+    ::-webkit-scrollbar-thumb { background: var(--ink-4); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--blue-dim); }
+
+    body {
+      font-family: var(--syne);
+      background: var(--ink);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Dot grid texture ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(77,159,255,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* ── Ambient orbs ── */
+    .orb {
+      position: fixed; border-radius: 50%;
+      filter: blur(100px); pointer-events: none; z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(77,159,255,0.08); top: -150px; right: 0; animation: orbFloat 18s ease-in-out infinite alternate; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(191,90,242,0.06); bottom: 100px; left: -100px; animation: orbFloat 24s ease-in-out infinite alternate-reverse; }
+    @keyframes orbFloat { 0% { transform: translate(0,0); } 100% { transform: translate(30px, 40px); } }
+
+    /* ── Navigation ── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(12, 13, 16, 0.92);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--ink-4);
+    }
+    .nav-inner {
+      max-width: 1480px; margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 2rem;
+    }
+    .logo {
+      font-family: var(--syne);
+      font-size: 1.25rem; font-weight: 800;
+      color: var(--white);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 0.5rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 26px; height: 26px;
+      background: var(--blue);
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+    }
+    .academy-badge {
+      font-family: var(--mono);
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      background: transparent; color: var(--blue);
+      border: 1px solid var(--blue-dim);
+      padding: 0.18rem 0.55rem; border-radius: 3px;
+    }
+    .nav-tabs {
+      display: flex; gap: 0.3rem;
+      flex: 1; justify-content: center;
+    }
+    .nav-tab {
+      font-family: var(--syne); font-size: 0.8rem; font-weight: 500;
+      color: var(--white-dim);
+      text-decoration: none;
+      padding: 0.35rem 0.9rem; border-radius: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      cursor: pointer; border: none; background: none;
+    }
+    .nav-tab:hover { color: var(--white); background: var(--ink-3); }
+    .nav-tab.active { color: var(--white); background: var(--ink-3); }
+
+    .nav-right { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
+
+    .xp-pill {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      padding: 0.3rem 0.8rem; border-radius: 6px;
+      font-family: var(--mono); font-size: 0.7rem;
+    }
+    .xp-val { color: var(--gold); font-weight: 600; }
+    .xp-lbl { color: var(--white-faint); }
+
+    .streak-pill {
+      display: flex; align-items: center; gap: 0.3rem;
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      padding: 0.3rem 0.7rem; border-radius: 6px;
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--orange);
+    }
+
+    .nav-btn {
+      font-family: var(--syne); font-size: 0.78rem; font-weight: 600;
+      padding: 0.38rem 1rem; border-radius: 6px;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .nav-btn.outline { background: transparent; border: 1px solid var(--ink-4); color: var(--white-dim); }
+    .nav-btn.outline:hover { border-color: var(--blue); color: var(--white); }
+    .nav-btn.solid { background: var(--blue); color: #000; }
+    .nav-btn.solid:hover { background: #70b3ff; }
+
+    /* ── Layout ── */
+    .layout {
+      position: relative; z-index: 1;
+      max-width: 1480px; margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 240px 1fr 300px;
+      gap: 1.4rem;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── User profile card ── */
+    .profile-card {
+      background: var(--ink-2);
+      border: 1px solid var(--ink-4);
+      border-radius: 14px;
+      padding: 1.2rem;
+    }
+    .profile-avatar {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--blue-dim), var(--purple));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 0.7rem;
+    }
+    .profile-name { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+    .profile-level {
+      font-family: var(--mono); font-size: 0.62rem; color: var(--blue);
+      background: var(--blue-faint); border: 1px solid rgba(77,159,255,0.2);
+      display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px; margin-bottom: 0.8rem;
+    }
+
+    .xp-bar-wrap { margin: 0.6rem 0; }
+    .xp-bar-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.6rem; color: var(--white-faint); margin-bottom: 4px; }
+    .xp-bar { background: var(--ink-4); height: 5px; border-radius: 3px; overflow: hidden; }
+    .xp-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--blue-dim), var(--blue));
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.8rem; }
+    .pstat { background: var(--ink-3); border-radius: 8px; padding: 0.5rem; text-align: center; }
+    .pstat-val { font-family: var(--mono); font-size: 1rem; font-weight: 600; color: var(--white); }
+    .pstat-lbl { font-size: 0.58rem; color: var(--white-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px; }
+
+    /* ── Sidebar nav items ── */
+    .sidebar-section-title {
+      font-family: var(--mono); font-size: 0.58rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--white-faint); padding: 0 0.3rem;
+      margin-top: 0.2rem;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.2rem; }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.5rem 0.7rem; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 500;
+      color: var(--white-dim); cursor: pointer;
+      border: none; background: none; text-align: left;
+      transition: all 0.15s; width: 100%;
+    }
+    .sidebar-item:hover { background: var(--ink-3); color: var(--white); }
+    .sidebar-item.active { background: var(--blue-faint); color: var(--blue); border: 1px solid rgba(77,159,255,0.15); }
+    .sidebar-item .icon { font-size: 0.9rem; flex-shrink: 0; }
+    .sidebar-item .count {
+      margin-left: auto;
+      font-family: var(--mono); font-size: 0.6rem;
+      background: var(--ink-4); padding: 0.1rem 0.4rem; border-radius: 3px;
+      color: var(--white-faint);
+    }
+
+    /* ── Main column ── */
+    .main-col { min-width: 0; }
+
+    /* ── View sections ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Section header ── */
+    .section-header { margin-bottom: 1.2rem; }
+    .section-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; color: var(--white); }
+    .section-sub { font-family: var(--mono); font-size: 0.7rem; color: var(--white-faint); margin-top: 4px; }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem; margin-bottom: 1.4rem;
+    }
+    .stat-tile {
+      background: var(--ink-2);
+      border: 1px solid var(--ink-4);
+      border-radius: 12px; padding: 1rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .stat-tile:hover { border-color: var(--blue-dim); }
+    .stat-tile::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--blue); opacity: 0.5;
+    }
+    .stat-tile.green::after  { background: var(--green); }
+    .stat-tile.orange::after { background: var(--orange); }
+    .stat-tile.gold::after   { background: var(--gold); }
+    .stat-num { font-family: var(--mono); font-size: 1.8rem; font-weight: 600; color: var(--white); line-height: 1; }
+    .stat-lbl { font-size: 0.68rem; color: var(--white-faint); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-sub { font-family: var(--mono); font-size: 0.62rem; color: var(--white-faint); margin-top: 6px; }
+
+    /* ── Path grid ── */
+    .paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ── Path card ── */
+    .path-card {
+      background: var(--ink-2);
+      border: 1px solid var(--ink-4);
+      border-radius: 14px; overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer; position: relative;
+    }
+    .path-card:hover {
+      border-color: var(--path-color, var(--blue));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px -8px rgba(0,0,0,0.4);
+    }
+    .path-card-top {
+      padding: 1.1rem 1.1rem 0.8rem;
+      border-bottom: 1px solid var(--ink-4);
+      position: relative;
+    }
+    .path-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .path-icon-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.6rem; }
+    .path-icon { font-size: 1.6rem; }
+    .level-chip {
+      font-family: var(--mono); font-size: 0.58rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 0.2rem 0.5rem; border-radius: 3px;
+    }
+    .level-chip.beginner     { background: rgba(52,199,89,0.12);  color: var(--green);  border: 1px solid rgba(52,199,89,0.25); }
+    .level-chip.intermediate { background: rgba(255,159,10,0.12); color: var(--orange); border: 1px solid rgba(255,159,10,0.25); }
+    .level-chip.advanced     { background: rgba(255,69,58,0.12);  color: var(--red);    border: 1px solid rgba(255,69,58,0.25); }
+
+    .path-title { font-size: 0.92rem; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 0.35rem; }
+    .path-desc  { font-size: 0.73rem; color: var(--white-faint); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .path-card-bottom { padding: 0.8rem 1.1rem; }
+
+    /* SVG ring progress */
+    .ring-row { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.6rem; }
+    .progress-ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+    .progress-ring { transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: var(--ink-4); }
+    .ring-fill {
+      fill: none;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ring-pct {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+      color: var(--white);
+    }
+
+    .path-meta { flex: 1; min-width: 0; }
+    .modules-text { font-family: var(--mono); font-size: 0.68rem; color: var(--white); font-weight: 500; }
+    .path-info-row { display: flex; gap: 0.8rem; margin-top: 4px; }
+    .path-info-item { font-size: 0.62rem; color: var(--white-faint); display: flex; align-items: center; gap: 3px; }
+
+    .path-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .path-tag {
+      font-family: var(--mono); font-size: 0.58rem;
+      background: var(--ink-3); color: var(--white-faint);
+      border: 1px solid var(--ink-5); padding: 0.12rem 0.45rem; border-radius: 3px;
+    }
+
+    .path-cta {
+      width: 100%; margin-top: 0.8rem;
+      font-family: var(--syne); font-size: 0.75rem; font-weight: 600;
+      padding: 0.55rem; border-radius: 7px;
+      cursor: pointer; border: none; transition: all 0.15s;
+      background: var(--ink-3); color: var(--white-dim);
+      border: 1px solid var(--ink-5);
+    }
+    .path-cta:hover { background: var(--ink-4); color: var(--white); }
+    .path-cta.started { background: var(--blue-faint); color: var(--blue); border-color: rgba(77,159,255,0.25); }
+
+    /* ── Module detail view ── */
+    .back-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.72rem;
+      color: var(--white-faint); cursor: pointer; border: none; background: none;
+      margin-bottom: 1rem; transition: color 0.15s;
+    }
+    .back-btn:hover { color: var(--white); }
+
+    .path-detail-header {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 14px; padding: 1.2rem; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .detail-icon { font-size: 2rem; }
+    .detail-title { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .detail-meta { font-family: var(--mono); font-size: 0.68rem; color: var(--white-faint); margin-top: 3px; }
+
+    .module-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .module-row {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 10px; padding: 0.8rem 1rem;
+      display: grid; grid-template-columns: 32px 1fr auto auto;
+      align-items: center; gap: 0.8rem;
+      transition: all 0.15s; cursor: pointer;
+    }
+    .module-row:hover:not(.locked) { border-color: var(--blue-dim); background: var(--ink-3); }
+    .module-row.completed { border-color: rgba(52,199,89,0.2); }
+    .module-row.locked { opacity: 0.5; cursor: not-allowed; }
+    .module-row.active-module { border-color: var(--blue-dim); background: var(--blue-faint); }
+
+    .mod-num {
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 600;
+      color: var(--white-faint); text-align: center;
+    }
+    .mod-title { font-size: 0.82rem; font-weight: 600; color: var(--white); }
+    .mod-type {
+      font-family: var(--mono); font-size: 0.58rem;
+      padding: 0.12rem 0.4rem; border-radius: 3px; margin-top: 2px; display: inline-block;
+    }
+    .mod-type.theory    { background: rgba(77,159,255,0.1); color: var(--blue); }
+    .mod-type.lab       { background: rgba(52,199,89,0.1);  color: var(--green); }
+    .mod-type.challenge { background: rgba(255,69,58,0.1);  color: var(--red); }
+
+    .mod-duration { font-family: var(--mono); font-size: 0.65rem; color: var(--white-faint); }
+    .mod-xp {
+      font-family: var(--mono); font-size: 0.65rem;
+      color: var(--gold); background: rgba(255,214,10,0.08);
+      padding: 0.15rem 0.45rem; border-radius: 3px;
+    }
+    .mod-check { font-size: 0.9rem; }
+
+    /* ── Quiz view ── */
+    .quiz-wrap {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 14px; padding: 1.5rem;
+    }
+    .quiz-q { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 1rem; line-height: 1.5; }
+    .quiz-num { font-family: var(--mono); font-size: 0.65rem; color: var(--blue); margin-bottom: 0.5rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-option {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: var(--ink-3); border: 1px solid var(--ink-5);
+      border-radius: 8px; padding: 0.7rem 1rem;
+      cursor: pointer; font-size: 0.82rem; color: var(--white-dim);
+      transition: all 0.15s;
+    }
+    .quiz-option:hover { border-color: var(--blue-dim); color: var(--white); background: var(--blue-faint); }
+    .quiz-option.selected { border-color: var(--blue); color: var(--white); background: var(--blue-faint); }
+    .quiz-option.correct  { border-color: var(--green); color: var(--green); background: rgba(52,199,89,0.08); }
+    .quiz-option.wrong    { border-color: var(--red);   color: var(--red);   background: rgba(255,69,58,0.08); }
+    .opt-letter {
+      width: 22px; height: 22px; border-radius: 4px;
+      background: var(--ink-4); display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 600; flex-shrink: 0;
+    }
+    .quiz-footer { display: flex; justify-content: flex-end; margin-top: 1.2rem; gap: 0.6rem; }
+    .quiz-btn {
+      font-family: var(--syne); font-size: 0.78rem; font-weight: 600;
+      padding: 0.5rem 1.2rem; border-radius: 7px;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .quiz-btn.primary { background: var(--blue); color: #000; }
+    .quiz-btn.primary:hover { background: #70b3ff; }
+    .quiz-btn.ghost { background: var(--ink-3); color: var(--white-dim); border: 1px solid var(--ink-5); }
+    .quiz-progress-bar { background: var(--ink-4); height: 3px; border-radius: 2px; margin-bottom: 1.2rem; overflow: hidden; }
+    .quiz-progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.4s ease; }
+
+    /* ── Certs view ── */
+    .cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .cert-card {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 14px; padding: 1.2rem;
+      transition: border-color 0.2s; position: relative; overflow: hidden;
+    }
+    .cert-card.earned { border-color: rgba(255,214,10,0.3); }
+    .cert-card.earned::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--orange));
+    }
+    .cert-locked-overlay {
+      position: absolute; inset: 0; border-radius: 14px;
+      background: rgba(12,13,16,0.5); backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .cert-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .cert-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .cert-path { font-family: var(--mono); font-size: 0.65rem; color: var(--white-faint); }
+    .cert-status {
+      display: inline-block; margin-top: 0.6rem;
+      font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+      padding: 0.2rem 0.6rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .cert-status.earned { background: rgba(255,214,10,0.12); color: var(--gold); border: 1px solid rgba(255,214,10,0.3); }
+    .cert-status.locked { background: var(--ink-3); color: var(--white-faint); border: 1px solid var(--ink-5); }
+
+    /* ── Leaderboard ── */
+    .lb-row {
+      display: grid; grid-template-columns: 32px 1fr 80px 60px;
+      align-items: center; gap: 0.8rem;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--ink-3);
+      transition: background 0.15s;
+      border-radius: 6px;
+    }
+    .lb-row:hover { background: var(--ink-3); }
+    .lb-row.you   { background: var(--blue-faint); border-color: rgba(77,159,255,0.15); }
+    .lb-rank { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--white-faint); text-align: center; }
+    .lb-rank.top { color: var(--gold); }
+    .lb-username { font-size: 0.82rem; font-weight: 600; color: var(--white); display: flex; align-items: center; gap: 0.4rem; }
+    .lb-badge { font-size: 0.85rem; }
+    .lb-you-chip {
+      font-family: var(--mono); font-size: 0.55rem;
+      background: var(--blue-faint); color: var(--blue); border: 1px solid rgba(77,159,255,0.25);
+      padding: 0.1rem 0.35rem; border-radius: 2px;
+    }
+    .lb-xp { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-align: right; }
+    .lb-streak { font-family: var(--mono); font-size: 0.65rem; color: var(--orange); text-align: right; }
+
+    /* ── Right column ── */
+    .right-col { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Card base ── */
+    .panel {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 14px; overflow: hidden;
+    }
+    .panel-header {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--ink-3);
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--white-faint);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-body { padding: 0.8rem 1rem; }
+
+    /* ── Activity feed ── */
+    .activity-item {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      padding: 0.5rem 0; border-bottom: 1px solid var(--ink-3);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform: translateX(8px); } to { opacity:1; transform: translateX(0); } }
+    .activity-item:last-child { border-bottom: none; }
+    .act-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+    .act-body { flex: 1; min-width: 0; }
+    .act-msg { font-size: 0.72rem; color: var(--white-dim); line-height: 1.4; }
+    .act-ts  { font-family: var(--mono); font-size: 0.6rem; color: var(--white-faint); margin-top: 2px; }
+    .act-xp  { font-family: var(--mono); font-size: 0.62rem; color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Top paths panel ── */
+    .tp-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0; border-bottom: 1px solid var(--ink-3); cursor: pointer;
+    }
+    .tp-item:last-child { border-bottom: none; }
+    .tp-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .tp-name { font-size: 0.78rem; font-weight: 600; color: var(--white); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tp-enrolled { font-family: var(--mono); font-size: 0.6rem; color: var(--white-faint); }
+
+    /* ── Continue learning ── */
+    .continue-card {
+      background: linear-gradient(135deg, var(--ink-3), rgba(77,159,255,0.08));
+      border: 1px solid rgba(77,159,255,0.2);
+      border-radius: 12px; padding: 1rem;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .continue-card:hover { border-color: rgba(77,159,255,0.4); }
+    .continue-label { font-family: var(--mono); font-size: 0.6rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+    .continue-title { font-size: 0.85rem; font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+    .continue-module { font-size: 0.72rem; color: var(--white-faint); margin-bottom: 0.8rem; }
+    .continue-btn {
+      width: 100%; font-family: var(--syne); font-size: 0.75rem; font-weight: 600;
+      padding: 0.5rem; border-radius: 6px;
+      background: var(--blue); color: #000; border: none; cursor: pointer; transition: background 0.15s;
+    }
+    .continue-btn:hover { background: #70b3ff; }
+
+    /* ── Toast ── */
+    .toast-stack {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      display: flex; flex-direction: column; gap: 0.5rem; max-width: 300px;
+    }
+    .toast {
+      background: var(--ink-2); border: 1px solid var(--ink-4);
+      border-radius: 10px; padding: 0.7rem 0.9rem;
+      display: flex; gap: 0.6rem; align-items: flex-start;
+      animation: toastIn 0.3s ease; font-size: 0.75rem; color: var(--white);
+    }
+    @keyframes toastIn { from { opacity:0; transform: translateX(16px); } to { opacity:1; transform: translateX(0); } }
+    .toast.success { border-color: rgba(52,199,89,0.35); }
+    .toast.error   { border-color: rgba(255,69,58,0.35); }
+    .toast.xp      { border-color: rgba(255,214,10,0.35); }
+    .toast-icon { flex-shrink: 0; font-size: 0.95rem; }
+    .toast-content .t-title { font-weight: 700; margin-bottom: 1px; }
+    .toast-content .t-msg   { color: var(--white-faint); font-size: 0.68rem; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 200px 1fr; }
+      .right-col { display: none; }
+    }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .paths-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">📘</div>
+      pirata6 <span class="academy-badge">academy</span>
+    </a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('dashboard', this)">Dashboard</button>
+      <button class="nav-tab" onclick="showView('paths', this)">Learning Paths</button>
+      <button class="nav-tab" onclick="showView('certs', this)">Certifications</button>
+      <button class="nav-tab" onclick="showView('leaderboard', this)">Leaderboard</button>
+      <a href="http://localhost:3000" class="nav-tab" style="font-family:var(--mono);font-size:0.72rem;">↗ SOC Labs</a>
+    </div>
+    <div class="nav-right">
+      <div class="streak-pill" id="nav-streak">🔥 <span id="nav-streak-val">—</span> days</div>
+      <div class="xp-pill"><span class="xp-val" id="nav-xp">—</span> <span class="xp-lbl">XP</span></div>
+      <button class="nav-btn outline" onclick="showView('quiz-select', null)">📝 Quiz</button>
+      <button class="nav-btn solid">Profile</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main Layout ── -->
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <!-- User profile -->
+    <div class="profile-card">
+      <div class="profile-avatar">🧠</div>
+      <div class="profile-name" id="sb-username">p1rata_you</div>
+      <div class="profile-level" id="sb-level">LVL 12 · ADVANCED</div>
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-label">
+          <span id="sb-xp-cur">—</span>
+          <span id="sb-xp-next">— XP to next level</span>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="sb-xp-bar" style="width:0%"></div></div>
+      </div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-val" id="sb-streak">—</div><div class="pstat-lbl">Streak</div></div>
+        <div class="pstat"><div class="pstat-val" id="sb-rank">#—</div><div class="pstat-lbl">Rank</div></div>
+        <div class="pstat"><div class="pstat-val" id="sb-certs">0</div><div class="pstat-lbl">Certs</div></div>
+        <div class="pstat"><div class="pstat-val" id="sb-hours">—</div><div class="pstat-lbl">Hours</div></div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="sidebar-section-title">Navigate</div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-item active" onclick="showView('dashboard', null); setSidebarActive(this)">
+        <span class="icon">🏠</span> Dashboard
+      </button>
+      <button class="sidebar-item" onclick="showView('paths', null); setSidebarActive(this)">
+        <span class="icon">📚</span> Learning Paths
+        <span class="count" id="sb-paths-count">6</span>
+      </button>
+      <button class="sidebar-item" onclick="showView('certs', null); setSidebarActive(this)">
+        <span class="icon">🏆</span> Certifications
+        <span class="count" id="sb-certs-count">0/6</span>
+      </button>
+      <button class="sidebar-item" onclick="showView('leaderboard', null); setSidebarActive(this)">
+        <span class="icon">📊</span> Leaderboard
+      </button>
+      <button class="sidebar-item" onclick="showView('quiz-select', null); setSidebarActive(this)">
+        <span class="icon">📝</span> Practice Quiz
+      </button>
+    </nav>
+
+    <div class="sidebar-section-title" style="margin-top:0.5rem;">Active Paths</div>
+    <nav class="sidebar-nav" id="active-paths-nav">
+      <div style="font-size:0.72rem;color:var(--white-faint);padding:0.3rem;">Loading…</div>
+    </nav>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-col">
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view active" id="view-dashboard">
+      <div class="section-header">
+        <div class="section-title">Your Learning Journey</div>
+        <div class="section-sub">Structured paths to security mastery · <span id="dash-date">—</span></div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip">
+        <div class="stat-tile">
+          <div class="stat-num" id="ds-completed">—</div>
+          <div class="stat-lbl">Modules Done</div>
+          <div class="stat-sub" id="ds-completed-sub">of — total</div>
+        </div>
+        <div class="stat-tile green">
+          <div class="stat-num" id="ds-streak">—</div>
+          <div class="stat-lbl">Day Streak 🔥</div>
+          <div class="stat-sub" id="ds-streak-sub">best: — days</div>
+        </div>
+        <div class="stat-tile orange">
+          <div class="stat-num" id="ds-xp">—</div>
+          <div class="stat-lbl">Total XP</div>
+          <div class="stat-sub">rank #<span id="ds-rank">—</span></div>
+        </div>
+        <div class="stat-tile gold">
+          <div class="stat-num" id="ds-hours">—</div>
+          <div class="stat-lbl">Hours Studied</div>
+          <div class="stat-sub" id="ds-certs">— certs earned</div>
+        </div>
+      </div>
+
+      <!-- Continue learning -->
+      <div class="continue-card" id="continue-card" onclick="showView('paths', null)" style="margin-bottom:1.2rem;">
+        <div class="continue-label">▶ Continue Learning</div>
+        <div class="continue-title" id="continue-path">Loading…</div>
+        <div class="continue-module" id="continue-module">—</div>
+        <button class="continue-btn">Resume Path →</button>
+      </div>
+
+      <!-- Path cards (dashboard: show top 4) -->
+      <div class="section-header" style="margin-top:0;">
+        <div style="font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--white-faint);">Your Paths</div>
+      </div>
+      <div class="paths-grid" id="dash-paths-grid"></div>
+    </div>
+
+    <!-- PATHS VIEW -->
+    <div class="view" id="view-paths">
+      <div class="section-header">
+        <div class="section-title">Learning Paths</div>
+        <div class="section-sub">6 paths available · click a path to view modules</div>
+      </div>
+      <div class="paths-grid" id="all-paths-grid"></div>
+    </div>
+
+    <!-- PATH DETAIL VIEW -->
+    <div class="view" id="view-path-detail">
+      <button class="back-btn" onclick="showView('paths', null)">← Back to paths</button>
+      <div class="path-detail-header" id="detail-header"></div>
+      <div class="module-list" id="module-list"></div>
+    </div>
+
+    <!-- CERTS VIEW -->
+    <div class="view" id="view-certs">
+      <div class="section-header">
+        <div class="section-title">Certifications</div>
+        <div class="section-sub">Complete a full learning path to earn a certificate</div>
+      </div>
+      <div class="cert-grid" id="cert-grid"></div>
+    </div>
+
+    <!-- LEADERBOARD VIEW -->
+    <div class="view" id="view-leaderboard">
+      <div class="section-header">
+        <div class="section-title">Leaderboard</div>
+        <div class="section-sub">Top learners this month · updated live</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>Global Rankings</span>
+          <span style="font-size:0.62rem;color:var(--white-faint);">↻ live</span>
+        </div>
+        <div id="lb-list" style="padding:0.5rem 0;"></div>
+      </div>
+    </div>
+
+    <!-- QUIZ SELECT VIEW -->
+    <div class="view" id="view-quiz-select">
+      <div class="section-header">
+        <div class="section-title">Practice Quiz</div>
+        <div class="section-sub">Test your knowledge — earn XP for high scores</div>
+      </div>
+      <div class="paths-grid" id="quiz-select-grid"></div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div class="view" id="view-quiz">
+      <button class="back-btn" onclick="showView('quiz-select', null)" id="quiz-back-btn">← Cancel quiz</button>
+      <div class="quiz-wrap" id="quiz-container"></div>
+    </div>
+
+    <!-- QUIZ RESULT VIEW -->
+    <div class="view" id="view-quiz-result">
+      <div class="quiz-wrap" id="quiz-result-container"></div>
+    </div>
+
+  </main>
+
+  <!-- ── Right Column ── -->
+  <aside class="right-col">
+
+    <!-- Activity feed -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>Live Activity</span>
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:connPulse 2s infinite;"></div>
+      </div>
+      <div class="panel-body" style="max-height:280px;overflow-y:auto;" id="activity-feed">
+        <div style="font-size:0.72rem;color:var(--white-faint);padding:0.3rem 0;">Connecting…</div>
+      </div>
+    </div>
+
+    <!-- Leaderboard mini -->
+    <div class="panel">
+      <div class="panel-header"><span>Top Learners</span></div>
+      <div style="padding:0.5rem 0.5rem;" id="mini-lb"></div>
+    </div>
+
+    <!-- Popular paths -->
+    <div class="panel">
+      <div class="panel-header"><span>Popular Paths</span></div>
+      <div class="panel-body" id="popular-paths"></div>
+    </div>
+
+  </aside>
+
+</div><!-- /layout -->
+
+<!-- Toast container -->
+<div class="toast-stack" id="toasts"></div>
+
+<style>
+@keyframes connPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(52,199,89,0.5); }
+  50% { box-shadow: 0 0 0 4px rgba(52,199,89,0); }
+}
+</style>
+
+<script>
+  const API = 'http://localhost:3001/api';
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let paths       = [];
+  let user        = {};
+  let certs       = [];
+  let leaderboard = [];
+  let quizSession = null;
+  let quizAnswers = [];
+  let currentQ    = 0;
+  let currentPathDetail = null;
+
+  // ── Utilities ──────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function toast(type, title, msg) {
+    const icons = { success:'✅', error:'❌', xp:'⭐', info:'ℹ️' };
+    const el = Object.assign(document.createElement('div'), { className: `toast ${type}` });
+    el.innerHTML = `<span class="toast-icon">${icons[type]||'•'}</span>
+      <div class="toast-content"><div class="t-title">${esc(title)}</div>
+      <div class="t-msg">${esc(msg)}</div></div>`;
+    document.getElementById('toasts').prepend(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(16px)'; el.style.transition = '0.3s'; }, 3500);
+    setTimeout(() => el.remove(), 4000);
+  }
+  function animNum(el, from, to, suffix = '') {
+    const dur = 700, step = 16, steps = dur / step;
+    const delta = (to - from) / steps;
+    let cur = from, n = 0;
+    const iv = setInterval(() => {
+      cur += delta; n++;
+      el.textContent = Math.round(cur) + suffix;
+      if (n >= steps) { el.textContent = to + suffix; clearInterval(iv); }
+    }, step);
+  }
+
+  // ── View routing ──────────────────────────────────────────────────────────
+  function showView(name, activeTab) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(`view-${name}`);
+    if (target) target.classList.add('active');
+    if (activeTab) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      activeTab.classList.add('active');
+    }
+  }
+  function setSidebarActive(el) {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── Render helpers ─────────────────────────────────────────────────────────
+  function renderPathCard(p, onclick) {
+    const pct = p.totalModules > 0 ? Math.round((p.completedModules / p.totalModules) * 100) : 0;
+    const r = 18, circ = 2 * Math.PI * r;
+    const offset = circ - (pct / 100) * circ;
+    const started = p.completedModules > 0;
+    return `
+      <div class="path-card" style="--path-color:${esc(p.color)}" onclick="${esc(onclick)}">
+        <div class="path-card-top">
+          <div class="path-accent" style="background:${esc(p.color)};opacity:0.7;"></div>
+          <div class="path-icon-row">
+            <span class="path-icon">${esc(p.icon)}</span>
+            <span class="level-chip ${esc(p.level)}">${esc(p.level)}</span>
+          </div>
+          <div class="path-title">${esc(p.title)}</div>
+          <div class="path-desc">${esc(p.description)}</div>
+        </div>
+        <div class="path-card-bottom">
+          <div class="ring-row">
+            <div class="progress-ring-wrap">
+              <svg class="progress-ring" width="48" height="48" viewBox="0 0 48 48">
+                <circle class="ring-bg" cx="24" cy="24" r="${r}" stroke-width="3"/>
+                <circle class="ring-fill" cx="24" cy="24" r="${r}" stroke-width="3"
+                  stroke="${esc(p.color)}"
+                  stroke-dasharray="${circ.toFixed(2)}"
+                  stroke-dashoffset="${offset.toFixed(2)}"/>
+              </svg>
+              <div class="ring-pct">${pct}%</div>
+            </div>
+            <div class="path-meta">
+              <div class="modules-text">${p.completedModules}/${p.totalModules} modules</div>
+              <div class="path-info-row">
+                <span class="path-info-item">⏱ ${p.estimatedHours}h</span>
+                <span class="path-info-item">⭐ ${p.xpReward.toLocaleString()} XP</span>
+                <span class="path-info-item">👥 ${(p.enrolledCount/1000).toFixed(1)}k</span>
+              </div>
+            </div>
+          </div>
+          <div class="path-tags">${(p.tags||[]).map(t => `<span class="path-tag">${esc(t)}</span>`).join('')}</div>
+          <button class="path-cta ${started ? 'started' : ''}">${started ? '▶ Continue Path' : '+ Enroll'}</button>
+        </div>
+      </div>`;
+  }
+
+  function renderAllPaths(container, clickFn) {
+    if (!container || !paths.length) return;
+    container.innerHTML = paths.map(p => renderPathCard(p, `${clickFn}('${p.id}')`)).join('');
+  }
+
+  function updateUserUI(u) {
+    user = u;
+    const xpPct = Math.min(100, Math.round((u.xp / u.xpToNext) * 100));
+    document.getElementById('nav-xp').textContent        = u.xp.toLocaleString();
+    document.getElementById('nav-streak-val').textContent = u.streak;
+    document.getElementById('sb-username').textContent    = u.username;
+    document.getElementById('sb-level').textContent       = `LVL ${u.level} · ${u.level < 10 ? 'BEGINNER' : u.level < 20 ? 'ADVANCED' : 'ELITE'}`;
+    document.getElementById('sb-xp-cur').textContent      = u.xp.toLocaleString() + ' XP';
+    document.getElementById('sb-xp-next').textContent     = u.xpToNext.toLocaleString() + ' to next level';
+    document.getElementById('sb-xp-bar').style.width      = xpPct + '%';
+    document.getElementById('sb-streak').textContent      = u.streak + '🔥';
+    document.getElementById('sb-rank').textContent        = '#' + u.rank;
+    document.getElementById('sb-hours').textContent       = Math.round(u.totalTime / 60) + 'h';
+
+    // Dashboard stats
+    document.getElementById('ds-streak').textContent     = u.streak;
+    document.getElementById('ds-streak-sub').textContent = `best: ${u.streakMax} days`;
+    animNum(document.getElementById('ds-xp'), 0, u.xp);
+    document.getElementById('ds-rank').textContent       = u.rank;
+    document.getElementById('ds-hours').textContent      = Math.round(u.totalTime / 60) + 'h';
+
+    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  }
+
+  function updateStatsUI(s) {
+    animNum(document.getElementById('ds-completed'), 0, s.totalCompleted);
+    document.getElementById('ds-completed-sub').textContent = `of ${s.totalModules} total`;
+    document.getElementById('ds-certs').textContent = `${s.certsEarned} certs earned`;
+  }
+
+  function updateCertsUI(certList) {
+    certs = certList;
+    const earned = certList.filter(c => c.earned).length;
+    document.getElementById('sb-certs').textContent       = earned;
+    document.getElementById('sb-certs-count').textContent = `${earned}/${certList.length}`;
+
+    const grid = document.getElementById('cert-grid');
+    if (grid) grid.innerHTML = certList.map(c => {
+      const path = paths.find(p => p.id === c.pathId);
+      return `
+        <div class="cert-card ${c.earned ? 'earned' : ''}">
+          ${!c.earned ? '<div class="cert-locked-overlay">🔒</div>' : ''}
+          <div class="cert-icon">${c.earned ? '🏆' : '📜'}</div>
+          <div class="cert-title">${esc(c.title)}</div>
+          <div class="cert-path">${path ? esc(path.title) : ''}</div>
+          <span class="cert-status ${c.earned ? 'earned' : 'locked'}">${c.earned ? `Earned ${c.issueDate}` : 'Locked'}</span>
+        </div>`;
+    }).join('');
+  }
+
+  function updateLeaderboardUI(lb) {
+    leaderboard = lb;
+    // Full view
+    const lbEl = document.getElementById('lb-list');
+    if (lbEl) lbEl.innerHTML = lb.map(l => `
+      <div class="lb-row ${l.isUser ? 'you' : ''}">
+        <div class="lb-rank ${l.rank <= 3 ? 'top' : ''}">${l.rank <= 3 ? ['🥇','🥈','🥉'][l.rank-1] : l.rank}</div>
+        <div class="lb-username">
+          <span class="lb-badge">${l.badge}</span>
+          ${esc(l.username)}
+          ${l.isUser ? '<span class="lb-you-chip">you</span>' : ''}
+        </div>
+        <div class="lb-xp">${l.xp.toLocaleString()} XP</div>
+        <div class="lb-streak">🔥${l.streak}</div>
+      </div>`).join('');
+
+    // Mini version
+    const miniEl = document.getElementById('mini-lb');
+    if (miniEl) miniEl.innerHTML = lb.slice(0, 5).map(l => `
+      <div class="lb-row ${l.isUser ? 'you' : ''}" style="padding:0.4rem 0.5rem;">
+        <div class="lb-rank ${l.rank <= 3 ? 'top' : ''}" style="font-size:0.65rem;">${l.rank}</div>
+        <div class="lb-username" style="font-size:0.75rem;">
+          <span class="lb-badge" style="font-size:0.75rem;">${l.badge}</span>
+          ${esc(l.username)}${l.isUser ? ' <span class="lb-you-chip">you</span>' : ''}
+        </div>
+        <div class="lb-xp" style="font-size:0.62rem;">${(l.xp/1000).toFixed(1)}k</div>
+      </div>`).join('');
+  }
+
+  function updatePathsUI(pathList) {
+    paths = pathList;
+    renderAllPaths(document.getElementById('dash-paths-grid'), 'openPathDetail');
+    renderAllPaths(document.getElementById('all-paths-grid'), 'openPathDetail');
+
+    // Continue learning
+    const inProgress = paths.filter(p => p.completedModules > 0 && p.completedModules < p.totalModules);
+    if (inProgress.length) {
+      const p = inProgress[0];
+      document.getElementById('continue-path').textContent = p.title;
+      document.getElementById('continue-module').textContent = `${p.completedModules}/${p.totalModules} modules completed`;
+      document.getElementById('continue-card').onclick = () => openPathDetail(p.id);
+    }
+
+    // Active paths sidebar nav
+    const nav = document.getElementById('active-paths-nav');
+    const started = paths.filter(p => p.completedModules > 0);
+    nav.innerHTML = started.length
+      ? started.map(p => `
+          <button class="sidebar-item" onclick="openPathDetail('${esc(p.id)}')">
+            <span class="icon">${esc(p.icon)}</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:0.75rem;">${esc(p.title.split(' ').slice(0,3).join(' '))}…</span>
+          </button>`).join('')
+      : '<div style="font-size:0.68rem;color:var(--white-faint);padding:0.3rem;">Enroll in a path to start</div>';
+
+    // Popular paths panel
+    const pp = document.getElementById('popular-paths');
+    if (pp) pp.innerHTML = [...paths].sort((a,b) => b.enrolledCount - a.enrolledCount).slice(0,4).map(p => `
+      <div class="tp-item" onclick="openPathDetail('${esc(p.id)}')">
+        <span class="tp-icon">${esc(p.icon)}</span>
+        <span class="tp-name">${esc(p.title)}</span>
+        <span class="tp-enrolled">${(p.enrolledCount/1000).toFixed(1)}k</span>
+      </div>`).join('');
+
+    // Quiz selector
+    const qsg = document.getElementById('quiz-select-grid');
+    if (qsg) {
+      const quizzable = ['path-pentest','path-soc','path-malware'];
+      qsg.innerHTML = paths.filter(p => quizzable.includes(p.id)).map(p => `
+        <div class="path-card" style="--path-color:${esc(p.color)}" onclick="startQuiz('${esc(p.id)}')">
+          <div class="path-card-top">
+            <div class="path-accent" style="background:${esc(p.color)};opacity:0.7;"></div>
+            <div class="path-icon-row">
+              <span class="path-icon">${esc(p.icon)}</span>
+              <span class="level-chip ${esc(p.level)}">${esc(p.level)}</span>
+            </div>
+            <div class="path-title">${esc(p.title)}</div>
+            <div class="path-desc">5 questions · earn up to 300 XP</div>
+          </div>
+          <div class="path-card-bottom">
+            <button class="path-cta">📝 Start Quiz →</button>
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // ── Path detail ────────────────────────────────────────────────────────────
+  async function openPathDetail(pathId) {
+    showView('path-detail', null);
+    try {
+      const res  = await fetch(`${API}/paths/${pathId}`);
+      const data = await res.json();
+      currentPathDetail = data;
+
+      const pct = data.totalModules > 0 ? Math.round((data.completedModules / data.totalModules) * 100) : 0;
+      document.getElementById('detail-header').innerHTML = `
+        <span class="detail-icon">${esc(data.icon)}</span>
+        <div style="flex:1;">
+          <div class="detail-title">${esc(data.title)}</div>
+          <div class="detail-meta">${pct}% complete · ${data.completedModules}/${data.totalModules} modules · ${data.estimatedHours}h estimated</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:1.2rem;color:var(--gold);">${pct}%</div>`;
+
+      const mods = data.modules || [];
+      document.getElementById('module-list').innerHTML = mods.length
+        ? mods.map(m => `
+            <div class="module-row ${m.completed ? 'completed' : ''} ${m.locked ? 'locked' : ''} ${!m.completed && !m.locked ? 'active-module' : ''}"
+                 onclick="${m.locked ? '' : `completeModule('${esc(data.id)}','${esc(m.id)}', this)`}">
+              <div class="mod-num">${String(m.order).padStart(2,'0')}</div>
+              <div>
+                <div class="mod-title">${esc(m.title)}</div>
+                <span class="mod-type ${esc(m.type)}">${esc(m.type)}</span>
+              </div>
+              <div class="mod-duration">⏱ ${m.duration}m</div>
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <span class="mod-xp">+${m.xp}</span>
+                <span class="mod-check">${m.locked ? '🔒' : m.completed ? '✅' : '▶'}</span>
+              </div>
+            </div>`).join('')
+        : '<div style="padding:1rem;font-size:0.78rem;color:var(--white-faint);">No modules available</div>';
+    } catch(e) {
+      toast('error', 'Load failed', e.message);
+    }
+  }
+
+  async function completeModule(pathId, moduleId, rowEl) {
+    if (rowEl.classList.contains('completed')) return;
+    try {
+      const res  = await fetch(`${API}/paths/${pathId}/modules/${moduleId}/complete`, { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) {
+        rowEl.classList.add('completed');
+        const check = rowEl.querySelector('.mod-check');
+        if (check) check.textContent = '✅';
+        const xpBadge = rowEl.querySelector('.mod-xp');
+        const xpVal = xpBadge ? parseInt(xpBadge.textContent.replace('+','')) : 0;
+        toast('xp', `+${xpVal} XP earned!`, `Module complete`);
+        updateUserUI(data.user);
+        // Refresh path data
+        const pathRes = await fetch(`${API}/paths`);
+        updatePathsUI(await pathRes.json());
+        const statsRes = await fetch(`${API}/stats`);
+        updateStatsUI(await statsRes.json());
+      }
+    } catch(e) {
+      toast('error', 'Error', e.message);
+    }
+  }
+
+  // ── Quiz engine ────────────────────────────────────────────────────────────
+  async function startQuiz(pathId) {
+    try {
+      const res  = await fetch(`${API}/quiz/${pathId}`);
+      const data = await res.json();
+      quizSession = data;
+      quizAnswers = new Array(data.questions.length).fill(null);
+      currentQ    = 0;
+      showView('quiz', null);
+      renderQuestion();
+    } catch(e) {
+      toast('error', 'Quiz load failed', e.message);
+    }
+  }
+
+  function renderQuestion() {
+    if (!quizSession) return;
+    const q    = quizSession.questions[currentQ];
+    const total = quizSession.questions.length;
+    const pct  = Math.round((currentQ / total) * 100);
+    const letters = ['A','B','C','D'];
+    document.getElementById('quiz-container').innerHTML = `
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-num">Question ${currentQ + 1} of ${total}</div>
+      <div class="quiz-q">${esc(q.q)}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt, i) => `
+          <div class="quiz-option ${quizAnswers[currentQ] === i ? 'selected' : ''}"
+               onclick="selectAnswer(${i})">
+            <span class="opt-letter">${letters[i]}</span>
+            ${esc(opt)}
+          </div>`).join('')}
+      </div>
+      <div class="quiz-footer">
+        ${currentQ > 0 ? `<button class="quiz-btn ghost" onclick="currentQ--;renderQuestion()">← Back</button>` : ''}
+        ${currentQ < total - 1
+          ? `<button class="quiz-btn primary" onclick="nextQ()" ${quizAnswers[currentQ] === null ? 'disabled' : ''}>Next →</button>`
+          : `<button class="quiz-btn primary" onclick="submitQuiz()" ${quizAnswers[currentQ] === null ? 'disabled' : ''}>Submit Quiz ✓</button>`}
+      </div>`;
+  }
+
+  function selectAnswer(idx) {
+    quizAnswers[currentQ] = idx;
+    renderQuestion();
+  }
+
+  function nextQ() {
+    if (quizAnswers[currentQ] === null) return;
+    currentQ++;
+    renderQuestion();
+  }
+
+  async function submitQuiz() {
+    try {
+      const res  = await fetch(`${API}/quiz/${quizSession.sessionId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: quizAnswers }),
+      });
+      const data = await res.json();
+      quizSession = null;
+      showView('quiz-result', null);
+      renderQuizResult(data);
+      if (data.xpGain) {
+        toast('xp', `+${data.xpGain} XP!`, `Quiz score: ${data.score}%`);
+        const userRes = await fetch(`${API}/user`);
+        updateUserUI(await userRes.json());
+      }
+    } catch(e) {
+      toast('error', 'Submit failed', e.message);
+    }
+  }
+
+  function renderQuizResult(data) {
+    const letters  = ['A','B','C','D'];
+    const colorMap = { true: 'color:var(--green)', false: 'color:var(--red)' };
+    document.getElementById('quiz-result-container').innerHTML = `
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:3rem;margin-bottom:0.5rem;">${data.score >= 80 ? '🏆' : data.score >= 60 ? '👍' : '📚'}</div>
+        <div style="font-family:var(--mono);font-size:2.5rem;font-weight:600;color:${data.score >= 80 ? 'var(--green)' : data.score >= 60 ? 'var(--orange)' : 'var(--red)'};">${data.score}%</div>
+        <div style="color:var(--white-faint);font-size:0.82rem;margin:0.3rem 0;">${data.correct}/${data.total} correct</div>
+        ${data.xpGain ? `<div style="font-family:var(--mono);color:var(--gold);font-size:0.9rem;margin-top:0.5rem;">+${data.xpGain} XP earned</div>` : ''}
+      </div>
+      ${data.results.map((r, i) => `
+        <div style="margin-bottom:0.8rem;padding:0.8rem;background:var(--ink-3);border-radius:8px;border:1px solid ${r.isCorrect ? 'rgba(52,199,89,0.2)' : 'rgba(255,69,58,0.2)'};">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--white);margin-bottom:0.4rem;">${i+1}. ${esc(r.q)}</div>
+          <div style="font-size:0.72rem;${colorMap[r.isCorrect]}">Your answer: ${letters[r.selected]} · ${r.isCorrect ? '✅ Correct' : `❌ Correct: ${letters[r.correct]}`}</div>
+        </div>`).join('')}
+      <div style="display:flex;gap:0.6rem;margin-top:1.2rem;justify-content:center;">
+        <button class="quiz-btn ghost" onclick="showView('quiz-select',null)">← Back to Quiz Select</button>
+        <button class="quiz-btn primary" onclick="showView('dashboard',null)">Go to Dashboard</button>
+      </div>`;
+  }
+
+  // ── Activity feed ──────────────────────────────────────────────────────────
+  function addActivityItem(item) {
+    const icons = { module_complete:'✅', badge_earned:'🎖️', cert_earned:'🏆', streak_milestone:'🔥', challenge:'🎯', quiz_passed:'📝' };
+    const feed  = document.getElementById('activity-feed');
+    if (!feed) return;
+    const el = document.createElement('div');
+    el.className = 'activity-item';
+    el.innerHTML = `
+      <span class="act-icon">${icons[item.type] || '•'}</span>
+      <div class="act-body">
+        <div class="act-msg">${esc(item.message)}</div>
+        <div class="act-ts">${esc(item.ts)}</div>
+      </div>
+      ${item.xp ? `<div class="act-xp">+${item.xp}</div>` : ''}`;
+    feed.insertBefore(el, feed.firstChild);
+    while (feed.children.length > 12) feed.removeChild(feed.lastChild);
+  }
+
+  // ── SSE Connection ─────────────────────────────────────────────────────────
+  function connect() {
+    const es = new EventSource(`${API}/stream`);
+
+    es.addEventListener('connected', () => {
+      toast('success', 'Academy connected', 'Real-time stream established');
+    });
+
+
+    es.addEventListener('state', e => {
+      const d = JSON.parse(e.data);
+      updatePathsUI(d.paths);
+      updateUserUI(d.user);
+      updateCertsUI(d.certs);
+      updateLeaderboardUI(d.leaderboard);
+      (d.activity || []).forEach(a => addActivityItem(a));
+      fetch(`${API}/stats`).then(r => r.json()).then(updateStatsUI);
+    });
+
+    es.addEventListener('activity', e => {
+      addActivityItem(JSON.parse(e.data));
+    });
+
+    es.addEventListener('user_update', e => {
+      updateUserUI(JSON.parse(e.data));
+    });
+
+    es.addEventListener('path_update', e => {
+      const updated = JSON.parse(e.data);
+      paths = paths.map(p => p.id === updated.id ? updated : p);
+      updatePathsUI(paths);
+      if (currentPathDetail && currentPathDetail.id === updated.id) {
+        openPathDetail(updated.id);
+      }
+    });
+
+    es.addEventListener('cert_earned', e => {
+      const cert = JSON.parse(e.data);
+      toast('xp', '🏆 Certificate Earned!', cert.title);
+      fetch(`${API}/certs`).then(r => r.json()).then(updateCertsUI);
+    });
+
+    es.addEventListener('leaderboard', e => {
+      updateLeaderboardUI(JSON.parse(e.data));
+    });
+
+    es.onerror = () => {
+      es.close();
+      setTimeout(connect, 3000);
+    };
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  connect();
+</script>
+</body>
+</html>
