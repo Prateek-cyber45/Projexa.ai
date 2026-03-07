@@ -1,0 +1,13 @@
+{
+  "name": "cyberplatform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:main": "cd services/main-frontend && npm run build",
+    "build:academy": "cd services/academy-frontend && npm run build",
+    "build:labs": "cd services/labs/frontend && npm run build",
+    "build": "npm run build:main && npm run build:academy && npm run build:labs",
+    "dev": "docker-compose up --build",
+    "start": "docker-compose up"
+  }
+}
