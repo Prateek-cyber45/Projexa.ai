@@ -1,0 +1,31 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    # cowrie sometimes uses /cowrie/log rather than /cowrie/var/log
+    - /cowrie/log/cowrie/cowrie.json
+    - /cowrie/var/log/cowrie/cowrie.json
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.message_key: message
+
+# Optional: Add metadata to tag these logs as coming from the Phase 2 Labs
+fields:
+  environment: labs
+  sensor_type: cowrie_ssh
+
+setup.kibana:
+  host: "http://kibana:5601"
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  # direct events into a cowrie-specific index pattern
+  index: "cowrie-%{+yyyy.MM.dd}"
+  # If you enable xpack security later, add credentials here:
+  # username: "elastic"
+  # password: "${ELASTIC_PASSWORD}"
+
+# Create an index specifically for honeypot logs
+setup.ilm.enabled: false
+setup.template.name: "cowrie"
+setup.template.pattern: "cowrie-*"

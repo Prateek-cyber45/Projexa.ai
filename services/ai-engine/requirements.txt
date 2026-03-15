@@ -1,0 +1,15 @@
+# Core dependencies for AI Scoring Engine
+sentence-transformers
+spacy
+torch
+numpy
+scikit-learn
+redis
+requests
+psycopg2-binary
+uvicorn
+fastapi
+pydantic
+
+# Optional (for PDF/reporting or other utilities)
+# reportlab

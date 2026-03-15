@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme inline {
+  --color-brand-blue: #0071E3;
+  --color-brand-blue-hover: #0077ED;
+  --color-brand-blue-light: #E8F1FD;
+  
+  --color-brand-orange: #FF6B00;
+  --color-brand-green: #34C759;
+  --color-brand-purple: #AF52DE;
+  --color-brand-red: #FF3B30;
+  --color-brand-amber: #FF9F0A;
+  
+  --color-surface-main: #FFFFFF;
+  --color-surface-card: #F5F5F7;
+  --color-surface-dark: #1D1D1F;
+  
+  --color-text-primary: #1D1D1F;
+  --color-text-secondary: #6E6E73;
+  --color-text-tertiary: #AEAEB2;
+  --color-text-inverted: #F5F5F7;
+  
+  --color-border-default: #D2D2D7;
+  --color-border-subtle: #E5E5EA;
+
+  --font-sans: "Rajdhani", "SF Pro Display", "Segoe UI", sans-serif;
+  --font-mono: "Share Tech Mono", "Fira Code", "Courier New", monospace;
+  --font-display: "Orbitron", "SF Pro Display", sans-serif;
+
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-modal: 0 8px 32px rgba(0,0,0,0.16);
+  --shadow-focus: 0 0 0 4px rgba(0,113,227,0.3);
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 980px;
+}
+
+body {
+  background-color: var(--color-surface-main);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Zone Accents defined by brandGuidelines.md */
+.zone-blue { background-color: #E8F1FD; border-left: 4px solid #0071E3; }
+.zone-orange { background-color: #FFF3E8; border-left: 4px solid #FF6B00; }
+.zone-green { background-color: #E9F9EE; border-left: 4px solid #34C759; }
+.zone-purple { background-color: #F5EEFF; border-left: 4px solid #AF52DE; }
+.zone-gray { background-color: #F5F5F7; border-left: 4px solid #D2D2D7; }
+
+/* Status Badges */
+.badge { @apply inline-flex items-center px-2.5 py-1 rounded-pill text-xs font-semibold; letter-spacing: 0.5px; }
+.badge-success { @apply bg-[#E9F9EE] text-[#1A7F37]; }
+.badge-pending { @apply bg-[#FFF4E0] text-[#B25000]; }
+.badge-error { @apply bg-[#FFF0EE] text-[#C4291C]; }
+.badge-ai { @apply bg-[#F5EEFF] text-[#8A2BE2]; }
+.badge-info { @apply bg-[#E8F1FD] text-[#0056B3]; }
+
+/* Pulsing Dots */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.ping-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse-live 2s infinite;
+}
+.ping-blue { background-color: var(--color-brand-blue); }
+.ping-orange { background-color: var(--color-brand-orange); }
+.ping-green { background-color: var(--color-brand-green); }
+.ping-purple { background-color: var(--color-brand-purple); }
