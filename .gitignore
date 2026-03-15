@@ -1,0 +1,5 @@
+.env
+secrets/
+production_secrets/
+node_modules/
+.DS_Store
