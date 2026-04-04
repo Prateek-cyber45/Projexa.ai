@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "surface-container": "#1f1f1f",
+          "surface-container-high": "#2a2a2a",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #131313; color: #e2e2e2; }
+  .glass-panel { background: rgba(53, 53, 53, 0.35); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); }
+  .card-glow { position: relative; overflow: hidden; transition: transform 0.4s ease; }
+  .card-glow:hover { transform: translateY(-4px); }
+</style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-[#00285b] min-h-screen flex flex-col">
+
+  <nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/academy/" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Academy</a>
+        <a href="/labs/" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Labs</a>
+        <button onclick="logout()" class="text-sm text-red-300 hover:text-red-400 font-bold ml-4">LOGOUT</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    <div class="mb-10">
+      <h1 class="font-headline text-4xl font-extrabold text-white mb-2">Operator Dashboard</h1>
+      <p class="text-on-surface-variant">Welcome back, <span id="username-display" class="text-primary font-mono font-bold">...</span></p>
+    </div>
+
+    <!-- AI Profile Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="glass-panel rounded-2xl p-8 card-glow">
+        <span class="material-symbols-outlined text-primary mb-4 text-3xl">psychology</span>
+        <p class="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-1">Rolling Score</p>
+        <p class="text-5xl font-headline font-extrabold text-white" id="score-display">--</p>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-8 md:col-span-2 card-glow">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-1">Skill Vector Analysis</p>
+            <p class="text-white font-headline font-bold text-lg">AI Calculated Proficiency</p>
+          </div>
+          <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Live Sync</span>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">SOC Operations</span>
+              <span class="text-primary" id="soc-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="soc-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">Digital Forensics</span>
+              <span class="text-primary" id="for-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="for-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">Network Security</span>
+              <span class="text-primary" id="net-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="net-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h2 class="font-headline text-2xl font-bold text-white mb-6">Active Deployments</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <a href="/labs/" class="block glass-panel rounded-2xl p-6 card-glow border border-primary/20 hover:bg-primary/5 transition-colors">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-[#ffb4ab] border border-[#ffb4ab]/20 px-2 py-1 rounded">Live Range</span>
+        <h3 class="font-headline text-xl font-bold text-white mt-4 mb-2">SOC Simulator</h3>
+        <p class="text-sm text-on-surface-variant">Resume your recent credential stuffing triage session.</p>
+      </a>
+      <a href="/academy/" class="block glass-panel rounded-2xl p-6 card-glow hover:bg-white/5 transition-colors">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-primary border border-primary/20 px-2 py-1 rounded">Academy Track</span>
+        <h3 class="font-headline text-xl font-bold text-white mt-4 mb-2">SOC Fundamentals</h3>
+        <p class="text-sm text-on-surface-variant">Continue video lessons: Module 4 (SIEM Log Analysis).</p>
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    function logout() {
+      document.cookie = 'token=; Max-Age=0; path=/; domain=.main.com;';
+      window.location.href = '/login';
+    }
+
+    async function fetchDashboard() {
+      const token = getCookie('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://api.main.com/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('username-display').textContent = data.username.toUpperCase();
+          
+          // Animate score counter
+          const scoreEl = document.getElementById('score-display');
+          let currentScore = 0;
+          const targetScore = Math.round(data.rolling_score);
+          if (targetScore > 0) {
+            const timer = setInterval(() => {
+              currentScore += Math.max(1, Math.floor(targetScore / 20));
+              if (currentScore >= targetScore) {
+                currentScore = targetScore;
+                clearInterval(timer);
+              }
+              scoreEl.textContent = currentScore;
+            }, 30);
+          } else {
+            scoreEl.textContent = '0';
+          }
+
+          // Animate skill bars
+          setTimeout(() => {
+            const soc = Math.round(data.skill_vectors.soc_analysis * 100);
+            const forc = Math.round(data.skill_vectors.forensics * 100);
+            const net = Math.round(data.skill_vectors.network_security * 100);
+
+            document.getElementById('soc-bar').style.width = soc + '%';
+            document.getElementById('soc-val').textContent = soc + '%';
+            
+            document.getElementById('for-bar').style.width = forc + '%';
+            document.getElementById('for-val').textContent = forc + '%';
+            
+            document.getElementById('net-bar').style.width = net + '%';
+            document.getElementById('net-val').textContent = net + '%';
+          }, 100);
+
+        } else {
+          // Token invalid
+          logout();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener('load', fetchDashboard);
+  </script>
+</body>
+</html>

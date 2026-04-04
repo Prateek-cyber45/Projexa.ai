@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: radial-gradient(circle at top right, rgba(74, 142, 255, 0.1), #131313 40%); color: #e2e2e2; }
+  .glass { background: rgba(33, 33, 33, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+  .demo-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 8px; width: 100%; padding: 12px 16px; outline: none; transition: 0.3s; }
+  .demo-input:focus { border-color: #adc7ff; box-shadow: 0 0 10px rgba(173, 199, 255, 0.2); }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-body selection:bg-primary-container selection:text-[#00285b]">
+
+  <div class="glass w-full max-w-md p-10 rounded-2xl shadow-2xl relative overflow-hidden">
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="text-center mb-8">
+      <h1 class="font-headline font-extrabold text-3xl text-white tracking-tight mb-2">Deep Hunt</h1>
+      <p class="text-on-surface-variant text-sm">Sign in to your tactical portal.</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5">
+      <div id="errorBox" class="hidden bg-red-500/10 border border-red-500/20 text-red-200 text-sm p-3 rounded-lg text-center"></div>
+      
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Username</label>
+        <input type="text" id="username" class="demo-input" required placeholder="Enter username" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Password</label>
+        <input type="password" id="password" class="demo-input" required placeholder="••••••••" />
+      </div>
+
+      <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-container text-[#00285b] font-headline font-bold py-3 rounded-lg hover:shadow-[0_0_20px_rgba(74,142,255,0.25)] transition-all">
+        AUTHENTICATE
+      </button>
+
+      <p class="text-xs text-center text-on-surface-variant mt-6">
+        Don't have an operator badge? <a href="/register" class="text-primary hover:underline font-bold">Sign Up</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- AUTH SCRIPT -->
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorBox = document.getElementById('errorBox');
+      errorBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('http://api.main.com/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        let data;
+        try { data = await res.json(); } catch(err) { data = { detail: 'Network Error' }; }
+        
+        if (res.ok) {
+          // Set JWT as cross-domain cookie so academy/labs can use it!
+          document.cookie = `token=${data.access_token}; path=/; domain=.main.com; max-age=86400; SameSite=Lax`;
+          window.location.href = '/dashboard';
+        } else {
+          errorBox.textContent = data.detail || 'Authentication failed';
+          errorBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        errorBox.textContent = 'Network or Server Error';
+        errorBox.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

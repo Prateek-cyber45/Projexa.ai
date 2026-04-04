@@ -10,8 +10,15 @@ services:
       - frontend-net
       - data-net
     depends_on:
+      - main
       - main-frontend
       - main-api
+
+  # Primary static web app (main)
+  main:
+    build: ./services/main
+    networks:
+      - frontend-net
 
   # Main API (FastAPI)
   main-api:

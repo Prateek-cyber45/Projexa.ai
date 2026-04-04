@@ -1,0 +1,104 @@
+================================================================================
+                              DEEPHUNT
+          Next-Generation Cybersecurity Training Platform
+================================================================================
+
+
+ABOUT DEEPHUNT
+--------------
+DeepHunt is an all-in-one cybersecurity training platform built for aspiring
+analysts, SOC operators, and incident responders. It combines a structured
+learning academy, real-world cyber range labs, and an AI-powered scoring engine
+into a single, seamless experience. Whether you're a beginner learning to
+triage alerts or a seasoned professional sharpening your threat-hunting skills,
+DeepHunt adapts to your level and pushes you further.
+
+
+PLATFORM PILLARS
+----------------
+
+1. ACADEMY — Learn the Fundamentals & Beyond
+   DeepHunt Academy offers curated cybersecurity courses spanning SOC operations,
+   incident response, digital forensics, network analysis, and threat hunting.
+   Each course features video lessons with chapter navigation, embedded quizzes,
+   downloadable resources (cheatsheets, PDFs), and auto-saved progress tracking.
+   On completion, learners earn verifiable certificates and skill badges.
+
+2. LABS — Practice in a Live Cyber Range
+   The Labs environment is where theory meets practice. Users step into realistic
+   SOC Simulator and Incident Response Simulator scenarios powered by live data.
+   The SOC Simulator presents a SIEM-style interface with real-time alerts that
+   users must triage — acknowledge, escalate, dismiss, or investigate — just like
+   a production security operations centre. The IR Simulator guides users through
+   playbook-driven investigations, forensics challenges, log analysis, and
+   artefact examination, culminating in a graded incident report submission.
+
+3. HONEYPOT ENGINE — Real Attacks, Safe Environment
+   At the heart of DeepHunt's realism is a built-in honeypot engine. Powered by
+   Cowrie (SSH) and Dionaea (HTTP, SMB, FTP), the platform deploys intentionally
+   vulnerable services inside a fully isolated Docker network. These honeypots
+   attract and capture real-world attack patterns — brute-force attempts, malware
+   drops, lateral movement — and stream all events into the labs in real time.
+   Full packet capture is available per session, giving learners hands-on
+   experience with genuine adversary behaviour in a completely safe sandbox.
+
+4. AI-POWERED DUAL SCORING ENGINE
+   DeepHunt doesn't just check if your answer is right — it evaluates how you
+   work. The Response Score (R_score) uses NLP and semantic similarity to grade
+   quiz answers, incident reports, and flag captures against reference solutions.
+   The Behaviour Score (B_score) analyses your working patterns — command
+   sequences, navigation efficiency, hesitation timing, and confidence — using
+   machine-learning models. Both scores are fused into a single Final Score with
+   integrity checks, giving learners an honest, cheat-resistant assessment of
+   their true skill level.
+
+
+KEY FEATURES
+------------
+• Adaptive Difficulty      — The platform increases scenario complexity as your
+                             skills improve.
+• Real-Time Score Widget   — See your live performance score update as you work
+                             through lab sessions.
+• Skill Radar Chart        — Visualise your strengths across SOC, IR, Forensics,
+                             Threat Hunting, and Network Analysis.
+• Progress Tracking        — Monitor courses in progress, completed labs, streaks,
+                             and historical score trends.
+• Auto-Generated Certs     — Receive PDF certificates upon course completion.
+• Role-Based Access        — Separate dashboards for learners and administrators.
+• SIEM & Monitoring        — Admins access Kibana dashboards for log analysis and
+                             Grafana for infrastructure metrics.
+• Fully Containerised      — Every service runs via Docker Compose behind a
+                             single Nginx reverse proxy — deploy anywhere.
+
+
+WHO IS DEEPHUNT FOR?
+--------------------
+• Students and Industry and career-switchers entering cybersecurity.
+• Junior SOC analysts preparing for real-world alert triage.
+• Incident responders looking to practise playbook execution.
+• Security teams running internal training and skill assessments.
+• Educators and bootcamps seeking a turnkey cyber range solution.
+
+
+TAGLINE IDEAS (for designers)
+-----------------------------
+• "Hunt Threats. Sharpen Skills. Prove Your Edge."
+• "Train Like It's Real. Score Like It Matters."
+• "Your Cybersecurity Proving Ground."
+• "From Novice to Expert — One Hunt at a Time."
+
+
+BRAND IDENTITY
+--------------
+Name        :  DeepHunt
+Tone        :  Professional, bold, technical yet approachable
+Colour Mood :  Deep navy / electric cyan / dark charcoal backgrounds with
+               neon accent highlights (think hacker-terminal meets modern SaaS)
+Typography  :  Clean sans-serif (Inter, Outfit, or JetBrains Mono for code)
+Imagery     :  Terminal aesthetics, network graphs, shield iconography,
+               radar/spider charts, dark-mode-first design
+
+
+================================================================================
+                    © 2026 DeepHunt. All rights reserved.
+================================================================================

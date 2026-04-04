@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Deep Hunt — Next-Gen Cybersecurity Training</title>
+    <link rel="preload" href="/earth.mp4?v=2" as="video" type="video/mp4" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#26467c",
+                        "primary": "#adc7ff",
+                        "outline": "#8b90a0",
+                        "on-primary-fixed-variant": "#004493",
+                        "on-error": "#690005",
+                        "surface-container-low": "#1b1b1b",
+                        "on-tertiary": "#571e00",
+                        "on-primary": "#002e68",
+                        "secondary-container": "#29487f",
+                        "on-secondary-fixed": "#001a41",
+                        "outline-variant": "#414754",
+                        "background": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "primary-container": "#4a8eff",
+                        "on-tertiary-container": "#4c1a00",
+                        "on-tertiary-fixed-variant": "#7c2e00",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-tertiary-fixed": "#351000",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "inverse-surface": "#e2e2e2",
+                        "inverse-on-surface": "#303030",
+                        "on-primary-container": "#00285b",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary": "#ffb695",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-background": "#e2e2e2",
+                        "secondary-fixed": "#d8e2ff",
+                        "secondary-fixed-dim": "#adc7ff",
+                        "tertiary-container": "#ef6719",
+                        "on-primary-fixed": "#001a41",
+                        "primary-fixed-dim": "#adc7ff",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-bright": "#393939",
+                        "on-secondary-container": "#9bb8f6",
+                        "surface-dim": "#131313",
+                        "surface": "#131313",
+                        "surface-container": "#1f1f1f",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#353535",
+                        "surface-tint": "#adc7ff",
+                        "surface-container-highest": "#353535",
+                        "on-surface-variant": "#c1c6d7",
+                        "on-secondary": "#072f64",
+                        "secondary": "#adc7ff",
+                        "inverse-primary": "#005bc0",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                    keyframes: {
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-20px) rotate(1deg)' },
+                        },
+                        'float-delayed': {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(-1deg)' },
+                        },
+                        'gradient-shift': {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' },
+                        },
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float-delayed 8s ease-in-out infinite',
+                        'gradient-shift': 'gradient-shift 6s ease infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        * {
+            scroll-behavior: smooth;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(53, 53, 53, 0.35);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #ADC7FF 0%, #4A8EFF 50%, #ADC7FF 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 6s ease infinite;
+        }
+
+        .hero-glow {
+            background: radial-gradient(ellipse at 60% 50%, rgba(74, 142, 255, 0.08) 0%, transparent 60%);
+        }
+
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ADC7FF, #4A8EFF);
+            z-index: 9999;
+            transition: width 0.1s linear;
+        }
+
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #131313;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-ring {
+            width: 50px;
+            height: 50px;
+            border: 2px solid transparent;
+            border-top-color: #ADC7FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-ring::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 2px solid transparent;
+            border-top-color: #4A8EFF;
+            border-radius: 50%;
+            animation: spin 0.6s linear reverse infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: 0.1s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: 0.2s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: 0.3s;
+        }
+
+        .reveal-delay-4 {
+            transition-delay: 0.4s;
+        }
+
+        .reveal-delay-5 {
+            transition-delay: 0.5s;
+        }
+
+        .card-glow {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+
+        .card-glow::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(173, 199, 255, 0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .card-glow:hover::before {
+            opacity: 1;
+        }
+
+        .card-glow:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px -15px rgba(74, 142, 255, 0.15);
+        }
+
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(173, 199, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(173, 199, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .video-bg-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .video-bg-container video,
+        .video-bg-container .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(19, 19, 19, 0.7) 0%, rgba(19, 19, 19, 0.5) 30%, rgba(19, 19, 19, 0.6) 70%, rgba(19, 19, 19, 0.95) 100%);
+            z-index: 1;
+        }
+
+        .video-overlay-radial {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 60% 40%, transparent 20%, rgba(19, 19, 19, 0.4) 70%);
+            z-index: 2;
+        }
+
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #353535;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #414754;
+        }
+
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .marquee-track {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .noise::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.4;
+        }
+
+        /* ========== GLOW TEXT SECTION ========== */
+        .glow-text {
+            color: #ffffff;
+            text-shadow:
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.6),
+                0 0 40px rgba(255, 255, 255, 0.4),
+                0 0 80px rgba(173, 199, 255, 0.3),
+                0 0 120px rgba(74, 142, 255, 0.2);
+        }
+
+        .glow-text-sub {
+            color: #ffffff;
+            text-shadow:
+                0 0 8px rgba(255, 255, 255, 0.6),
+                0 0 20px rgba(255, 255, 255, 0.3),
+                0 0 40px rgba(173, 199, 255, 0.2),
+                0 0 80px rgba(74, 142, 255, 0.1);
+        }
+
+        .glow-text-sm {
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow:
+                0 0 6px rgba(255, 255, 255, 0.5),
+                0 0 15px rgba(255, 255, 255, 0.2),
+                0 0 30px rgba(173, 199, 255, 0.15);
+        }
+
+        /* ========== PARTICLE CANVAS ========== */
+        #particle-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ========== NEUMORPHIC CARDS ========== */
+        .neo-card {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 30px;
+            background: #212121;
+            box-shadow: 15px 15px 30px rgb(25, 25, 25), -15px -15px 30px rgb(60, 60, 60);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+            overflow: hidden;
+        }
+
+        .neo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 20px 20px 40px rgb(20, 20, 20), -20px -20px 40px rgb(65, 65, 65);
+        }
+
+        .neo-card-inner {
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-height: 380px;
+        }
+
+        /* ========== TEAM TABS ========== */
+        .team-tab {
+            padding: 12px 28px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #c1c6d7;
+        }
+
+        .team-tab:hover {
+            background: rgba(173, 199, 255, 0.08);
+            color: #fff;
+        }
+
+        .team-tab.active {
+            background: linear-gradient(135deg, #ADC7FF, #4A8EFF);
+            color: #00285b;
+            border-color: transparent;
+            box-shadow: 0 4px 30px rgba(74, 142, 255, 0.3);
+        }
+
+        /* ========== DEMO FORM BUTTON (chitchat) ========== */
+        .ui-btn {
+            --btn-default-bg: rgb(41, 41, 41);
+            --btn-padding: 15px 32px;
+            --btn-hover-bg: rgb(51, 51, 51);
+            --btn-transition: .3s;
+            --btn-letter-spacing: .1rem;
+            --btn-animation-duration: 1.2s;
+            --btn-shadow-color: rgba(0, 0, 0, 0.137);
+            --btn-shadow: 0 2px 10px 0 var(--btn-shadow-color);
+            --hover-btn-color: #ADC7FF;
+            --default-btn-color: #fff;
+            --font-size: 16px;
+            --font-weight: 600;
+            --font-family: 'JetBrains Mono', Menlo, Roboto Mono, monospace;
+        }
+
+        .ui-btn {
+            box-sizing: border-box;
+            padding: var(--btn-padding);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--default-btn-color);
+            font: var(--font-weight) var(--font-size) var(--font-family);
+            background: var(--btn-default-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: var(--btn-transition);
+            overflow: hidden;
+            box-shadow: var(--btn-shadow);
+            border-radius: 12px;
+            width: 100%;
+        }
+
+        .ui-btn span {
+            letter-spacing: var(--btn-letter-spacing);
+            transition: var(--btn-transition);
+            box-sizing: border-box;
+            position: relative;
+            background: inherit;
+        }
+
+        .ui-btn span::before {
+            box-sizing: border-box;
+            position: absolute;
+            content: "";
+            background: inherit;
+        }
+
+        .ui-btn:hover,
+        .ui-btn:focus {
+            background: var(--btn-hover-bg);
+            border-color: rgba(173, 199, 255, 0.3);
+        }
+
+        .ui-btn:hover span,
+        .ui-btn:focus span {
+            color: var(--hover-btn-color);
+        }
+
+        .ui-btn:hover span::before,
+        .ui-btn:focus span::before {
+            animation: chitchat linear both var(--btn-animation-duration);
+        }
+
+        @keyframes chitchat {
+            0% {
+                content: "#";
+            }
+
+            5% {
+                content: ".";
+            }
+
+            10% {
+                content: "^{";
+            }
+
+            15% {
+                content: "-!";
+            }
+
+            20% {
+                content: "#$_";
+            }
+
+            25% {
+                content: "№:0";
+            }
+
+            30% {
+                content: "#{+.";
+            }
+
+            35% {
+                content: "@}-?";
+            }
+
+            40% {
+                content: "?{4@%";
+            }
+
+            45% {
+                content: "=.,^!";
+            }
+
+            50% {
+                content: "?2@%";
+            }
+
+            55% {
+                content: "\\;1}]";
+            }
+
+            60% {
+                content: "?{%:%";
+                right: 0;
+            }
+
+            65% {
+                content: "|{f[4";
+                right: 0;
+            }
+
+            70% {
+                content: "{4%0%";
+                right: 0;
+            }
+
+            75% {
+                content: "'1_0<";
+                right: 0;
+            }
+
+            80% {
+                content: "{0%";
+                right: 0;
+            }
+
+            85% {
+                content: "]>'";
+                right: 0;
+            }
+
+            90% {
+                content: "4";
+                right: 0;
+            }
+
+            95% {
+                content: "2";
+                right: 0;
+            }
+
+            100% {
+                content: "";
+                right: 0;
+            }
+        }
+
+        /* Form input styles */
+        .demo-input {
+            background: rgba(33, 33, 33, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .demo-input::placeholder {
+            color: rgba(193, 198, 215, 0.4);
+        }
+
+        .demo-input:focus {
+            border-color: rgba(173, 199, 255, 0.4);
+            box-shadow: 0 0 20px rgba(74, 142, 255, 0.1);
+            background: rgba(41, 41, 41, 0.9);
+        }
+
+        .demo-input:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Team content transition */
+        .team-content {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .team-content.hidden-content {
+            opacity: 0;
+            transform: translateY(10px);
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .team-content.visible-content {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container noise">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="relative">
+            <div class="loader-ring"></div>
+            <span
+                class="absolute top-16 left-1/2 -translate-x-1/2 text-primary/60 font-mono text-xs tracking-widest whitespace-nowrap">INITIALIZING</span>
+        </div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div id="scroll-progress" style="width: 0%"></div>
+
+    <!-- TopNavBar -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500">
+        <div class="flex justify-between items-center px-6 md:px-10 py-5 max-w-screen-2xl mx-auto">
+            <a href="#" class="flex items-center gap-3 group">
+                <div
+                    class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container text-lg"
+                        style="font-variation-settings: 'FILL' 1;">security</span>
+                </div>
+                <span
+                    class="text-xl font-extrabold tracking-tighter text-white font-headline group-hover:text-primary transition-colors duration-300">Deep
+                    Hunt</span>
+            </a>
+            <div class="hidden lg:flex items-center gap-1">
+                <a class="font-headline font-medium text-sm tracking-tight text-primary bg-primary/10 px-4 py-2 rounded-lg transition-all duration-300"
+                    href="/academy/">Academy</a>
+                <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300"
+                    href="/labs/">Labs</a>
+                <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300"
+                    href="#ecosystem">AI Scoring</a>
+                <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300"
+                    href="#demo-section">About</a>
+            </div>
+            <div class="flex items-center gap-4" id="auth-buttons-container">
+                <!-- Javascript will inject login/register/dashboard here -->
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="hidden md:inline-flex bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-6 py-2.5 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] hover:translate-y-[-2px] transition-all duration-300 active:scale-95">
+                    Contact
+                </button>
+                <button id="menu-toggle" class="lg:hidden flex flex-col gap-1.5 p-2 group" aria-label="Menu">
+                    <span
+                        class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:rotate-45 group-[.active]:translate-y-2"></span>
+                    <span class="block w-6 h-0.5 bg-white transition-all duration-300 group-[.active]:opacity-0"></span>
+                    <span
+                        class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:-rotate-45 group-[.active]:-translate-y-2"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+        class="mobile-menu fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 lg:hidden">
+        <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/academy/">Academy</a>
+        <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/labs/">Labs</a>
+        <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="#ecosystem">AI
+            Scoring</a>
+        <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/login">Dashboard / Login</a>
+    </div>
+
+    <main class="pt-0">
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- HERO SECTION                            -->
+        <!-- ═══════════════════════════════════════ -->
+        <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+            <div class="video-bg-container">
+                <!-- EARTH VIDEO -->
+                <video id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover">
+                    <source src="/earth.mp4?v=2" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div id="hero-video-fallback" class="absolute inset-0 bg-gradient-to-b from-[#080b14] via-[#0a0e1a] to-[#131313] hidden"></div>
+
+                <div class="video-overlay"></div>
+                <div class="video-overlay-radial"></div>
+            </div>
+
+            <div class="absolute inset-0 grid-bg opacity-50 z-[3]"></div>
+
+            <div
+                class="relative z-10 max-w-screen-2xl mx-auto w-full px-6 md:px-10 grid grid-cols-12 gap-6 items-center pt-24">
+                <div class="col-span-12 lg:col-span-8 lg:col-start-1">
+                    <div
+                        class="reveal inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 mb-8">
+                        <span class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        </span>
+                        <span class="text-primary tracking-[0.15em] font-medium uppercase text-xs font-mono">Next-Gen
+                            Cybersecurity Training</span>
+                    </div>
+                    <h1
+                        class="reveal reveal-delay-1 font-headline text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] font-extrabold tracking-tighter leading-[0.88] mb-8 text-white">
+                        BRIDGE THE <br /><span class="text-gradient">GAP TO</span> <br />REAL-WORLD OPS.
+                    </h1>
+                    <p
+                        class="reveal reveal-delay-2 text-on-surface-variant max-w-xl text-base md:text-lg leading-relaxed mb-12 font-light">
+                        Deep Hunt is the elite cyber range for modern security teams. We transform theoretical knowledge
+                        into battle-tested skillsets through live-fire simulations and AI-driven performance analytics.
+                    </p>
+                    <div class="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4">
+                        <button onclick="location.href='/register';"
+                            class="group relative bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-10 py-4 font-headline font-extrabold tracking-tight rounded-lg hover:shadow-[0_0_40px_rgba(74,142,255,0.3)] hover:translate-y-[-2px] transition-all duration-300 active:scale-[0.98] overflow-hidden">
+                            <span class="relative z-10">START TRAINING</span>
+                            <div
+                                class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                            </div>
+                        </button>
+                        <button onclick="location.href='/labs/';"
+                            class="group flex items-center justify-center gap-3 text-white font-headline font-bold px-6 py-4 hover:bg-white/5 rounded-lg transition-all duration-300">
+                            EXPLORE LABS
+                            <span
+                                class="material-symbols-outlined group-hover:translate-x-2 transition-transform duration-300">arrow_forward</span>
+                        </button>
+                    </div>
+                    <div class="reveal reveal-delay-4 flex gap-8 md:gap-12 mt-16 pt-8 border-t border-white/10">
+                        <div>
+                            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number"
+                                data-count="500">0+</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Active
+                                Operators</p>
+                        </div>
+                        <div>
+                            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number"
+                                data-count="50">0+</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Lab Scenarios
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number"
+                                data-count="99">0%</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Threat
+                                Accuracy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 hidden lg:flex flex-col gap-6 items-end">
+                    <div
+                        class="reveal reveal-delay-3 animate-float glass-panel border border-white/10 rounded-2xl p-6 w-72 shadow-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="material-symbols-outlined text-primary text-2xl"
+                                style="font-variation-settings: 'FILL' 1;">shield</span>
+                            <span
+                                class="text-[10px] text-primary/60 font-mono bg-primary/10 px-2 py-1 rounded">LIVE</span>
+                        </div>
+                        <div class="mb-3">
+                            <p class="text-white font-headline font-bold text-sm mb-1">Threat Detection Rate</p>
+                            <p class="text-3xl font-headline font-extrabold text-white">97.8<span
+                                    class="text-primary text-lg">%</span></p>
+                        </div>
+                        <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                            <div
+                                class="h-full w-[97.8%] bg-gradient-to-r from-primary to-primary-container rounded-full">
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="reveal reveal-delay-4 animate-float-delayed glass-panel border border-white/10 rounded-2xl p-6 w-64 mr-8 shadow-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="material-symbols-outlined text-primary text-2xl">monitoring</span>
+                            <div class="flex gap-1.5">
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse"
+                                    style="animation-delay: 0.3s;"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse"
+                                    style="animation-delay: 0.6s;"></div>
+                            </div>
+                        </div>
+                        <p class="text-white font-headline font-bold text-sm mb-3">Active Simulations</p>
+                        <div class="flex items-end gap-1 h-12">
+                            <div class="w-3 bg-primary/30 rounded-t" style="height: 40%"></div>
+                            <div class="w-3 bg-primary/40 rounded-t" style="height: 60%"></div>
+                            <div class="w-3 bg-primary/50 rounded-t" style="height: 45%"></div>
+                            <div class="w-3 bg-primary/60 rounded-t" style="height: 80%"></div>
+                            <div class="w-3 bg-primary/70 rounded-t" style="height: 55%"></div>
+                            <div class="w-3 bg-primary/80 rounded-t" style="height: 90%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 70%"></div>
+                            <div class="w-3 bg-primary-container rounded-t animate-pulse" style="height: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="reveal reveal-delay-5 animate-float glass-panel border border-white/10 rounded-2xl p-5 w-60 mr-2 shadow-2xl"
+                        style="animation-delay: 2s;">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary-container/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-lg"
+                                    style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-headline font-bold text-xs">AI Score Engine</p>
+                                <p class="text-primary text-[10px] font-mono">v3.2 • Operational</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce"
+                style="animation-duration: 2s;">
+                <span class="text-[10px] text-on-surface-variant uppercase tracking-[0.3em] font-mono">Scroll</span>
+                <span class="material-symbols-outlined text-primary/60 text-sm">expand_more</span>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- BREAKING THE PATTERN — GLOW TEXT + VIDEO -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+            <!-- VIDEO BACKGROUND for this section -->
+            <div class="video-bg-container">
+                <!--
+        EARTH VIDEO: Replace this div with your <video> tag:
+        <video autoplay muted loop playsinline>
+          <source src="YOUR_EARTH_VIDEO.mp4" type="video/mp4">
+        </video>
+      -->
+                <div class="video-placeholder w-full h-full bg-gradient-to-b from-[#080b14] via-[#0a0e1a] to-[#131313]">
+                    <!-- Animated earth-like glow placeholder -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px]">
+                        <div class="absolute inset-[10%] rounded-full bg-gradient-to-br from-primary/4 via-transparent to-primary-container/4 animate-pulse"
+                            style="animation-duration: 5s;"></div>
+                        <div class="absolute inset-[25%] rounded-full bg-gradient-to-tr from-primary/6 to-transparent animate-pulse"
+                            style="animation-duration: 7s;"></div>
+                        <div class="absolute inset-[40%] rounded-full border border-primary/5 animate-pulse"
+                            style="animation-duration: 4s;"></div>
+                        <div class="absolute top-[35%] left-[45%] w-32 h-32 bg-primary/5 rounded-full blur-[80px]">
+                        </div>
+                    </div>
+                </div>
+                <!-- Darker overlays for maximum text contrast -->
+                <div class="absolute inset-0 bg-gradient-to-b from-[#131313] via-transparent to-[#131313] z-[1]"
+                    style="opacity: 0.6;"></div>
+                <div class="absolute inset-0 bg-[#131313]/30 z-[2]"></div>
+            </div>
+
+            <!-- Animated scan lines -->
+            <div class="absolute inset-0 z-[3] overflow-hidden pointer-events-none opacity-[0.03]">
+                <div class="w-full h-[2px] bg-primary/40 absolute" style="animation: scanMove 4s linear infinite;">
+                </div>
+            </div>
+            <style>
+                @keyframes scanMove {
+                    0% {
+                        top: -2px;
+                    }
+
+                    100% {
+                        top: 100%;
+                    }
+                }
+            </style>
+
+            <div class="relative z-10 text-center px-6 md:px-10 max-w-5xl mx-auto">
+                <div class="reveal mb-6">
+                    <span class="text-primary/50 font-mono text-xs tracking-[0.4em] uppercase block mb-12">// Signal
+                        Detected</span>
+                </div>
+
+                <h2
+                    class="reveal reveal-delay-1 font-headline text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter leading-[0.85] mb-8 glow-text">
+                    Breaking the Pattern
+                </h2>
+
+                <p
+                    class="reveal reveal-delay-2 font-headline text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-snug mb-6 glow-text-sub">
+                    Pushing Beyond the Limits of Simulation
+                </p>
+
+                <p
+                    class="reveal reveal-delay-3 font-headline text-lg md:text-xl lg:text-2xl font-medium tracking-tight leading-relaxed glow-text-sm">
+                    Where Real Attacks Leave Their Shadow
+                </p>
+
+                <!-- Decorative elements -->
+                <div class="reveal reveal-delay-4 flex justify-center mt-16">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-px bg-gradient-to-r from-transparent to-primary/40"></div>
+                        <div class="w-2 h-2 rounded-full bg-primary/60 animate-pulse"></div>
+                        <div class="w-16 h-px bg-gradient-to-l from-transparent to-primary/40"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- MARQUEE STRIP                           -->
+        <!-- ═══════════════════════════════════════ -->
+        <div class="relative bg-surface-container-lowest border-y border-white/5 py-4 overflow-hidden">
+            <div class="marquee-track whitespace-nowrap">
+                <span
+                    class="inline-flex items-center gap-8 mx-8 text-on-surface-variant/40 text-xs font-mono uppercase tracking-[0.3em]">
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>SOC
+                        Operations</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Incident Response</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Threat
+                        Hunting</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Digital Forensics</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Malware Analysis</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Red
+                        Teaming</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>OSINT</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Cloud
+                        Security</span>
+                </span>
+                <span
+                    class="inline-flex items-center gap-8 mx-8 text-on-surface-variant/40 text-xs font-mono uppercase tracking-[0.3em]">
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>SOC
+                        Operations</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Incident Response</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Threat
+                        Hunting</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Digital Forensics</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>Malware Analysis</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Red
+                        Teaming</span>
+                    <span class="flex items-center gap-2"><span
+                            class="w-1 h-1 bg-primary/40 rounded-full"></span>OSINT</span>
+                    <span class="flex items-center gap-2"><span class="w-1 h-1 bg-primary/40 rounded-full"></span>Cloud
+                        Security</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- EXPERTISE BENTO GRID                    -->
+        <!-- ═══════════════════════════════════════ -->
+        <section id="ecosystem" class="py-32 px-6 md:px-10 max-w-screen-2xl mx-auto">
+            <div class="reveal mb-20">
+                <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">// What we
+                    offer</span>
+                <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">THE CORE
+                    ECOSYSTEM</h2>
+                <div class="h-1 w-24 bg-gradient-to-r from-primary to-primary-container rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div
+                    class="reveal reveal-delay-1 lg:col-span-2 card-glow bg-surface-container-low border border-white/5 rounded-2xl p-10 md:p-12 relative group overflow-hidden">
+                    <div class="relative z-10">
+                        <div
+                            class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-8">
+                            <span class="material-symbols-outlined text-3xl text-primary">school</span>
+                        </div>
+                        <h3 class="font-headline text-2xl md:text-3xl font-bold text-white mb-4">Deep Hunt Academy (LMS)
+                        </h3>
+                        <p class="text-on-surface-variant max-w-lg text-base leading-relaxed mb-8">Structured courses
+                            featuring high-production video lessons, embedded quizzes, and automated certification.
+                            Track your progress from novice to expert.</p>
+                        <div class="flex items-center gap-6">
+                            <div class="flex -space-x-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-primary/20 border-2 border-surface-container-low flex items-center justify-center">
+                                    <span class="text-[10px] text-primary font-bold">AK</span></div>
+                                <div
+                                    class="w-8 h-8 rounded-full bg-primary-container/20 border-2 border-surface-container-low flex items-center justify-center">
+                                    <span class="text-[10px] text-primary font-bold">JM</span></div>
+                                <div
+                                    class="w-8 h-8 rounded-full bg-primary/30 border-2 border-surface-container-low flex items-center justify-center">
+                                    <span class="text-[10px] text-primary font-bold">RD</span></div>
+                                <div
+                                    class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center">
+                                    <span class="text-[10px] text-on-surface-variant">+42</span></div>
+                            </div>
+                            <span class="text-xs text-on-surface-variant">Active learners this week</span>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute right-0 bottom-0 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-700">
+                        <span class="material-symbols-outlined text-[14rem]"
+                            style="font-variation-settings: 'FILL' 1;">school</span>
+                    </div>
+                </div>
+                <div
+                    class="reveal reveal-delay-2 card-glow bg-surface-container border border-white/5 rounded-2xl p-10 md:p-12 relative group overflow-hidden">
+                    <div
+                        class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-8">
+                        <span class="material-symbols-outlined text-3xl text-primary">science</span>
+                    </div>
+                    <h3 class="font-headline text-xl md:text-2xl font-bold text-white mb-4">Realistic Cyber Range</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Train on live honeypot environments
+                        (Cowrie, Dionaea). Experience SOC and IR scenarios that mirror actual threat actor behavior.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span
+                            class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Cowrie</span>
+                        <span
+                            class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Dionaea</span>
+                        <span
+                            class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">T-Pot</span>
+                    </div>
+                </div>
+                <div
+                    class="reveal reveal-delay-3 card-glow bg-surface-container border border-white/5 rounded-2xl p-10 md:p-12 relative group overflow-hidden">
+                    <div
+                        class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-8">
+                        <span class="material-symbols-outlined text-3xl text-primary">radar</span>
+                    </div>
+                    <h3 class="font-headline text-xl md:text-2xl font-bold text-white mb-4">Skill Profiling</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Visualize expertise across SOC, IR,
+                        and Forensics. Radar charts provide granular insights into your team's tactical profile.</p>
+                    <div class="flex items-end gap-2 mt-auto">
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-6 h-12 bg-primary/20 rounded-t relative overflow-hidden">
+                                <div class="absolute bottom-0 w-full h-[70%] bg-primary/50 rounded-t"></div>
+                            </div><span class="text-[8px] text-on-surface-variant">SOC</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-6 h-12 bg-primary/20 rounded-t relative overflow-hidden">
+                                <div class="absolute bottom-0 w-full h-[85%] bg-primary/50 rounded-t"></div>
+                            </div><span class="text-[8px] text-on-surface-variant">IR</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-6 h-12 bg-primary/20 rounded-t relative overflow-hidden">
+                                <div class="absolute bottom-0 w-full h-[60%] bg-primary/50 rounded-t"></div>
+                            </div><span class="text-[8px] text-on-surface-variant">FOR</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-6 h-12 bg-primary/20 rounded-t relative overflow-hidden">
+                                <div class="absolute bottom-0 w-full h-[45%] bg-primary/50 rounded-t"></div>
+                            </div><span class="text-[8px] text-on-surface-variant">MAL</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-6 h-12 bg-primary/20 rounded-t relative overflow-hidden">
+                                <div class="absolute bottom-0 w-full h-[75%] bg-primary/50 rounded-t"></div>
+                            </div><span class="text-[8px] text-on-surface-variant">THR</span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="reveal reveal-delay-4 lg:col-span-2 card-glow bg-gradient-to-br from-surface-container to-surface-container-highest border border-white/5 rounded-2xl p-10 md:p-12 relative group overflow-hidden">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-8">
+                        <div class="max-w-lg">
+                            <div
+                                class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-8">
+                                <span class="material-symbols-outlined text-3xl text-primary">psychology</span>
+                            </div>
+                            <h3 class="font-headline text-xl md:text-2xl font-bold text-white mb-4">Dual-Engine AI
+                                Scoring</h3>
+                            <p class="text-on-surface-variant text-sm leading-relaxed mb-8">Automated evaluation of
+                                Response and Behaviour Scores. Our AI ensures rigorous integrity checks while providing
+                                immediate, actionable feedback.</p>
+                            <button
+                                class="group/btn flex items-center gap-2 text-primary font-bold text-xs tracking-widest uppercase hover:gap-3 transition-all duration-300">
+                                View Metrics <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-3 min-w-[200px]">
+                            <div class="flex gap-1.5 items-center">
+                                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                <span class="text-[10px] text-white/50 uppercase tracking-wider font-mono">Response
+                                    Score</span>
+                            </div>
+                            <div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                    class="h-full w-[87%] bg-gradient-to-r from-primary to-primary-container rounded-full">
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5 items-center mt-2">
+                                <div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"
+                                    style="animation-delay: 0.5s;"></div>
+                                <span class="text-[10px] text-white/50 uppercase tracking-wider font-mono">Behaviour
+                                    Score</span>
+                            </div>
+                            <div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                    class="h-full w-[92%] bg-gradient-to-r from-primary-container to-primary rounded-full">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- LIVE TRAINING SCENARIOS                 -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="bg-surface-container-lowest py-32 px-6 md:px-10 relative">
+            <div class="absolute inset-0 grid-bg opacity-30"></div>
+            <div class="max-w-screen-2xl mx-auto relative">
+                <div class="reveal flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-6">
+                    <div>
+                        <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">//
+                            Simulations</span>
+                        <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+                            LIVE TRAINING SCENARIOS</h2>
+                        <p class="text-on-surface-variant max-w-md">Deep-dive into our most demanding simulation
+                            environments.</p>
+                    </div>
+                    <button onclick="alert('Scenario archive coming soon!');"
+                        class="hidden md:flex items-center gap-2 text-primary font-bold tracking-widest text-xs uppercase hover:gap-3 transition-all duration-300 border border-primary/20 px-6 py-3 rounded-lg hover:bg-primary/5">
+                        View Archive <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+
+                <div class="space-y-24">
+                    <!-- Scenario 01 -->
+                    <div class="reveal grid grid-cols-12 gap-6 md:gap-8 items-center">
+                        <div
+                            class="col-span-12 lg:col-span-7 rounded-2xl overflow-hidden relative group cursor-pointer">
+                            <img alt="Cybersecurity hardware server room with blue lighting"
+                                class="w-full h-[400px] md:h-[500px] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 opacity-60 group-hover:opacity-80 group-hover:scale-105"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPnadg_1U1VhS19-zrC_ggaZWaKayLcux8bwbpmNdmz4TtvlRdGz8Vc6lYV6LpV0JWTdAl2UuWyucJDLoeAMBYgTVevfFxBiYY2OKxmVgwwO6SOErKf3JNTEIngCdXr5vXwZ2ydOf0PpJwTU95_043YkYMsbejHaboFd2fmF8cIqq-aNTpmeqOT0M3_LLwVKA0_TkDhIvr2nXLNMNBZrKkU_KXzn5rUX-o6dpSZrMmuuENq4bGi2N-iWkXE9XJkzWtHYZx4ggIQNM" />
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent">
+                            </div>
+                            <div
+                                class="absolute top-6 left-6 glass-panel border border-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                <span class="text-[10px] text-white font-mono uppercase tracking-wider">Live
+                                    Environment</span>
+                            </div>
+                        </div>
+                        <div class="col-span-12 lg:col-span-4 lg:col-start-9">
+                            <span class="text-primary font-mono text-sm mb-4 block tracking-wider">SCENARIO 01 / SOC
+                                OPERATIONS</span>
+                            <h3 class="font-headline text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                                Full-Spectrum Tier 1 Simulation</h3>
+                            <p class="text-on-surface-variant mb-8 leading-relaxed">Manage high-volume alert traffic in
+                                a simulated banking environment. Learn to distinguish true positives from noise with 99%
+                                accuracy.</p>
+                            <div class="flex gap-10 border-t border-outline-variant/20 pt-8">
+                                <div>
+                                    <p class="text-white font-headline font-extrabold text-3xl stat-number">150<span
+                                            class="text-primary text-lg">+</span></p>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Live
+                                        Alerts / Hour</p>
+                                </div>
+                                <div>
+                                    <p class="text-white font-headline font-extrabold text-3xl">12<span
+                                            class="text-primary text-lg">min</span></p>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Avg.
+                                        Response Time</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 02 — WITH PARTICLE SYSTEM -->
+                    <div class="reveal grid grid-cols-12 gap-6 md:gap-8 items-center relative" id="ransomware-section">
+                        <!-- Particle Canvas -->
+                        <canvas id="particle-canvas"></canvas>
+
+                        <div class="col-span-12 lg:col-span-4 lg:order-1 order-2 relative z-10">
+                            <span class="text-primary font-mono text-sm mb-4 block tracking-wider">SCENARIO 02 /
+                                INCIDENT RESPONSE</span>
+                            <h3 class="font-headline text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                                Ransomware Chain Containment</h3>
+                            <p class="text-on-surface-variant mb-8 leading-relaxed">Execute containment protocols
+                                against active adversary movements within an industrial control system simulation.</p>
+                            <div class="flex gap-10 border-t border-outline-variant/20 pt-8">
+                                <div>
+                                    <p class="text-white font-headline font-extrabold text-3xl">MITRE</p>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">
+                                        Mapped Framework</p>
+                                </div>
+                                <div>
+                                    <p class="text-white font-headline font-extrabold text-3xl">IRL</p>
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">
+                                        Artifact Analysis</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="col-span-12 lg:col-span-7 lg:col-start-6 lg:order-2 order-1 rounded-2xl overflow-hidden relative group cursor-pointer z-10">
+                            <img alt="Earth from space with digital networking overlay"
+                                class="w-full h-[400px] md:h-[500px] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 opacity-60 group-hover:opacity-80 group-hover:scale-105"
+                                src="./luminas_art-new-year-background-3608029.jpg" />
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent">
+                            </div>
+                            <div
+                                class="absolute top-6 right-6 glass-panel border border-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+                                <span class="text-[10px] text-white font-mono uppercase tracking-wider">Threat
+                                    Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- PRICING CARDS — Neumorphic              -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="py-32 px-6 md:px-10 max-w-screen-2xl mx-auto">
+            <div class="reveal text-center mb-20">
+                <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">// Plans &
+                    Pricing</span>
+                <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">Choose Your
+                    Path</h2>
+                <p class="text-on-surface-variant max-w-xl mx-auto text-base leading-relaxed">Tailored cybersecurity
+                    training for every level — from solo practitioners to enterprise-scale operations.</p>
+            </div>
+
+            <div class="reveal flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10">
+
+                <!-- Card 1: Individuals -->
+                <div class="neo-card">
+                    <div class="neo-card-inner">
+                        <div
+                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/15 mb-6">
+                            <span class="material-symbols-outlined text-2xl text-primary">person</span>
+                        </div>
+                        <h3 class="font-headline text-xl font-bold text-white mb-2">For Individuals</h3>
+                        <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Perfect for solo analysts and
+                            enthusiasts building foundational skills in threat detection and response.</p>
+                        <div class="mb-6">
+                            <span class="font-headline text-4xl font-extrabold text-white">$29</span>
+                            <span class="text-on-surface-variant text-sm">/month</span>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                10 Lab Scenarios
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                AI Skill Reports
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Academy Access
+                            </li>
+                        </ul>
+                        <button
+                            class="w-full py-3 border border-primary/30 text-primary font-headline font-bold text-sm rounded-xl hover:bg-primary/10 transition-all duration-300">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2: Businesses (Featured) -->
+                <div class="neo-card relative"
+                    style="box-shadow: 20px 20px 40px rgb(20, 20, 20), -20px -20px 40px rgb(65, 65, 65), 0 0 60px rgba(74, 142, 255, 0.1);">
+                    <!-- Popular badge -->
+                    <div
+                        class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary-container text-on-primary-container text-[10px] font-bold font-mono uppercase tracking-widest px-4 py-1.5 rounded-full z-10">
+                        Most Popular
+                    </div>
+                    <div class="neo-card-inner border-t-2 border-primary/40 rounded-t-[30px]">
+                        <div
+                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/15 border border-primary/25 mb-6">
+                            <span class="material-symbols-outlined text-2xl text-primary"
+                                style="font-variation-settings: 'FILL' 1;">business</span>
+                        </div>
+                        <h3 class="font-headline text-xl font-bold text-white mb-2">For Businesses</h3>
+                        <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Equip your security team with
+                            advanced simulations, team analytics, and collaborative training modules.</p>
+                        <div class="mb-6">
+                            <span class="font-headline text-4xl font-extrabold text-white">$149</span>
+                            <span class="text-on-surface-variant text-sm">/month</span>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Unlimited Scenarios
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Team Analytics Dashboard
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Priority Support
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Custom Environments
+                            </li>
+                        </ul>
+                        <button onclick="location.href='/register';"
+                            class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold text-sm rounded-xl hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] transition-all duration-300">
+                            Start Free Trial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: Industry / Enterprise -->
+                <div class="neo-card">
+                    <div class="neo-card-inner">
+                        <div
+                            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/15 mb-6">
+                            <span class="material-symbols-outlined text-2xl text-primary">domain</span>
+                        </div>
+                        <h3 class="font-headline text-xl font-bold text-white mb-2">For Industry</h3>
+                        <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Enterprise-grade deployments
+                            with dedicated infrastructure, white-labeling, and compliance-ready reporting.</p>
+                        <div class="mb-6">
+                            <span class="font-headline text-4xl font-extrabold text-white">Custom</span>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Dedicated Infrastructure
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                White-Label Options
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                SLA & Compliance
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                                Onboarding Support
+                            </li>
+                        </ul>
+                        <button onclick="document.getElementById('demo-section').scrollIntoView({behavior: 'smooth'});"
+                            class="w-full py-3 border border-primary/30 text-primary font-headline font-bold text-sm rounded-xl hover:bg-primary/10 transition-all duration-300">
+                            Contact Sales
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SOLUTIONS — Blue / Red / Purple Teams   -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="py-32 px-6 md:px-10 bg-surface-container-lowest relative overflow-hidden">
+            <div class="absolute inset-0 grid-bg opacity-20"></div>
+            <div class="max-w-screen-2xl mx-auto relative">
+                <div class="reveal text-center mb-6">
+                    <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">// Domains</span>
+                    <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">
+                        Solutions for All Cybersecurity Domains</h2>
+                    <p class="text-on-surface-variant max-w-2xl mx-auto text-base leading-relaxed">Build high-performing
+                        security teams with hands-on simulations, continuous measurement, and content mapped to MITRE
+                        &amp; NIST.</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="reveal flex flex-wrap justify-center gap-3 mt-12 mb-16" id="team-tabs">
+                    <button class="team-tab active" data-team="blue" onclick="switchTeam('blue')">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">shield</span>
+                            Blue Teams
+                        </span>
+                    </button>
+                    <button class="team-tab" data-team="red" onclick="switchTeam('red')">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">bug_report</span>
+                            Red Teams
+                        </span>
+                    </button>
+                    <button class="team-tab" data-team="purple" onclick="switchTeam('purple')">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">sync_alt</span>
+                            Purple Teams
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="relative min-h-[350px]">
+                    <!-- Blue Team Content -->
+                    <div class="team-content visible-content" id="content-blue">
+                        <div class="reveal grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-primary mb-4">visibility</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">SOC Monitoring</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Real-time SIEM analysis,
+                                    alert triage, and escalation workflows in simulated SOC environments with
+                                    production-scale data streams.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-primary mb-4">emergency</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Incident Response</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">End-to-end IR playbook
+                                    execution — from detection through containment, eradication, and recovery with live
+                                    forensic artifacts.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-primary mb-4">search</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Threat Hunting</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Proactive hypothesis-driven
+                                    hunting across network, endpoint, and cloud telemetry using MITRE ATT&CK mapped
+                                    techniques.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Red Team Content -->
+                    <div class="team-content hidden-content" id="content-red">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-error mb-4">terminal</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Penetration Testing</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Advanced exploitation
+                                    techniques across network, web application, and cloud environments with realistic
+                                    target infrastructure.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-error mb-4">phishing</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Social Engineering</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Phishing campaign simulation,
+                                    pretexting exercises, and physical security assessment training with measurable
+                                    outcomes.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-error mb-4">code</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Exploit Development</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Hands-on vulnerability
+                                    research, custom exploit creation, and evasion technique training in sandboxed
+                                    environments.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Purple Team Content -->
+                    <div class="team-content hidden-content" id="content-purple">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span
+                                    class="material-symbols-outlined text-3xl text-[#c792ea] mb-4">compare_arrows</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Adversary Emulation</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Collaborative attack-defend
+                                    exercises where red and blue work together to validate detection coverage against
+                                    known APT playbooks.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-[#c792ea] mb-4">assessment</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Gap Analysis</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Systematic identification of
+                                    detection gaps mapped to MITRE ATT&CK with actionable remediation and tuning
+                                    recommendations.</p>
+                            </div>
+                            <div class="card-glow bg-surface-container border border-white/5 rounded-2xl p-8">
+                                <span class="material-symbols-outlined text-3xl text-[#c792ea] mb-4">hub</span>
+                                <h4 class="font-headline text-lg font-bold text-white mb-3">Continuous Validation</h4>
+                                <p class="text-on-surface-variant text-sm leading-relaxed">Ongoing breach & attack
+                                    simulation to ensure security controls remain effective as the environment and
+                                    threat landscape evolve.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- DEMO FORM SECTION                       -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="py-32 px-6 md:px-10 relative overflow-hidden" id="demo-section">
+            <div class="absolute inset-0 grid-bg opacity-15"></div>
+            <div
+                class="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-primary/3 blur-[200px] rounded-full">
+            </div>
+
+            <div class="max-w-screen-2xl mx-auto relative">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+                    <!-- Left side — copy -->
+                    <div class="reveal">
+                        <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">// Get in
+                            touch</span>
+                        <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">Get
+                            a Full Demo<br />With Our Team</h2>
+                        <p class="text-on-surface-variant text-base leading-relaxed mb-10 max-w-lg">See the full
+                            platform in action. Our specialists will walk you through live scenarios, AI scoring, and
+                            how Deep Hunt can transform your team's readiness.</p>
+
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-primary text-lg">schedule</span>
+                                </div>
+                                <div>
+                                    <p class="text-white font-headline font-bold text-sm mb-1">30-Minute Walkthrough</p>
+                                    <p class="text-on-surface-variant text-sm">Personalized demo covering your team's
+                                        specific needs and use cases.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-primary text-lg">live_tv</span>
+                                </div>
+                                <div>
+                                    <p class="text-white font-headline font-bold text-sm mb-1">Live Scenario Preview</p>
+                                    <p class="text-on-surface-variant text-sm">Watch a real simulation in action with
+                                        AI-driven scoring in real-time.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-primary text-lg">handshake</span>
+                                </div>
+                                <div>
+                                    <p class="text-white font-headline font-bold text-sm mb-1">Custom Onboarding Plan
+                                    </p>
+                                    <p class="text-on-surface-variant text-sm">Get a tailored deployment strategy based
+                                        on your organization's maturity level.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right side — form -->
+                    <div class="reveal reveal-delay-2">
+                        <div
+                            class="bg-[#1a1a1a] border border-white/5 rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
+                            <!-- Decorative corner -->
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[60px] rounded-full"></div>
+
+                            <div class="flex items-center gap-2 mb-8">
+                                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                <span class="text-primary font-mono text-xs tracking-widest uppercase">Request
+                                    Demo</span>
+                            </div>
+
+                            <form id="demoForm" class="space-y-5">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <label
+                                            class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">First
+                                            Name</label>
+                                        <input type="text" id="demo-fname" placeholder="John" class="demo-input" required />
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">Last
+                                            Name</label>
+                                        <input type="text" id="demo-lname" placeholder="Doe" class="demo-input" required />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">Work
+                                        Email</label>
+                                    <input type="email" id="demo-email" placeholder="john@company.com" class="demo-input" required />
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">Organization</label>
+                                    <input type="text" id="demo-org" placeholder="Company name" class="demo-input" required />
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">Team
+                                        Size</label>
+                                    <select id="demo-size" class="demo-input cursor-pointer" required>
+                                        <option value="" style="background: #212121;">Select team size</option>
+                                        <option value="1-10" style="background: #212121;">1 – 10</option>
+                                        <option value="11-50" style="background: #212121;">11 – 50</option>
+                                        <option value="51-200" style="background: #212121;">51 – 200</option>
+                                        <option value="200+" style="background: #212121;">200+</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="text-on-surface-variant text-xs font-medium uppercase tracking-wider block mb-2">Message
+                                        (Optional)</label>
+                                    <textarea id="demo-msg" rows="3" placeholder="Tell us about your training goals..."
+                                        class="demo-input resize-none"></textarea>
+                                </div>
+
+                                <!-- Chitchat animated button -->
+                                <button class="ui-btn" type="submit">
+                                    <span>Request Demo</span>
+                                </button>
+                            </form>
+
+                            <p class="text-on-surface-variant/40 text-[10px] text-center mt-6 font-mono">We'll respond
+                                within 24 hours. No spam, ever.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- TRUSTED BY                              -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="py-24 px-6 md:px-10 max-w-screen-2xl mx-auto">
+            <div class="reveal text-center mb-16">
+                <span class="text-on-surface-variant/60 font-mono text-xs tracking-[0.3em] uppercase">Trusted by
+                    security teams worldwide</span>
+            </div>
+            <div class="reveal flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-30">
+                <span class="font-headline font-extrabold text-xl tracking-tight text-white">CERT•EU</span>
+                <span class="font-headline font-extrabold text-xl tracking-tight text-white">CyberSec Labs</span>
+                <span class="font-headline font-extrabold text-xl tracking-tight text-white">ThreatMatrix</span>
+                <span class="font-headline font-extrabold text-xl tracking-tight text-white">BlueShield</span>
+                <span class="font-headline font-extrabold text-xl tracking-tight text-white">RedForge</span>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- CTA SECTION                             -->
+        <!-- ═══════════════════════════════════════ -->
+        <section class="py-32 md:py-40 px-6 md:px-10 relative overflow-hidden">
+            <div class="absolute inset-0 grid-bg opacity-20"></div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[200px] rounded-full">
+            </div>
+            <div
+                class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent">
+            </div>
+
+            <div class="max-w-4xl mx-auto text-center relative z-10">
+                <div class="reveal">
+                    <span
+                        class="inline-flex items-center gap-2 text-primary font-mono text-xs tracking-[0.3em] uppercase mb-8">
+                        <span class="w-8 h-px bg-primary/40"></span>Ready to begin<span
+                            class="w-8 h-px bg-primary/40"></span>
+                    </span>
+                </div>
+                <h2
+                    class="reveal reveal-delay-1 font-headline text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tighter leading-[0.9]">
+                    START YOUR <br /> JOURNEY TO <span class="text-gradient">MASTERY.</span>
+                </h2>
+                <p
+                    class="reveal reveal-delay-2 text-on-surface-variant text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed">
+                    The threat landscape evolves every 14 seconds. Is your team trained to withstand the next generation
+                    of attacks?
+                </p>
+                <div class="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="location.href='/register';"
+                        class="group relative bg-white text-background px-12 py-5 font-headline font-extrabold rounded-xl hover:bg-primary hover:shadow-[0_0_60px_rgba(74,142,255,0.3)] transition-all duration-500 overflow-hidden">
+                        <span class="relative z-10">ENROLL NOW</span>
+                    </button>
+                    <button onclick="document.getElementById('demo-section').scrollIntoView({behavior: 'smooth'});"
+                        class="glass-panel border border-white/10 text-white px-12 py-5 font-headline font-extrabold rounded-xl hover:bg-white/5 hover:border-primary/30 transition-all duration-300">
+                        SCHEDULE DEMO
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- FOOTER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <footer class="bg-[#0a0a0a] w-full pt-20 pb-10 px-6 md:px-10">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-primary-container text-lg"
+                                style="font-variation-settings: 'FILL' 1;">security</span>
+                        </div>
+                        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+                    </div>
+                    <p class="text-on-surface-variant/60 text-sm leading-relaxed mb-6">Elite cyber range for modern
+                        security teams. Building tactical excellence.</p>
+                    <div class="flex gap-3">
+                        <a href="#"
+                            class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
+                            <span class="material-symbols-outlined text-on-surface-variant text-lg">language</span>
+                        </a>
+                        <a href="#"
+                            class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
+                            <span class="material-symbols-outlined text-on-surface-variant text-lg">mail</span>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Platform</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Academy</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Cyber
+                                Range</a></li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">AI
+                                Scoring</a></li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Skill
+                                Profiles</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">About</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Careers</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Blog</a>
+                        </li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Legal</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Privacy
+                                Policy</a></li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Terms
+                                of Service</a></li>
+                        <li><a href="#"
+                                class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Cookie
+                                Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-transparent via-white/10 to-transparent h-px mb-8"></div>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-on-surface-variant/40 text-xs font-mono">© 2024 Deep Hunt Training. Tactical Excellence.
+                </p>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-primary/60 animate-pulse"></div>
+                    <span class="text-on-surface-variant/40 text-xs font-mono">All systems operational</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <button id="back-to-top"
+        class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-surface-container border border-white/10 flex items-center justify-center shadow-2xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none"
+        aria-label="Back to top">
+        <span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+    </button>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCRIPTS                                 -->
+    <!-- ═══════════════════════════════════════ -->
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 800);
+        });
+
+        // Hero video resilience (cache-bust + autoplay recovery + graceful fallback)
+        (function () {
+            const heroVideo = document.getElementById('hero-video');
+            const heroFallback = document.getElementById('hero-video-fallback');
+            if (!heroVideo) return;
+
+            const showFallback = () => {
+                if (heroFallback) heroFallback.classList.remove('hidden');
+                heroVideo.style.display = 'none';
+            };
+
+            heroVideo.addEventListener('error', showFallback);
+
+            const playPromise = heroVideo.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    heroVideo.muted = true;
+                    heroVideo.play().catch(showFallback);
+                });
+            }
+        })();
+
+        // Scroll progress
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            document.getElementById('scroll-progress').style.width = ((scrollTop / docHeight) * 100) + '%';
+        });
+
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+            } else {
+                navbar.classList.remove('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+            }
+        });
+
+        // Mobile menu
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileMenu.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        });
+        mobileMenu.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                mobileMenu.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Scroll reveal
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Card glow
+        document.querySelectorAll('.card-glow').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+                card.style.setProperty('--mouse-y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+            });
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.stat-number[data-count]');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.getAttribute('data-count'));
+                    const suffix = entry.target.textContent.replace(/[0-9]/g, '');
+                    let current = 0;
+                    const increment = target / 60;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) { current = target; clearInterval(timer); }
+                        entry.target.textContent = Math.floor(current) + suffix;
+                    }, 20);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        counters.forEach(c => counterObserver.observe(c));
+
+        // Back to top
+        const backToTop = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 600) {
+                backToTop.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                backToTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            } else {
+                backToTop.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                backToTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+        });
+        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // ========== TEAM TABS ==========
+        function switchTeam(team) {
+            // Update tabs
+            document.querySelectorAll('.team-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.team === team) tab.classList.add('active');
+            });
+            // Update content
+            document.querySelectorAll('.team-content').forEach(content => {
+                content.classList.remove('visible-content');
+                content.classList.add('hidden-content');
+            });
+            const activeContent = document.getElementById('content-' + team);
+            if (activeContent) {
+                activeContent.classList.remove('hidden-content');
+                activeContent.classList.add('visible-content');
+            }
+        }
+
+        // ========== PARTICLE SYSTEM ==========
+        (function () {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+
+            const section = document.getElementById('ransomware-section');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animationId;
+            let isVisible = false;
+
+            function resize() {
+                const rect = section.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.8;
+                    this.speedY = (Math.random() - 0.5) * 0.8;
+                    this.opacity = Math.random() * 0.5 + 0.1;
+                    this.life = Math.random() * 200 + 100;
+                    this.maxLife = this.life;
+                    // Color: mix of primary blue and red/error for ransomware theme
+                    const r = Math.random();
+                    if (r < 0.4) {
+                        this.color = { r: 173, g: 199, b: 255 }; // primary blue
+                    } else if (r < 0.7) {
+                        this.color = { r: 255, g: 180, b: 171 }; // error red
+                    } else {
+                        this.color = { r: 74, g: 142, b: 255 }; // primary-container
+                    }
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.life--;
+                    this.opacity = (this.life / this.maxLife) * 0.5;
+                    if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            function init() {
+                resize();
+                particles = [];
+                const count = Math.min(Math.floor((canvas.width * canvas.height) / 4000), 150);
+                for (let i = 0; i < count; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            const opacity = (1 - dist / 120) * 0.12;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(173, 199, 255, ${opacity})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                if (!isVisible) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                drawConnections();
+                animationId = requestAnimationFrame(animate);
+            }
+
+            // Observe visibility
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        isVisible = true;
+                        resize();
+                        animate();
+                    } else {
+                        isVisible = false;
+                        if (animationId) cancelAnimationFrame(animationId);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            observer.observe(section);
+            init();
+
+            window.addEventListener('resize', () => {
+                init();
+            });
+        })();
+
+        // ========== AUTHENTICATION STATE ========== //
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        window.addEventListener('load', () => {
+            const token = getCookie('token');
+            const authContainer = document.getElementById('auth-buttons-container');
+            if (authContainer) {
+                if (token) {
+                    authContainer.innerHTML = `
+                        <a href="/dashboard" class="hidden md:inline-flex bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-6 py-2.5 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] transition-all">
+                            Dashboard
+                        </a>
+                    `;
+                } else {
+                    authContainer.innerHTML = `
+                        <a href="/login" class="hidden md:inline-flex bg-transparent border border-white/20 text-white px-6 py-2.5 font-headline font-bold text-sm rounded-lg hover:bg-white/10 transition-all">
+                            Login
+                        </a>
+                        <a href="/register" class="hidden md:inline-flex bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-6 py-2.5 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] transition-all">
+                            Sign Up
+                        </a>
+                    `;
+                }
+            }
+        });
+
+        // Demo Form Handler
+        const demoForm = document.getElementById('demoForm');
+        if (demoForm) {
+            demoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fname = document.getElementById('demo-fname').value;
+                const lname = document.getElementById('demo-lname').value;
+                const email = document.getElementById('demo-email').value;
+                const org = document.getElementById('demo-org').value;
+                const size = document.getElementById('demo-size').value;
+                const msg = document.getElementById('demo-msg').value;
+                
+                // Show success (in production, send to backend)
+                alert(`Thank you ${fname}!\n\nYour demo request has been received. We'll contact you at ${email} within 24 hours.`);
+                demoForm.reset();
+            });
+        }
+    </script>
+
+</body>
+
+</html>
