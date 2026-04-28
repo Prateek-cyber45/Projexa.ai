@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="./assets/new.gif" alt="Projexa.ai Logo" width="200"/>
-  <h1>🛡️ Projexa.ai Enterprise Security Platform</h1>
+  <img src="./assets/new.gif" alt="Deephunt Logo" width="200"/>
+  <h1>🛡️ Deephunt Enterprise Security Platform</h1>
   <p><strong>Next-Generation Cybersecurity Training & Operations Ecosystem</strong></p>
   
-  [![Build Status](https://img.shields.io/badge/build-passing-success?style=for-the-badge)](https://github.com/Prateek-cyber45/Projexa.ai)
+  [![Build Status](https://img.shields.io/badge/build-passing-success?style=for-the-badge)](https://github.com/Prateek-cyber45/Deephunt)
   [![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker)](https://www.docker.com/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
   [![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)](https://www.python.org/)
@@ -14,9 +14,9 @@
 
 ## 📖 Overview
 
-Projexa.ai is a comprehensive, enterprise-grade cybersecurity simulation and training ecosystem. Built on a microservices architecture, it provides an unparalleled environment for both **Offensive Security (Red Team)** and **Defensive Security (Blue Team)**.
+Deephunt is a comprehensive, enterprise-grade cybersecurity simulation and training ecosystem. Built on a microservices architecture, it provides an unparalleled environment for both **Offensive Security (Red Team)** and **Defensive Security (Blue Team)**.
 
-Unlike traditional platforms that focus solely on IT infrastructure, Projexa.ai introduces specialized **Operational Technology (OT)** and **Industrial Control Systems (ICS)** simulations—including Aviation, Water Treatment, and SCADA environments—allowing professionals to train against high-stakes, physical-world threats.
+Unlike traditional platforms that focus solely on IT infrastructure, Deephunt introduces specialized **Operational Technology (OT)** and **Industrial Control Systems (ICS)** simulations—including Aviation, Water Treatment, and SCADA environments—allowing professionals to train against high-stakes, physical-world threats.
 
 ## ✨ Key Features
 
@@ -28,7 +28,7 @@ Unlike traditional platforms that focus solely on IT infrastructure, Projexa.ai 
 
 ## 🏗️ Architecture
 
-Projexa.ai follows a robust microservices pattern to isolate workloads and enable horizontal scaling.
+Deephunt follows a robust microservices pattern to isolate workloads and enable horizontal scaling.
 
 ```mermaid
 graph TD
@@ -85,8 +85,8 @@ Deploy the entire microservices ecosystem with a single command:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Prateek-cyber45/Projexa.ai.git
-cd Projexa.ai
+git clone https://github.com/Prateek-cyber45/Deephunt.git
+cd Deephunt
 
 # Start the ecosystem using Docker Compose
 docker-compose up --build -d
@@ -111,5 +111,5 @@ A mock SIEM interface allowing students to practice SPL (Search Processing Langu
 
 ---
 <div align="center">
-  <i>Built with passion by the Projexa.ai Team</i>
+  <i>Built with passion by the Deephunt Team</i>
 </div>
