@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo/logo.png" alt="Projexa.ai Logo" width="200"/>
+  <img src="./assets/readme_logo.jpg" alt="Projexa.ai Logo" width="200"/>
   <h1>🛡️ Projexa.ai Enterprise Security Platform</h1>
   <p><strong>Next-Generation Cybersecurity Training & Operations Ecosystem</strong></p>
   
