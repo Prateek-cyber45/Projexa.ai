@@ -32,24 +32,24 @@ Projexa.ai follows a robust microservices pattern to isolate workloads and enabl
 
 ```mermaid
 graph TD
-    User([User / Browser]) --> Nginx[Nginx API Gateway]
+    User(["User / Browser"]) --> Nginx["Nginx API Gateway"]
     
-    Nginx --> MainAPI[Main API (Auth & Users)]
-    Nginx --> AcademyAPI[Academy API (Courses)]
-    Nginx --> LabsBackend[Labs Backend (Simulations)]
-    Nginx --> Frontend[HTML/JS Frontend]
+    Nginx --> MainAPI["Main API (Auth & Users)"]
+    Nginx --> AcademyAPI["Academy API (Courses)"]
+    Nginx --> LabsBackend["Labs Backend (Simulations)"]
+    Nginx --> Frontend["HTML/JS Frontend"]
     
-    LabsBackend --> Redis[(Redis Cache/Queue)]
+    LabsBackend --> Redis[("Redis Cache/Queue")]
     AcademyAPI --> Redis
     
-    LabsBackend -.-> AIEngine[AI Engine (Python)]
-    AIEngine --> AIStream[AI Streaming Service]
+    LabsBackend -.-> AIEngine["AI Engine (Python)"]
+    AIEngine --> AIStream["AI Streaming Service"]
     
-    subgraph Observability Stack
-    Prometheus[Prometheus]
-    Grafana[Grafana]
-    Elasticsearch[(Elasticsearch)]
-    Kibana[Kibana]
+    subgraph "Observability Stack"
+    Prometheus["Prometheus"]
+    Grafana["Grafana"]
+    Elasticsearch[("Elasticsearch")]
+    Kibana["Kibana"]
     end
     
     MainAPI -.-> Elasticsearch
