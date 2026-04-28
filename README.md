@@ -1,6 +1,6 @@
 <div align="center">
   <img src="./assets/readme_logo.jpg" alt="Projexa.ai Logo" width="200"/>
-  <h1>🛡️ Projexa.ai Enterprise Security Platform</h1>
+  <h1>Deephunt</h1>
   <p><strong>Next-Generation Cybersecurity Training & Operations Ecosystem</strong></p>
   
   [![Build Status](https://img.shields.io/badge/build-passing-success?style=for-the-badge)](https://github.com/Prateek-cyber45/Projexa.ai)
