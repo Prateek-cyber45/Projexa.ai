@@ -1,0 +1,30 @@
+# ── Stage 1: Install dependencies ────────────────────
+FROM node:18-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+
+# ── Stage 2: Runtime ─────────────────────────────────
+FROM node:18-alpine
+WORKDIR /app
+
+# Create non-root user
+RUN adduser -D appuser
+
+# Copy only production deps and source
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+COPY serve_restored.js .
+COPY html_stack/ ./html_stack/
+COPY logo/ ./logo/
+COPY assets/ ./assets/
+
+RUN chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 3003
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=10s \
+    CMD node -e "require('http').get('http://127.0.0.1:3003/', r => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
+CMD ["node", "serve_restored.js"]

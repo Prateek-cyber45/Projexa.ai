@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL SOC | CYBER DEFENSE COMMAND CENTER</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="/common/cyber_auth.js"></script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#232323",
+              "surface-container-lowest": "#0a0a0a",
+              "surface-container-low": "#171717",
+              "surface-container": "#1c1c1c",
+              "background": "#0f0f0f",
+              "surface": "#0f0f0f",
+              "on-surface": "#d1d5db",
+              "outline-variant": "#2d3739",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            },
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateX(-10px)' },
+                    '100%': { opacity: '1', transform: 'translateX(0)' }
+                }
+            },
+            animation: {
+                'fade-in': 'fade-in 0.3s ease-out forwards'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .glow-cyan { text-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        .glow-red { text-shadow: 0 0 15px rgba(255, 42, 42, 0.4); }
+        
+        @keyframes pulse-critical {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-critical { animation: pulse-critical 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* Custom Scrollbar Styling */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4a4d; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+        /* Style the native resize handle slightly */
+        ::-webkit-resizer {
+            background-color: #2d3739;
+            border-radius: 2px;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-x-hidden selection:bg-[#00f2ff]/30 min-h-screen flex flex-col">
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 bg-background/90 backdrop-blur-md h-16 border-b border-outline-variant/40">
+    <div class="flex items-center gap-10">
+        <div class="flex flex-col">
+            <span class="text-xl font-bold text-[#00f2ff] font-headline uppercase leading-none glow-cyan tracking-wide">Sentinel SOC</span>
+            <span class="text-xs font-mono text-on-surface/50 uppercase mt-1">Command Center</span>
+        </div>
+        <div class="flex gap-8 items-center">
+            <div class="flex items-center gap-2.5 bg-[#00ffa3]/10 px-3 py-1 rounded-full border border-[#00ffa3]/20">
+                <span id="ws-status-dot" class="w-2 h-2 bg-[#00ffa3] rounded-full animate-pulse shadow-[0_0_8px_#00ffa3]"></span>
+                <span id="ws-status-label" class="text-[#00ffa3] font-bold font-mono text-xs uppercase">System Active</span>
+            </div>
+            <span class="text-on-surface/60 font-mono text-xs uppercase hidden md:inline">Session Time: <span class="text-[#00f2ff] font-bold ml-2" id="session-clock">00:45:12</span></span>
+        </div>
+    </div>
+    <div class="flex items-center gap-6">
+        <button class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg shadow-red-900/20">
+            <span class="material-symbols-outlined text-base">lock</span>
+            Lockdown
+        </button>
+        <div class="flex items-center gap-5 border-l border-outline-variant/50 pl-6">
+            <button id="theme-toggle" class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">light_mode</button><span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">notifications</span>
+            <span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">account_circle</span>
+        </div>
+    </div>
+</header>
+
+<nav class="fixed left-0 top-16 h-[calc(100vh-4rem)] flex flex-col z-40 bg-surface-container-low/80 backdrop-blur-md w-20 hover:w-64 transition-all duration-300 ease-in-out border-r border-outline-variant/30 group overflow-x-hidden overflow-y-auto custom-scrollbar shadow-2xl">
+    <div class="flex flex-col flex-1 py-6 gap-2">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg border-l-[3px] border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 transition-all duration-200" href="dashboard.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">dashboard</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Dashboard</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="alerts_management.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">warning</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Alerts</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="threat_intelligence.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">security</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Threat Intel</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="incident_investigation.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">error</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Incidents</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="endpoint_security.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">computer</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Endpoints</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="siem_logs.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">terminal</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">SIEM Logs</span>
+        </a>
+    </div>
+    <div class="mt-auto border-t border-outline-variant/30 py-6 gap-2 flex flex-col">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="terminal_command_center.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">code</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Terminal</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="settings_soc.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">settings</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Settings</span>
+        </a>
+    </div>
+</nav>
+
+<main class="ml-20 mt-16 p-6 flex flex-col flex-1">
+    
+    <div class="flex flex-col xl:flex-row gap-6 flex-1 mb-8 max-w-full">
+        
+        <section class="resize overflow-hidden w-full xl:w-1/2 h-[600px] xl:h-[800px] min-w-[300px] min-h-[400px] max-w-full bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col relative shadow-xl z-10 group pb-3 pr-3">
+            <div class="px-6 py-4 border-b border-outline-variant/40 bg-surface flex justify-between items-center z-10">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[#00f2ff] text-2xl">public</span>
+                    <span class="text-sm uppercase font-bold text-[#00f2ff] tracking-wide">Global Threat Overview</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <span class="text-sm font-mono text-[#00ffa3] flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded border border-[#00ffa3]/20">
+                        <span class="w-2 h-2 bg-[#00ffa3] rounded-full animate-pulse"></span>
+                        LIVE TRAFFIC: <span id="pps-counter" class="font-bold text-base">42,901</span> PPS
+                    </span>
+                </div>
+            </div>
+            
+            <div class="relative flex-1 bg-black rounded-br-lg overflow-hidden">
+                <iframe frameborder="0" height="100%" src="https://cybermap.kaspersky.com/en/widget/dynamic/dark" style="border: 0;" width="100%"></iframe>
+                <div class="absolute inset-0 scanlines pointer-events-none opacity-30"></div>
+                
+                <div class="absolute bottom-6 left-6 flex flex-col gap-3 pointer-events-none">
+                    <div class="bg-surface/90 backdrop-blur-xl px-6 py-5 border border-[#00f2ff]/30 border-l-[4px] border-l-[#00f2ff] rounded shadow-2xl">
+                        <div class="text-xs text-on-surface/50 mb-2 uppercase font-bold">Data Source Active</div>
+                        <div class="font-mono text-sm text-[#00f2ff]">KASPERSKY_CYBER_INTEL_STREAM</div>
+                    </div>
+                </div>
+            </div>
+            <span class="material-symbols-outlined absolute bottom-0 right-0 text-outline-variant/50 pointer-events-none text-lg m-0.5">open_in_full</span>
+        </section>
+
+        <div class="flex flex-col gap-6 flex-1 min-w-[300px]">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col shadow-xl min-h-[250px]">
+                    <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex justify-between items-center">
+                        <span class="text-sm uppercase font-bold text-on-surface">Metrics</span>
+                        <span class="material-symbols-outlined text-xl text-on-surface/50">analytics</span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-center items-center gap-4">
+                        <div class="relative w-32 h-32 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle class="text-surface-container-highest" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-width="8"></circle>
+                                <circle class="text-red-500 transition-all duration-500" cx="64" cy="64" fill="transparent" r="56" stroke="currentColor" stroke-dasharray="352" id="threat-ring" stroke-dashoffset="60" stroke-linecap="round" stroke-width="8"></circle>
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span class="text-4xl font-headline font-extrabold text-red-500 glow-red" id="threat-level">78</span>
+                                <span class="text-xs text-red-400 uppercase font-bold mt-1">Danger</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-surface-container p-3 rounded-lg border border-outline-variant/30 text-center mt-2">
+                            <div class="text-xs text-on-surface/50 uppercase font-bold mb-1">Mean Time To Detect</div>
+                            <div class="text-lg font-mono text-[#00f2ff]">42m <span class="text-sm text-[#00ffa3] ml-2">↓ 12%</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col overflow-hidden shadow-xl min-h-[250px] max-h-[400px]">
+                    <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex justify-between items-center">
+                        <span class="text-sm uppercase font-bold text-on-surface">Endpoints</span>
+                        <span class="material-symbols-outlined text-xl text-on-surface/50">dns</span>
+                    </div>
+                    <div class="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1" id="endpoint-container">
+                        </div>
+                </section>
+            </div>
+
+            <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col overflow-hidden shadow-xl flex-1 min-h-[350px]">
+                <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex justify-between items-center">
+                    <span class="text-sm uppercase font-bold text-on-surface">Real-Time SIEM Logs</span>
+                    <div class="flex gap-4 items-center">
+                        <span class="text-xs font-bold text-on-surface/50 bg-black/30 px-2 py-1 rounded border border-outline-variant/50">AUTO-SCROLL ON</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto font-mono text-sm leading-relaxed p-4 space-y-3 custom-scrollbar bg-surface-container-lowest" id="log-container">
+                    </div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="mt-auto pt-6 pb-2 border-t border-outline-variant/40 flex flex-col md:flex-row justify-between items-center gap-4 w-full">
+        <div class="text-xs font-mono text-on-surface/40">
+            &copy; 2026 SENTINEL SOC | CYBER DEFENSE COMMAND CENTER. All rights reserved.
+        </div>
+        <div class="flex gap-6 text-xs font-mono text-on-surface/50">
+            <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#00f2ff]"></span> Data Streams Encrypted</span>
+            <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffa3]"></span> Core Systems Nominal</span>
+        </div>
+    </footer>
+</main>
+
+<script src="soc_ui.js"></script>
+<script src="soc_runtime.js"></script>
+<script>
+    // Dashboard-specific: feed SIEM log panel from WS
+    window.SOC.on('soc_alert_stream', (data) => {
+        const { severity, msg } = data.payload;
+        let levelType = severity === 'Critical' ? 'CRIT' : severity === 'High' ? 'WARN' : 'INFO';
+        let colorClass = severity === 'Critical' ? 'text-red-200 bg-red-900/30 border-red-500'
+                       : severity === 'High'     ? 'text-yellow-300 bg-yellow-950/20 border-yellow-600/50'
+                       : 'text-cyan-300 bg-cyan-950/20 border-cyan-700/50';
+        addLogEntry(msg, levelType, colorClass);
+    });
+
+    // Simulated PPS, threat ring, endpoint fluctuations
+    const ppsCounter = document.getElementById('pps-counter');
+    const threatLevel = document.getElementById('threat-level');
+    const threatRing = document.getElementById('threat-ring');
+    const endpoints = [
+        { name: 'SRV-PROD-DB-01', state: 'ONLINE' },
+        { name: 'SRV-APP-NODE-A', state: 'ONLINE' },
+        { name: 'WRK-SEC-ANALYST', state: 'COMPROMISED' },
+        { name: 'EXT-VPN-GATE', state: 'WARNING' },
+        { name: 'API-GATEWAY-01', state: 'ONLINE' },
+        { name: 'AUTH-SERVER-LDAP', state: 'ONLINE' }
+    ];
+
+    function renderEndpoints() {
+        const c = document.getElementById('endpoint-container');
+        if (!c) return;
+        c.innerHTML = '';
+        endpoints.forEach(ep => {
+            const el = document.createElement('div');
+            let base = 'p-4 rounded-lg border border-transparent transition-all flex justify-between items-center ';
+            if (ep.state === 'COMPROMISED') {
+                el.className = base + 'bg-red-950/30 border-red-500/40';
+                el.innerHTML = `<div class="font-mono text-sm text-red-200">${ep.name}</div><div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span><span class="text-xs font-bold text-red-400 uppercase">${ep.state}</span></div>`;
+            } else if (ep.state === 'WARNING') {
+                el.className = base + 'bg-surface border-yellow-600/30';
+                el.innerHTML = `<div class="font-mono text-sm text-gray-300">${ep.name}</div><span class="text-xs font-bold px-2 py-1 bg-yellow-500/10 text-yellow-400 rounded uppercase">${ep.state}</span>`;
+            } else {
+                el.className = base + 'bg-surface hover:bg-surface-container-high';
+                el.innerHTML = `<div class="font-mono text-sm text-gray-300">${ep.name}</div><span class="text-xs font-bold px-2 py-1 bg-green-500/10 text-green-400 rounded uppercase">${ep.state}</span>`;
+            }
+            c.appendChild(el);
+        });
+    }
+
+    function addLogEntry(msg, type, colorClass) {
+        const logContainer = document.getElementById('log-container');
+        if (!logContainer) return;
+        const time = new Date().toLocaleTimeString([], { hour12: false });      
+        const entry = document.createElement('div');
+        entry.className = `p-3 rounded border-l-4 animate-fade-in flex gap-4 items-start ${colorClass}`;
+        entry.innerHTML = `<span class="text-gray-500 font-bold w-24 shrink-0 mt-0.5">[${time}]</span><span class="font-bold w-12 shrink-0 mt-0.5">[${type}]</span><span class="text-gray-100 flex-1 leading-relaxed">${msg}</span>`;
+        logContainer.prepend(entry);
+        if (logContainer.children.length > 50) logContainer.lastElementChild.remove();
+    }
+
+    renderEndpoints();
+    setInterval(() => {
+        if (ppsCounter) ppsCounter.innerText = (parseInt(ppsCounter.innerText.replace(',','')) + Math.floor(Math.random()*800)-400).toLocaleString();
+        if (Math.random() > 0.6 && threatLevel) {
+            const nl = Math.max(60, Math.min(99, parseInt(threatLevel.innerText) + (Math.random()>0.5?2:-2)));
+            threatLevel.innerText = nl;
+            if (threatRing) threatRing.style.strokeDashoffset = 352 - (352*(nl/100));
+        }
+        if (Math.random() > 0.85) {
+            const t = endpoints[Math.floor(Math.random()*endpoints.length)];
+            t.state = ['ONLINE','ONLINE','ONLINE','WARNING','COMPROMISED'][Math.floor(Math.random()*5)];
+            renderEndpoints();
+        }
+    }, 2000);
+</script>
+</body>
+</html>
+

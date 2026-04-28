@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Cyber Threat Report 2026 — Deep Hunt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ae5ff;
+            --accent: #7c4dff;
+            --bg: #050505;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: #fff; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .technical-grid {
+            background-image: 
+                linear-gradient(rgba(74, 229, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 229, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .stats-card:hover { border-color: var(--primary); transform: translateY(-5px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="technical-grid min-h-screen">
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-2 group">
+                <span class="material-symbols-outlined text-primary group-hover:rotate-180 transition-transform duration-500">api</span>
+                <span class="font-extrabold tracking-tighter text-xl uppercase">Deep<span class="text-primary">Hunt</span></span>
+            </a>
+            <a href="/index.html" class="text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Home
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-20 relative">
+        <!-- Floating shapes -->
+        <div class="absolute top-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+        <div class="absolute bottom-40 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-[120px] -z-10 animate-pulse" style="animation-delay: 2s;"></div>
+
+        <section class="text-center mb-20">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono mb-6">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                Q1 2026 INTELLIGENCE UPDATE
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-8 gradient-text tracking-tight">The State of Advanced Persistent Threats</h1>
+            <p class="text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
+                An exhaustive analysis of global adversary behavior, emerging attack vectors, and the radical evolution of AI-driven cyber warfare.
+            </p>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
+            <div class="glass p-6 rounded-2xl stats-card">
+                <p class="text-xs font-mono text-primary mb-2 uppercase tracking-widest">Ransomware Frequency</p>
+                <h3 class="text-3xl font-bold">+214%</h3>
+                <p class="text-sm text-white/40 mt-2">Year-over-year increase in sophisticated exfiltration techniques.</p>
+            </div>
+            <div class="glass p-6 rounded-2xl stats-card">
+                <p class="text-xs font-mono text-primary mb-2 uppercase tracking-widest">AI Attack Vectors</p>
+                <h3 class="text-3xl font-bold">82%</h3>
+                <p class="text-sm text-white/40 mt-2">New breaches leveraging automated LLM-based phishing.</p>
+            </div>
+            <div class="glass p-6 rounded-2xl stats-card">
+                <p class="text-xs font-mono text-primary mb-2 uppercase tracking-widest">Mean Time to Detect</p>
+                <h3 class="text-3xl font-bold">14.2 Days</h3>
+                <p class="text-sm text-white/40 mt-2">Historical low achieved by organizations using predictive hunting.</p>
+            </div>
+        </section>
+
+        <section class="glass p-10 rounded-3xl mb-20 space-y-8">
+            <h2 class="text-3xl font-bold border-l-4 border-primary pl-6">Executive Summary</h2>
+            <div class="space-y-6 text-white/70 leading-relaxed">
+                <p>
+                    The cybersecurity landscape in 2026 has crossed a critical threshold. We are no longer defending against static code; we are defending against adaptive, autonomous systems. Our latest data indicates that the "Human-in-the-Loop" requirement for adversaries is rapidly vanishing.
+                </p>
+                <div class="p-6 bg-white/5 rounded-xl border border-white/10 font-mono text-sm">
+                    <span class="text-primary font-bold">[INTEL_NODE_01]:</span> Deep Hunt Labs has identified a new class of "Polymorphic Agentic Malware" (PAM) that rewires its own C2 communication logic every 15 minutes to evade traditional EDR fingerprinting.
+                </div>
+                <p>
+                    To stay ahead, defensive strategies must shift from reactive patching to proactive, continuous simulation. The report details how Deep Hunt's neural training modules are successfully preparing operators for these exact scenarios.
+                </p>
+            </div>
+            <div class="flex items-center gap-4 pt-6 border-t border-white/5">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center font-bold text-lg">JS</div>
+                <div>
+                    <p class="font-bold">Julian Sterling</p>
+                    <p class="text-xs text-white/40 uppercase">Chief Research Officer, Deep Hunt</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="text-center">
+            <h2 class="text-2xl font-bold mb-6">Are you ready to counter these threats?</h2>
+            <a href="/login" class="inline-flex items-center gap-2 bg-primary text-black font-bold px-8 py-4 rounded-full hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(74,229,255,0.4)]">
+                Start Training Now <span class="material-symbols-outlined">bolt</span>
+            </a>
+        </section>
+    </main>
+
+    <footer class="py-10 border-t border-white/5 bg-black/20">
+        <div class="max-w-4xl mx-auto px-6 text-center text-white/30 text-xs font-mono uppercase tracking-widest">
+            &copy; 2026 Deep Hunt Intelligence Group. All Rights Reserved. CLASSIFIED // INTERNAL ONLY.
+        </div>
+    </footer>
+</body>
+</html>

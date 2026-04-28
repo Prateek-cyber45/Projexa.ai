@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'deephunt_metrics'
+    static_configs:
+      - targets: ['main-api:8001', 'academy-api:8002']

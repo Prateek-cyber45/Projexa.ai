@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | The Fluid Architect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "primary-container": "#3395ff",
+                        "on-background": "#181c22",
+                        "outline": "#717784",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#e07800",
+                        "secondary-fixed-dim": "#b5c7ee",
+                        "on-error-container": "#93000a",
+                        "background": "#f9f9ff",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e5e8f1",
+                        "primary-fixed-dim": "#a5c8ff",
+                        "on-tertiary-container": "#482200",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "outline-variant": "#c0c7d5",
+                        "on-primary-fixed": "#001c3a",
+                        "surface": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-secondary-fixed-variant": "#354768",
+                        "primary": "#005faf",
+                        "on-secondary-container": "#4c5d80",
+                        "on-secondary-fixed": "#061b3a",
+                        "on-surface-variant": "#404753",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#924c00",
+                        "secondary-container": "#c6d7ff",
+                        "on-surface": "#181c22",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#002d58",
+                        "surface-container": "#ebeef7",
+                        "inverse-on-surface": "#eef0fa",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e0e2eb",
+                        "primary-fixed": "#d4e3ff",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "secondary-fixed": "#d7e2ff",
+                        "surface-container-low": "#f1f3fd",
+                        "surface-dim": "#d7dae3",
+                        "tertiary-fixed": "#ffdcc4",
+                        "inverse-surface": "#2d3137",
+                        "inverse-primary": "#a5c8ff",
+                        "secondary": "#4d5f81",
+                        "on-primary-fixed-variant": "#004785",
+                        "surface-tint": "#005faf",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e0e2eb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-[#f9f9ff] dark:bg-[#0f111a] flex justify-between items-center w-full px-6 py-4 fixed top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-primary">
+<img alt="Merchant Logo" class="w-8 h-8 object-contain" data-alt="Deep Hunt Logo" src="/logo/new.gif"/>
+</div>
+<span class="text-lg font-black text-[#181c22] dark:text-white tracking-tighter">Deep Hunt</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-6">
+<a class="text-[#005faf] font-bold border-b-2 border-[#005faf] font-['Manrope'] py-1" href="#">Payment</a>
+<a class="text-[#181c22] opacity-70 hover:bg-[#f1f3fd] transition-colors py-1" href="#">Support</a>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-[#f1f3fd] p-2 rounded-full cursor-pointer transition-colors" data-icon="lock">lock</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-[#f1f3fd] p-2 rounded-full cursor-pointer transition-colors" data-icon="help_outline">help_outline</span>
+</div>
+</div>
+</header>
+<main class="min-h-screen pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+<!-- SideNavBar (Navigation & Summary) -->
+<aside class="w-full md:w-80 flex flex-col gap-6">
+<div class="bg-[#f1f3fd] dark:bg-[#1a1d2e] h-full w-full rounded-xl flex flex-col p-8 space-y-8 sticky top-28">
+<div class="space-y-1">
+<h2 class="font-['Inter'] font-bold text-[#181c22] dark:text-[#e0e2eb] text-xl">Order Summary</h2>
+<p class="text-sm text-on-surface-variant opacity-70">Transaction: #88291</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-sm uppercase tracking-wider font-semibold">Total Amount</span>
+<span class="text-primary font-bold text-2xl">₹12,450.00</span>
+</div>
+<div class="pt-4 border-t border-surface-container-high space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Design Consultation</span>
+<span class="text-on-surface">₹10,000.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Blueprint Fees</span>
+<span class="text-on-surface">₹2,450.00</span>
+</div>
+</div>
+</div>
+<nav class="flex flex-col space-y-2">
+<button class="flex items-center gap-4 px-6 py-4 text-[#005faf] dark:text-[#3395ff] font-bold bg-[#ffffff] dark:bg-[#0f111a] rounded-l-full translate-x-1 duration-200">
+<span class="material-symbols-outlined" data-icon="credit_card">credit_card</span>
+<span>Cards</span>
+</button>
+<button class="flex items-center gap-4 px-6 py-4 text-[#4c5d80] dark:text-[#c0c7d5] hover:text-[#005faf] transition-all">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>UPI</span>
+</button>
+<button class="flex items-center gap-4 px-6 py-4 text-[#4c5d80] dark:text-[#c0c7d5] hover:text-[#005faf] transition-all">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span>Netbanking</span>
+</button>
+<button class="flex items-center gap-4 px-6 py-4 text-[#4c5d80] dark:text-[#c0c7d5] hover:text-[#005faf] transition-all">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Wallets</span>
+</button>
+</nav>
+</div>
+</aside>
+<!-- Main Content Area (Canvas) -->
+<section class="flex-1 bg-surface-container-lowest rounded-2xl p-8 md:p-12">
+<div class="max-w-2xl mx-auto space-y-10">
+<div class="space-y-2">
+<h1 class="text-3xl font-headline font-extrabold tracking-tight text-on-surface">Payment Method</h1>
+<p class="text-on-surface-variant">Securely complete your transaction using your preferred card.</p>
+</div>
+<!-- Cards Input Form -->
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Card Number</label>
+<div class="relative">
+<input class="w-full px-6 py-5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-lg font-mono" placeholder="0000 0000 0000 0000" type="text"/>
+<div class="absolute right-6 top-1/2 -translate-y-1/2 flex gap-2">
+<img alt="Visa" class="h-6 grayscale opacity-50" data-alt="Visa credit card network logo in blue and gold on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0ymWaa8HmbrgJRsSWvU32CqHNLv090jCC2YfjcJ9cQ4KBTLqxFFFFXBSrccajZ50j1VhX-E34K4uVnbJ-_J8dWc6_AE_0dybzvZVh01538XtOunHp3Y7flTkWumCa-RaHkbz6lQc7tffvEWl7nt9fCvFfFzkTinEc9qfar3r3leNrk8Au1gsJfWiYT0Xgw7nybzqeZtsPOr4XftTImnH23O3dXTPSIJLstZVJjAOglussl20stRhiAGIdPE6iKIfesyRxhnF9Bcic"/>
+<img alt="Mastercard" class="h-6 grayscale opacity-50" data-alt="Mastercard network logo with overlapping red and yellow circles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn2GDVfWxsN7Jix1NuKlpQ_hpGuDjQOlXcEMzaGAfgFsT0eUuXinnZLtsZ1k8jJxvi4MQ3lZixX4vR2CBpBZM6EJryunD-s5nywhb6wa4n8kRlUKZBB2wcVxk1eL7RWodfS4STZ0ZwrdOVWuMTobjFhb2hW3vKagwRo6GY2RPuQtawNHnjvd7a7Fn2PuigMmacijl8Qftf-LooPaijrnPw_DHmi-PB69Fb3FhSbFq0XOxtcAio6e1rQq429wbN3VYJAaoTUM_0tBgT"/>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Expiry Date</label>
+<input class="w-full px-6 py-5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-lg" placeholder="MM / YY" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">CVV</label>
+<div class="relative">
+<input class="w-full px-6 py-5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-lg" placeholder="•••" type="password"/>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-50" data-icon="help_outline">help_outline</span>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cardholder Name</label>
+<input class="w-full px-6 py-5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-lg" placeholder="AS IT APPEARS ON CARD" type="text"/>
+</div>
+<div class="flex items-center gap-3 py-4">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" id="save-card" type="checkbox"/>
+<label class="text-sm text-on-surface-variant" for="save-card">Save card securely for future payments</label>
+</div>
+<button class="w-full py-5 rounded-lg bg-gradient-to-br from-primary to-primary-container text-white font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all uppercase tracking-widest">
+                        Pay ₹12,450.00
+                    </button>
+</div>
+<!-- Trust Indicators -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-10">
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">PCI DSS Certified</p>
+<p class="text-xs text-on-surface-variant">Level 1 encryption standards</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">256-bit SSL</p>
+<p class="text-xs text-on-surface-variant">Advanced encrypted tunnels</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#f9f9ff] dark:bg-[#0f111a] flex flex-col md:flex-row justify-center items-center w-full px-8 py-8 gap-8 border-t border-surface-container">
+<div class="flex flex-col items-center gap-2">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="shield">shield</span>
+<span class="text-xs uppercase tracking-[0.2em] font-['Inter']">Secured by Deep Hunt</span>
+</div>
+<p class="font-['Inter'] text-[10px] text-[#4c5d80] dark:text-[#c0c7d5] uppercase tracking-widest">© 2024 All Rights Reserved</p>
+</div>
+<div class="flex gap-8">
+<a class="font-['Inter'] text-[12px] text-[#4c5d80] dark:text-[#c0c7d5] uppercase tracking-widest hover:text-[#005faf] transition-opacity" href="#">PCI DSS Certified</a>
+<a class="font-['Inter'] text-[12px] text-[#4c5d80] dark:text-[#c0c7d5] uppercase tracking-widest hover:text-[#005faf] transition-opacity" href="#">SSL Encrypted</a>
+<a class="font-['Inter'] text-[12px] text-[#4c5d80] dark:text-[#c0c7d5] uppercase tracking-widest hover:text-[#005faf] transition-opacity" href="#">Privacy Policy</a>
+</div>
+</footer>
+<!-- Floating Secure Badge for Mobile -->
+<div class="fixed bottom-6 right-6 md:hidden">
+<div class="bg-primary text-white p-4 rounded-full shadow-2xl flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="lock" data-weight="fill" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deep Hunt Academy — Module Player</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode:"class",
+      theme:{extend:{colors:{
+        "primary":"#adc7ff","primary-container":"#4a8eff",
+        "background":"#131313","surface":"#1f1f1f","surface-high":"#2a2a2a",
+        "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+        "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+        "accent-orange":"#ffb4ab",
+      },fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]}}}
+    }
+  </script>
+  <style>
+    body{background:#131313;color:#e2e2e2;}
+    .glass{background:rgba(31,31,31,0.6);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.05);}
+    .glass-tab{transition:all 0.2s ease;border-bottom:2px solid transparent;}
+    .glass-tab.active{color:#adc7ff;border-bottom-color:#4a8eff;}
+    .progress-bar{height:6px;background:#2a2a2a;border-radius:3px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#4a8eff,#adc7ff);border-radius:3px;}
+    .tag{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.05em;}
+    .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;color:#c1c6d7;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.05);}
+    
+    /* Custom Scrollbar for Curriculum */
+    .custom-scroll::-webkit-scrollbar{width:4px;}
+    .custom-scroll::-webkit-scrollbar-track{background:transparent;}
+    .custom-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+    
+    /* Lesson Item */
+    .lesson-item{padding:12px 16px;border-radius:8px;border:1px solid transparent;transition:all 0.2s;cursor:pointer;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.08);}
+    .lesson-item.active{background:rgba(74,142,255,0.1);border-color:rgba(173,199,255,0.2);}
+    
+    /* AI Mini Chat */
+    .ai-msg-user{background:rgba(74,142,255,0.15);border:1px solid rgba(173,199,255,0.2);border-radius:12px 12px 4px 12px;max-width:85%;}
+    .ai-msg-bot{background:#131313;border:1px solid rgba(255,255,255,0.05);border-radius:12px 12px 12px 4px;max-width:90%;}
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fade-in 0.3s ease; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="font-body min-h-screen flex flex-col">
+
+<!-- TOP NAV -->
+<nav class="sticky top-0 z-50 bg-[#131313]/95 backdrop-blur-xl border-b border-white/5 flex-shrink-0">
+  <div class="max-w-screen-2xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/academy/" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 border-l border-white/5 pl-6">
+        <a href="/academy/" class="nav-link text-on-surface-variant hover:text-white">
+          <span class="material-symbols-outlined text-sm">school</span>Academy Home
+        </a>
+        <a href="/labs/" class="nav-link text-on-surface-variant hover:text-white">
+          <span class="material-symbols-outlined text-sm">terminal</span>Labs
+        </a>
+        <a href="/main/dashboard_pro.html" class="nav-link text-on-surface-variant hover:text-white">
+          <span class="material-symbols-outlined text-sm">dashboard</span>Dashboard
+        </a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">🔥 7 Day Streak</span>
+      <div class="w-8 h-8 bg-[#2a2a2a] border border-white/10 rounded-full flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="flex-1 w-full max-w-screen-2xl mx-auto px-6 py-6 flex flex-col lg:flex-row gap-8">
+  
+  <!-- LEFT COLUMN: VIDEO & TABS -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- Video Wrapper -->
+    <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex-shrink-0">
+      <iframe 
+        class="absolute inset-0 w-full h-full" 
+        src="https://www.youtube.com/embed/OHkWXFheSKM?autoplay=0&modestbranding=1&rel=0" 
+        title="YouTube video player" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        referrerpolicy="strict-origin-when-cross-origin" 
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <div class="flex items-center gap-6 mt-6 border-b border-white/10 flex-shrink-0 overflow-x-auto custom-scroll">
+      <button class="glass-tab active pb-3 text-sm font-semibold text-white px-2 flex items-center gap-2 whitespace-nowrap" onclick="switchTab('overview', this)">
+        <span class="material-symbols-outlined text-sm">info</span>Overview
+      </button>
+      <button class="glass-tab pb-3 text-sm font-semibold text-on-surface-variant hover:text-white px-2 flex items-center gap-2 whitespace-nowrap" onclick="switchTab('resources', this)">
+        <span class="material-symbols-outlined text-sm">source_notes</span>Resources
+      </button>
+      <button class="glass-tab pb-3 text-sm font-semibold text-accent-purple hover:text-white px-2 flex items-center gap-2 whitespace-nowrap" onclick="switchTab('ai', this)">
+        <span class="material-symbols-outlined text-sm">auto_awesome</span>Module AI Chat
+      </button>
+      <button class="glass-tab pb-3 text-sm font-semibold text-accent-orange hover:text-white px-2 flex items-center gap-2 whitespace-nowrap" onclick="window.location.href='/academy/quiz.html'">
+        <span class="material-symbols-outlined text-sm">quiz</span>Take Quiz <span class="material-symbols-outlined text-xs">open_in_new</span>
+      </button>
+      <button class="glass-tab pb-3 text-sm font-semibold text-accent-green hover:text-white px-2 flex items-center gap-2 whitespace-nowrap" onclick="window.location.href='/labs/index.html'">
+        <span class="material-symbols-outlined text-sm">terminal</span>Terminal/Lab Sandbox <span class="material-symbols-outlined text-xs">open_in_new</span>
+      </button>
+    </div>
+
+    <!-- TABS CONTENT AREA -->
+    <div class="mt-6 pb-8">
+      
+      <!-- Overview Tab -->
+      <div id="tab-overview" class="tab-content active">
+        <h2 class="text-xl font-bold text-white font-headline mb-4">About this lesson</h2>
+        <div class="prose prose-invert max-w-none text-on-surface-variant text-sm leading-relaxed space-y-4">
+          <p>
+            In this introductory lesson, you'll learn what a Security Operations Center (SOC) is, its pivotal role in an organization's security posture, and the typical day-to-day workflow of SOC analysts (Tier 1 to Tier 3). We will cover the foundational theory of threat detection, response playbooks, and how alerts traverse through a SIEM.
+          </p>
+          <div class="bg-surface-high p-4 rounded-xl border border-white/5 mt-6">
+            <h3 class="text-white font-semibold mb-2">Key Learning Objectives:</h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Understand the Triad of People, Process, and Technology in a SOC.</li>
+              <li>Differentiate between Tier 1, Tier 2, and Tier 3 analysts.</li>
+              <li>Explain the alert fatigue phenomenon and basic triage strategies.</li>
+              <li>Identify the core components of a SIEM (Security Information & Event Management).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resources Tab -->
+      <div id="tab-resources" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a href="dashboard.html">Dashboard< class="glass p-4 rounded-xl flex items-start gap-4 hover:bg-white/5 transition-colors group">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white mb-1">Lesson Cheatsheet</h4>
+              <p class="text-xs text-on-surface-variant">SOC Tiers & Responsibilities overview. (PDF, 2.4 MB)</p>
+            </div>
+          </a>
+          <a href="dashboard.html">Dashboard< class="glass p-4 rounded-xl flex items-start gap-4 hover:bg-white/5 transition-colors group">
+            <div class="w-10 h-10 rounded-lg bg-accent-green/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-green/20">
+              <span class="material-symbols-outlined text-accent-green" style="font-variation-settings: 'FILL' 1;">dataset</span>
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white mb-1">Sample SIEM Logs</h4>
+              <p class="text-xs text-on-surface-variant">PCAP and JSON log samples used in this video. (ZIP, 50 MB)</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- AI Assistant Tab -->
+      <div id="tab-ai" class="tab-content h-full">
+        <div class="glass rounded-xl h-full flex flex-col border-accent-purple/20 bg-gradient-to-b from-[#1f1f1f] to-[#131313] min-h-[400px]">
+          <!-- Context Banner -->
+          <div class="bg-accent-purple/10 px-4 py-2 border-b border-accent-purple/20 rounded-t-xl flex items-center gap-2">
+            <span class="material-symbols-outlined text-accent-purple text-sm animate-pulse">check_circle</span>
+            <span class="text-xs font-semibold text-accent-purple uppercase tracking-wider">Context Loaded: Module 1 / Lesson 1</span>
+          </div>
+          
+          <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll" id="module-chat-msgs">
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-purple to-accent flex-shrink-0 flex items-center justify-center mt-0.5">
+                <span class="material-symbols-outlined text-white text-xs" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+              </div>
+              <div class="ai-msg-bot p-4">
+                <p class="text-sm text-white leading-relaxed">I have synthesized the contents of the <strong>"Introduction to SOC"</strong> lesson. Need help understanding the difference between Tier 1 and Tier 2 analysts? Want me to generate some sample interview questions based on this video?</p>
+              </div>
+            </div>
+            <!-- Quick Chips -->
+            <div class="flex flex-wrap gap-2 pl-10" id="chat-suggestion-chips">
+              <button class="bg-[#252525] border border-white/10 hover:border-accent-purple/50 px-3 py-1.5 text-xs text-on-surface-variant hover:text-white rounded-full transition-colors" onclick="sendAiMsg('What is alert fatigue and how do we prevent it?')">What is alert fatigue?</button>
+              <button class="bg-[#252525] border border-white/10 hover:border-accent-purple/50 px-3 py-1.5 text-xs text-on-surface-variant hover:text-white rounded-full transition-colors" onclick="sendAiMsg('Quiz me on this lesson')">Quiz me on this lesson</button>
+            </div>
+          </div>
+          
+          <!-- Input -->
+          <div class="p-3 border-t border-white/5">
+            <div class="flex gap-2">
+              <input type="text" id="module-ai-input" placeholder="Ask about this lesson..." class="w-full bg-[#131313] border border-white/10 focus:border-accent-purple/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-0" onkeydown="if(event.key==='Enter') sendAiMsg(this.value)">
+              <button onclick="sendAiMsg(document.getElementById('module-ai-input').value)" class="w-10 h-10 bg-accent-purple/20 hover:bg-accent-purple/30 text-accent-purple rounded-lg flex items-center justify-center transition-colors shadow-none border border-accent-purple/30">
+                <span class="material-symbols-outlined text-sm">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: CURRICULUM -->
+  <div class="w-full lg:w-[350px] xl:w-[400px] flex-shrink-0 flex flex-col glass rounded-2xl overflow-hidden h-fit sticky top-[80px]" style="max-height: calc(100vh - 100px);">
+    <div class="p-5 border-b border-white/10 bg-[#1f1f1f]">
+      <h2 class="text-sm font-bold text-white uppercase tracking-widest mb-3">Course Curriculum</h2>
+      <div class="flex items-center justify-between text-xs mb-2">
+        <span class="text-on-surface-variant font-medium">1 / 18 Lessons Completed</span>
+        <span class="text-primary font-mono font-bold">5%</span>
+      </div>
+      <div class="progress-bar w-full"><div class="progress-fill" style="width: 5%"></div></div>
+    </div>
+
+    <div class="overflow-y-auto custom-scroll flex-1 p-2 space-y-1">
+      
+      <!-- Module 1 -->
+      <div class="mb-2">
+        <div class="flex items-center justify-between p-3 cursor-pointer text-white hover:bg-white/5 rounded-lg font-bold text-sm" onclick="toggleAccordion('acc-m1')">
+          <span>Module 1: Foundations</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">expand_less</span>
+        </div>
+        <div id="acc-m1" class="px-2 space-y-1 mt-1">
+          <div class="lesson-item active flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/OHkWXFheSKM?autoplay=1&modestbranding=1&rel=0', 'Introduction to SOC', this)">
+            <span class="material-symbols-outlined text-primary text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-white truncate">Introduction to SOC</p>
+              <p class="text-[11px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">schedule</span> 12:30</p>
+            </div>
+          </div>
+          <div class="lesson-item flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/-BbPHZOE398?autoplay=1&modestbranding=1&rel=0', 'The People, Process, Technology Triad', this)">
+            <span class="material-symbols-outlined text-on-surface-variant text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">The People, Process, Technology Triad</p>
+              <p class="text-[11px] text-on-surface-variant/70">08:45</p>
+            </div>
+          </div>
+          <div class="lesson-item flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/k9c1PBynVpA?autoplay=1&modestbranding=1&rel=0', 'Alert Triage Fundamentals', this)">
+            <span class="material-symbols-outlined text-on-surface-variant text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">Alert Triage Fundamentals</p>
+              <p class="text-[11px] text-on-surface-variant/70">15:10</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 2 -->
+      <div class="mb-2">
+        <div class="flex items-center justify-between p-3 cursor-pointer text-on-surface-variant hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm" onclick="toggleAccordion('acc-m2')">
+          <span>Module 2: The SIEM</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">expand_more</span>
+        </div>
+        <div id="acc-m2" class="px-2 space-y-1 mt-1 hidden">
+          <div class="lesson-item flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/9RfsRn7m7OE?autoplay=1&modestbranding=1&rel=0', 'What is a SIEM?', this)">
+            <span class="material-symbols-outlined text-on-surface-variant text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">What is a SIEM?</p>
+              <p class="text-[11px] text-on-surface-variant/70">10:00</p>
+            </div>
+          </div>
+          <div class="lesson-item flex items-center gap-3" onclick="window.location.href='/labs/splunk_nav.html'">
+            <span class="material-symbols-outlined text-accent-green text-base">terminal</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">Interactive Lab: Navigating Splunk</p>
+              <p class="text-[11px] text-accent-green">Hands-on (20m)</p>
+            </div>
+          </div>
+          <div class="lesson-item flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/mdXnd7ORpiE?autoplay=1&modestbranding=1&rel=0', 'Log Parsing & Ingestion', this)">
+            <span class="material-symbols-outlined text-on-surface-variant text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">Log Parsing & Ingestion</p>
+              <p class="text-[11px] text-on-surface-variant/70">14:50</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 3 -->
+      <div class="mb-2">
+        <div class="flex items-center justify-between p-3 cursor-pointer text-on-surface-variant hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm" onclick="toggleAccordion('acc-m3')">
+          <span>Module 3: Investigations</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">expand_more</span>
+        </div>
+        <div id="acc-m3" class="px-2 space-y-1 mt-1 hidden">
+          <div class="lesson-item flex items-center gap-3" onclick="changeLesson('https://www.youtube.com/embed/mxYF_iuwqTU?autoplay=1&modestbranding=1&rel=0', 'Detecting Lateral Movement', this)">
+            <span class="material-symbols-outlined text-on-surface-variant text-base">smart_display</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-white truncate">Detecting Lateral Movement</p>
+              <p class="text-[11px] text-on-surface-variant/70">16:20</p>
+            </div>
+          </div>
+          <!-- Final Assessment (Quiz) -->
+          <a href="/academy/quiz.html" class="lesson-item flex items-center gap-3 border border-accent-orange/30 bg-accent-orange/5 hover:bg-accent-orange/10 hover:border-accent-orange/50 transition-colors mt-2">
+            <span class="material-symbols-outlined text-accent-orange text-base">quiz</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold text-accent-orange truncate">Final Assessment: Quiz</p>
+              <p class="text-[11px] text-accent-orange/70">15 min • Graded</p>
+            </div>
+            <span class="material-symbols-outlined text-accent-orange text-sm">open_in_new</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Auth Check & Tab Script -->
+<script>
+  // Auth check
+  const token = localStorage.getItem('cyber_token') || (document.cookie.includes('token=') ? 'cookie_token' : null);
+  if(!token) window.location.href = '/login';
+
+  function changeLesson(videoUrl, title, element) {
+    // Update video frame
+    const iframe = document.querySelector('iframe');
+    if (iframe) iframe.src = videoUrl;
+
+    // Update active state in curriculum
+    document.querySelectorAll('.lesson-item').forEach(el => {
+      if (el.tagName.toLowerCase() === 'div') { // Skip the quiz anchor
+        el.classList.remove('active');
+        const icon = el.querySelector('.material-symbols-outlined');
+        if (icon && icon.textContent === 'smart_display') icon.classList.replace('text-primary', 'text-on-surface-variant');
+        const titleEl = el.querySelector('.truncate');
+        if (titleEl) titleEl.classList.replace('font-semibold', 'font-medium');
+      }
+    });
+
+    if (element) {
+      element.classList.add('active');
+      const icon = element.querySelector('.material-symbols-outlined');
+      if (icon && icon.textContent === 'smart_display') icon.classList.replace('text-on-surface-variant', 'text-primary');
+      const titleEl = element.querySelector('.truncate');
+      if (titleEl) titleEl.classList.replace('font-medium', 'font-semibold');
+    }
+  }
+
+  function switchTab(tabId, btnElement) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    // Remove active styles from buttons
+    document.querySelectorAll('.glass-tab').forEach(el => {
+      el.classList.remove('active', 'text-white');
+      el.classList.add('text-on-surface-variant');
+    });
+
+    // Show target tab
+    document.getElementById('tab-' + tabId).classList.add('active');
+    
+    // Add active styles to clicked button
+    btnElement.classList.remove('text-on-surface-variant');
+    btnElement.classList.add('active');
+    
+    // Specifically handle the AI tab coloring
+    if(tabId === 'ai') {
+      btnElement.classList.add('text-accent-purple');
+      btnElement.style.borderBottomColor = '#b388ff';
+    } else {
+      document.querySelector('.glass-tab:nth-child(3)').classList.add('text-accent-purple');
+      btnElement.style.borderBottomColor = '#4a8eff';
+    }
+  }
+
+  function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    const icon = el.previousElementSibling.querySelector('span:last-child');
+    if (el.classList.contains('hidden')) {
+      el.classList.remove('hidden');
+      icon.textContent = 'expand_less';
+      el.previousElementSibling.classList.add('text-white');
+      el.previousElementSibling.classList.remove('text-on-surface-variant');
+    } else {
+      el.classList.add('hidden');
+      icon.textContent = 'expand_more';
+      el.previousElementSibling.classList.remove('text-white');
+      el.previousElementSibling.classList.add('text-on-surface-variant');
+    }
+  }
+
+  // AI Chat Simulation for Module
+  function sendAiMsg(text) {
+    if(!text) return;
+    const msgs = document.getElementById('module-chat-msgs');
+    const input = document.getElementById('module-ai-input');
+    
+    // Check if chips exist and remove them on first chat
+    const chips = document.getElementById('chat-suggestion-chips');
+    if(chips) chips.remove();
+
+    msgs.innerHTML += `<div class="flex gap-3 justify-end"><div class="ai-msg-user p-3"><p class="text-sm text-white">${escapeHtml(text)}</p></div><div class="w-6 h-6 rounded-full bg-primary/20 flex-shrink-0 flex items-center justify-center mt-1"><span class="material-symbols-outlined text-primary text-[11px]">person</span></div></div>`;
+    input.value = '';
+
+    const typingId = 'typing-'+Date.now();
+    msgs.innerHTML += `<div id="${typingId}" class="flex gap-3"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-purple to-accent flex-shrink-0 flex items-center justify-center mt-0.5"><span class="material-symbols-outlined text-white text-xs" style="font-variation-settings:'FILL' 1;">auto_awesome</span></div><div class="ai-msg-bot p-3 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-pulse"></span><span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-pulse" style="animation-delay: 0.2s"></span><span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-pulse" style="animation-delay: 0.4s"></span></div></div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    setTimeout(() => {
+      document.getElementById(typingId).remove();
+      msgs.innerHTML += `<div class="flex gap-3"><div class="w-7 h-7 rounded-full bg-gradient-to-br from-accent-purple to-accent flex-shrink-0 flex items-center justify-center mt-0.5"><span class="material-symbols-outlined text-white text-xs" style="font-variation-settings:'FILL' 1;">auto_awesome</span></div><div class="ai-msg-bot p-4"><p class="text-sm text-white leading-relaxed">I'm currently running in mockup mode, but normally I would leverage DH-1 to stream an interactive response analyzing the exact video transcripts to answer your query about: <strong>"${escapeHtml(text)}"</strong>.</p></div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1200);
+  }
+
+  function escapeHtml(t){
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+<!-- COMPACT FOOTER -->
+<footer class="w-full border-t border-white/5 bg-[#0e0e0e] py-4 mt-6 flex-shrink-0">
+  <div class="max-w-screen-2xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#00285b] text-sm" style="font-variation-settings: 'FILL' 1;">security</span>
+      </div>
+      <span class="text-white font-headline font-bold text-sm">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+    </div>
+    <div class="flex items-center gap-4 text-xs text-on-surface-variant/60 font-mono">
+      <a href="/academy/" class="hover:text-primary transition-colors">Academy</a>
+      <a href="/academy/all_courses.html" class="hover:text-primary transition-colors">All Courses</a>
+      <a href="/academy/quiz.html" class="hover:text-primary transition-colors">Quiz</a>
+      <a href="/labs/" class="hover:text-primary transition-colors">Labs</a>
+      <a href="/main/dashboard_pro.html" class="hover:text-primary transition-colors">Dashboard</a>
+    </div>
+    <p class="text-[10px] text-on-surface-variant/30 font-mono">&copy; 2026 Deep Hunt Academy. All rights reserved.</p>
+  </div>
+</footer>
+
+</body>
+</html>

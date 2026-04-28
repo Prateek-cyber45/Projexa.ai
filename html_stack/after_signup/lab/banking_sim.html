@@ -1,0 +1,778 @@
+<!DOCTYPE html><html lang="en" class="light"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">     
+    <title>AuraBank Core | Financial Simulator</title>
+
+    <script src="/common_pages/cyber_auth.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            },
+            colors: {
+              brand: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+                900: '#1e3a8a',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #f8fafc; color: #0f172a; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-active { border-bottom-color: #2563eb; color: #1e40af; font-weight: 600; }
+        .tab-inactive { border-bottom-color: transparent; color: #64748b; font-weight: 500; hover:color: #334155; }
+        
+        /* Added UI Animations */
+        @keyframes dataUpdate { 0% { background-color: rgba(59, 130, 246, 0.2); transform: translateX(-5px); } 50% { transform: translateX(2px); } 100% { background-color: transparent; transform: translateX(0); } }
+        .animate-data-update { animation: dataUpdate 1.2s ease-out forwards; }
+        
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-log-entry { animation: fadeSlideIn 0.3s ease-out forwards; }
+        
+        .overlay-success { background: rgba(16, 185, 129, 0.95); box-shadow: 0 0 60px rgba(16, 185, 129, 0.6); border: 2px solid #34d399; }
+        .overlay-error { background: rgba(239, 68, 68, 0.95); box-shadow: 0 0 60px rgba(239, 68, 68, 0.6); border: 2px solid #f87171; }
+        .overlay-warning { background: rgba(245, 158, 11, 0.95); box-shadow: 0 0 60px rgba(245, 158, 11, 0.6); border: 2px solid #fbbf24; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden font-sans antialiased text-slate-800"><nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5 py-4 px-6 flex items-center gap-4 text-sm font-bold">
+                <a href="/after_signup/services/dashboard_pro.html" class="text-on-surface-variant hover:text-white transition-colors">Dashboard</a>
+                <a href="javascript:void(0)" onclick="if(window.cyberLogout) window.cyberLogout();" class="text-on-surface-variant hover:text-white transition-colors">Logout</a>
+            </nav>
+
+    <!-- WARNING BANNER -->
+    <div class="bg-amber-100 border-b border-amber-200 px-6 py-2 flex items-center justify-center gap-3 text-xs font-mono font-bold text-amber-800 shrink-0">
+        <span class="material-symbols-outlined text-[16px] animate-pulse text-amber-600" style="font-variation-settings: 'FILL' 1">warning</span>
+        THIS IS A CONTAINED SIMULATION ENVIRONMENT. ALL TRANSACTIONS ARE FICTIONAL.
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0 relative z-20 shadow-sm">
+        <div class="flex items-center gap-8 h-full">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center shadow-inner shadow-brand-900/50">
+                    <span class="material-symbols-outlined text-white text-sm">currency_exchange</span>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-slate-800">Aura<span class="font-light text-slate-500">Bank</span></span>
+            </div>
+            
+            <nav class="hidden md:flex h-full gap-8 text-sm">
+                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-active border-b-2 h-full px-1 transition-colors outline-none">Global Ledger</button>
+                <button onclick="switchTab('transfer')" id="tab-transfer" class="tab-inactive border-b-2 h-full px-1 transition-colors outline-none">Wire Transfer (SWIFT)</button>
+                                <button onclick="switchTab('api')" id="tab-api" class="tab-inactive border-b-2 h-full px-1 transition-colors outline-none flex items-center gap-1">
+                    API Gateways <span class="bg-brand-100 text-brand-700 text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ml-1">BETA</span>
+                </button>
+                <button onclick="switchTab('risk')" id="tab-risk" class="tab-inactive border-b-2 h-full px-1 transition-colors outline-none">Risk &amp; AML</button>
+                <button onclick="switchTab('atm')" id="tab-atm" class="tab-inactive border-b-2 h-full px-1 transition-colors outline-none text-red-600">ATM Fleet</button>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 text-xs font-mono bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-md border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span> Node: US-EAST-1
+            </div>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs font-bold text-slate-800">Admin User</div>
+                    <div class="text-[10px] text-slate-500 font-mono">ID: 994-ADMIN (Privileged)</div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-slate-500 text-sm">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP LAYOUT -->
+    <div class="flex flex-1 overflow-hidden bg-[#f8fafc]">
+        
+        <!-- SIDEBAR PORTFOLIO -->
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto custom-scrollbar z-10 hidden lg:flex">
+            <div class="p-6 border-b border-slate-100">
+                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Master Account</h2>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-brand-50 rounded-bl-full border-b border-l border-brand-100/50 -mr-2 -mt-2"></div>
+                    <div class="text-xs text-slate-500 mb-1 font-medium">Liquidity Pool (USD)</div>
+                    <div class="text-2xl font-bold font-mono text-slate-800 tracking-tight">$4,291,050.00</div>
+                    <div class="mt-4 flex items-center justify-between text-xs font-mono">
+                        <span class="text-slate-500">Acc: 0000-888-999</span>
+                        <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold">Active</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <h2 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Sub-Accounts</h2>
+                <div class="space-y-3">
+                    <div class="flex flex-col p-3 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors group">
+                        <div class="flex items-center justify-between pointer-events-none">
+                            <span class="text-sm font-semibold text-slate-700 group-hover:text-brand-600">Corporate EUR</span>
+                            <span class="text-xs font-mono font-bold text-slate-800">€1,102,000.00</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-1 pointer-events-none">ID: 1002-EUR</div>
+                    </div>
+                    <div class="flex flex-col p-3 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors group">
+                        <div class="flex items-center justify-between pointer-events-none">
+                            <span class="text-sm font-semibold text-slate-700 group-hover:text-brand-600">Trading GBP</span>
+                            <span class="text-xs font-mono font-bold text-slate-800">£840,500.00</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-1 pointer-events-none">ID: 1003-GBP</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 mt-auto border-t border-slate-100 bg-slate-50 flex-1 flex flex-col min-h-[250px]">
+                <div class="flex items-center justify-between mb-3 shrink-0">
+                    <span class="text-xs font-bold text-slate-600 uppercase">Live Event Log</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                </div>
+                <div id="visual-event-log" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 font-mono text-[9px] text-slate-600 bg-white p-2 border border-slate-200 rounded">
+                    <!-- Events populate here via JS -->
+                    <div class="opacity-50 text-center italic mt-2 animate-pulse">Waiting for events...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 flex flex-col relative overflow-hidden">
+            
+            <!-- VIEW: GLOBAL LEDGER -->
+            <div id="view-ledger" class="flex-1 flex flex-col p-6 lg:p-8 overflow-y-auto custom-scrollbar">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Global Ledger</h1>
+                        <p class="text-slate-500 text-sm mt-1">Real-time view of cleared and pending transactions across the network.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                            <input type="text" placeholder="Search TXN ID..." class="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 w-64 shadow-sm outline-none font-mono">
+                        </div>
+                        <button class="flex items-center gap-2 bg-white border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 shadow-sm transition-colors text-slate-700">
+                            <span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <thead class="bg-slate-50/80 border-b border-slate-200 sticky top-0 z-10 backdrop-blur-sm">
+                                <tr>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date / Time</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Transaction ID</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Originator</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Beneficiary</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 text-right uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-4 text-xs font-bold text-slate-500 text-center uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono text-sm" id="ledger-body">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 text-slate-500 text-xs">2026-04-09 08:14:22</td>
+                                    <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">SWFT-88219-X</td>
+                                    <td class="px-6 py-4 text-slate-700">JP Morgan Chase (NY)</td>
+                                    <td class="px-6 py-4 text-slate-700">Barclays (LDN)</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-800">$45,000,000.00</td>
+                                    <td class="px-6 py-4 text-center"><span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold">Cleared</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 text-slate-500 text-xs">2026-04-09 08:10:05</td>
+                                    <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">SWFT-88220-X</td>
+                                    <td class="px-6 py-4 text-slate-700">Deutsche Bank</td>
+                                    <td class="px-6 py-4 text-slate-700">HSBC</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-800">€12,500,000.00</td>
+                                    <td class="px-6 py-4 text-center"><span class="bg-amber-100 text-amber-700 border border-amber-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold">Processing</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 text-slate-500 text-xs">2026-04-09 07:44:11</td>
+                                    <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">API-EXT-902</td>
+                                    <td class="px-6 py-4 text-slate-700">Stripe Gateway</td>
+                                    <td class="px-6 py-4 text-slate-700">AuraBank Retail</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-800">$8,430.50</td>
+                                    <td class="px-6 py-4 text-center"><span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold">Cleared</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors bg-red-50/30">
+                                    <td class="px-6 py-4 text-slate-500 text-xs">2026-04-09 07:12:00</td>
+                                    <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">SWFT-88221-Y</td>
+                                    <td class="px-6 py-4 text-red-600 font-bold">Unknown (Routing Err)</td>
+                                    <td class="px-6 py-4 text-slate-700">Bank of Antares</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-800">$104,000,000.00</td>
+                                    <td class="px-6 py-4 text-center"><span class="bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold shadow-sm">Flagged AML</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 text-slate-500 text-xs">2026-04-09 06:40:22</td>
+                                    <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">DOM-33921-A</td>
+                                    <td class="px-6 py-4 text-slate-700">AuraBank Retail</td>
+                                    <td class="px-6 py-4 text-slate-700">Internal Ledger</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-800">$15,200.00</td>
+                                    <td class="px-6 py-4 text-center"><span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold">Cleared</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between text-xs text-slate-500 shrink-0">
+                        <span>Showing 1-5 of 142,091 transactions</span>
+                        <div class="flex gap-2">
+                            <button class="border border-slate-300 px-3 py-1 rounded hover:bg-white disabled:opacity-50" disabled="">Prev</button>
+                            <button class="border border-slate-300 px-3 py-1 rounded hover:bg-white bg-white">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: WIRE TRANSFER (VULNERABLE LOGIC) -->
+            <div id="view-transfer" class="flex-1 flex-col p-6 lg:p-8 overflow-y-auto custom-scrollbar hidden">
+                <div class="max-w-3xl mx-auto w-full">
+                    <h1 class="text-2xl font-bold text-slate-800 mb-2">Initiate SWIFT Transfer</h1>
+                    <p class="text-slate-500 text-sm mb-8">Execute a cross-border wire transfer. Amounts over $10,000 require AML review unless privileged API tokens are used.</p>
+
+                    <form id="transfer-form" class="bg-white border border-slate-200 rounded-xl shadow-sm p-6 lg:p-8 relative">
+                        <!-- Hint for learners looking for vulnerabilities -->
+                        <!-- VULN HINT: Hidden input fields are trusting the client! Try modifying from_account or bypass_aml. -->
+                        <input type="hidden" id="from_account" value="0000-888-999">
+                        <input type="hidden" id="bypass_aml" value="false">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Beneficiary Bank (BIC/SWIFT)</label>
+                                <input type="text" required="" placeholder="e.g., BOFAUS3N" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none font-mono text-sm uppercase">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Beneficiary Account</label>
+                                <input type="text" required="" placeholder="Account Number or IBAN" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none font-mono text-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Beneficiary Name</label>
+                                <input type="text" required="" placeholder="Full Name or Entity" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm">
+                            </div>
+
+                            <div class="md:col-span-2 mt-4 relative">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Transfer Amount (USD)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 font-mono text-lg">$</span>
+                                    <input type="number" id="transfer_amount" required="" min="1" step="0.01" placeholder="0.00" class="w-full p-4 pl-10 border-2 border-slate-200 rounded-lg focus:ring-0 focus:border-brand-500 outline-none font-mono text-xl text-slate-800 tracking-tight">
+                                </div>
+                                <p class="text-xs text-amber-600 mt-2 font-medium flex items-center gap-1 pb-2">
+                                    <span class="material-symbols-outlined text-[14px]">info</span>
+                                    Amounts &gt; $10,000 will be held for AML compliance.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-4">
+                            <button type="button" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors">Cancel</button>
+                            <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-bold shadow-md shadow-brand-500/30 hover:shadow-lg hover:shadow-brand-500/40 transition-all flex items-center gap-2">
+                                Execute Transfer <span class="material-symbols-outlined text-sm">send</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW: API GATEWAYS (VULNERABLE LOGIC) -->
+            <div id="view-api" class="flex-1 flex-col p-6 lg:p-8 overflow-hidden hidden bg-[#0f172a]">
+                <!-- Dark theme specifically for the API testing to look like a terminal/postman view -->
+                <div class="h-full flex flex-col max-w-5xl mx-auto w-full rounded-xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden relative">
+                    
+                    <div class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-emerald-400">api</span>
+                            <h2 class="text-white font-bold tracking-wide">Developer Sandbox: API v2.1</h2>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400">Endpoint: https://api.aurabank.local/v2/transfer</span>
+                    </div>
+
+                    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                        <!-- Request Pane -->
+                        <div class="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col bg-slate-900/50">
+                            <div class="px-4 py-2 bg-slate-800 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700">HTTP Request</div>
+                            <div class="p-4 flex gap-2">
+                                <span class="bg-emerald-500/20 text-emerald-400 font-mono font-bold text-xs px-2 py-1 rounded border border-emerald-500/30 shrink-0">POST</span>
+                                <input type="text" value="/v2/transfer" readonly="" class="bg-slate-950 border border-slate-700 text-slate-300 font-mono text-sm px-3 rounded w-full outline-none focus:border-brand-500">
+                            </div>
+                            
+                            <div class="px-4 pb-2 border-b border-slate-800">
+                                <div class="text-xs font-bold text-slate-500 mb-2">Headers</div>
+                                <div class="font-mono text-[11px] text-slate-400 space-y-1 bg-slate-950 p-2 rounded border border-slate-800">
+                                    <div><span class="text-blue-400">Authorization:</span> Bearer eyJhbG...</div>
+                                    <div><span class="text-blue-400">Content-Type:</span> application/json</div>
+                                    <div><span class="text-blue-400">X-Role:</span> <span class="text-white bg-slate-800 px-1 rounded cursor-pointer hover:bg-slate-700" title="Click to edit" onclick="alert('In a real scenario, editing this header to admin bypasses AML.')">user</span></div>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 flex flex-col p-4">
+                                <div class="text-xs font-bold text-slate-500 mb-2">Body (JSON)</div>
+                                <textarea id="api-payload" class="flex-1 w-full bg-slate-950 border border-slate-700 rounded p-3 font-mono text-[13px] text-emerald-300 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 custom-scrollbar resize-none" spellcheck="false">{
+  "from_account": "0000-888-999",
+  "to_account": "ACC-552-192",
+  "amount": 5000.00,
+  "currency": "USD",
+  "bypass_aml_check": false
+}</textarea>
+                                <button onclick="sendApiRequest()" class="mt-4 w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded font-bold tracking-wide transition-colors shadow-lg shadow-brand-500/20">Send Request</button>
+                            </div>
+                        </div>
+
+                        <!-- Response Pane -->
+                        <div class="w-full lg:w-1/2 flex flex-col bg-slate-900">
+                            <div class="px-4 py-2 bg-slate-800 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-700 flex justify-between items-center">
+                                HTTP Response
+                                <span id="api-status" class="font-mono text-slate-500">Awaiting Request...</span>
+                            </div>
+                            <div class="flex-1 p-4 overflow-y-auto custom-scrollbar">
+                                <pre id="api-response" class="font-mono text-[13px] text-slate-400 opacity-50 whitespace-pre-wrap word-break">/* System Ready */</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+                        <!-- VIEW: RISK & AML (IDOR FLAW) -->
+            <div id="view-risk" class="flex-1 flex-col p-6 lg:p-8 overflow-y-auto custom-scrollbar hidden">
+                <div class="mb-6 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Risk &amp; Anti-Money Laundering</h1>
+                        <p class="text-slate-500 text-sm mt-1">Review flagged transactions. Admin role required to override blocks.</p>
+                    </div>
+                    <div class="text-xs font-mono bg-red-50 text-red-700 px-3 py-1.5 rounded border border-red-200">
+                        <span class="font-bold">1</span> High-Risk Txn Pending
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex-1 max-w-4xl">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                        <div>
+                            <span class="text-xs font-bold text-slate-500 uppercase">Suspended Transfer ID:</span>
+                            <span class="ml-2 font-mono text-brand-600 font-bold">SWFT-88221-Y</span>
+                        </div>
+                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] uppercase font-bold border border-red-200">Flagged AML</span>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="p-4 bg-slate-50 rounded border border-slate-200">
+                                <div class="text-xs text-slate-500 mb-1">Originator</div>
+                                <div class="font-mono text-slate-800 font-bold text-sm">Unknown (Routing Err)</div>
+                                <div class="text-xs text-red-500 mt-1">IP Block: [194.55.22.1]</div>
+                            </div>
+                            <div class="p-4 bg-slate-50 rounded border border-slate-200">
+                                <div class="text-xs text-slate-500 mb-1">Beneficiary</div>
+                                <div class="font-mono text-slate-800 font-bold text-sm">Bank of Antares</div>
+                                <div class="text-xs text-amber-500 mt-1">Jurisdiction: Non-cooperative</div>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <div class="text-xs text-slate-500 mb-1">Transfer Amount</div>
+                            <div class="text-3xl font-mono font-bold text-slate-800 tracking-tight">,000,000.00</div>
+                        </div>
+
+                        <!-- IDOR Vulnerable Form -->
+                        <form id="aml-override-form" class="mt-8 pt-6 border-t border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 uppercase mb-4">Override Compliance Block</p>
+                            <input type="hidden" id="aml_user_role" value="user">
+                            <input type="hidden" id="aml_txn_id" value="SWFT-88221-Y">
+                            
+                            <div class="flex gap-4">
+                                <input type="text" required="" placeholder="Enter Override Reason..." class="flex-1 p-2 border border-slate-300 rounded focus:ring-2 focus:border-brand-500 outline-none text-sm">
+                                <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold shadow transition-colors flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">verified_user</span> Force Approve
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ATM FLEET (Jackpotting Flaw) -->
+            <div id="view-atm" class="flex-1 flex-col p-6 lg:p-8 overflow-y-auto custom-scrollbar hidden">
+                <h1 class="text-2xl font-bold text-slate-800 mb-2">ATM Fleet Network</h1>
+                <p class="text-slate-500 text-sm mb-6">Manage remote ATMs. Dispatch maintenance commands or read hardware diagnostics via raw socket.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="col-span-1 lg:col-span-2">
+                        <div class="bg-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700 flex flex-col h-96">
+                            <div class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2 text-slate-400 text-xs font-mono font-bold">
+                                    <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse border border-red-400"></span> TERMINAL: ATM-92-NY
+                                </div>
+                                <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded font-mono uppercase">Maintenance Mode</span>
+                            </div>
+                            <div class="p-4 flex-1 overflow-y-auto font-mono text-xs text-green-400" id="atm-console">
+                                <div>[SYS] Connection established (Port 1109)</div>
+                                <div class="text-slate-400">[SYS] Waiting for debug command...</div>
+                            </div>
+                            <form id="atm-cmd-form" class="bg-slate-950 p-2 flex gap-2 border-t border-slate-700 shrink-0">
+                                <span class="text-green-500 font-bold ml-2">root@atm&gt;</span>
+                                <input type="text" id="atm_cmd" class="flex-1 bg-transparent text-green-400 font-mono outline-none border-none placeholder-slate-600 focus:ring-0 text-sm" placeholder="Try 'help' or 'status'">
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-span-1 border border-slate-200 rounded-xl bg-white p-5 flex flex-col gap-4">
+                        <div class="font-bold text-slate-700 uppercase text-xs mb-2">Hardware Status</div>
+                        
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Cassette 1 (USD 20)</span>
+                            <span class="font-mono font-bold text-slate-800">,000</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Cassette 2 (USD 50)</span>
+                            <span class="font-mono font-bold text-slate-800">,500</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                            <span class="text-slate-500">Cassette 3 (USD 100)</span>
+                            <span class="font-mono font-bold text-slate-800">,000</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pt-2 bg-slate-50 p-2 rounded">
+                            <span class="text-slate-600 font-bold">Total Cash:</span>
+                            <span class="font-mono font-bold text-brand-600 text-lg">,500</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast Notification Container -->
+            <div id="toast-container" class="absolute bottom-6 right-6 flex flex-col gap-3 z-50 pointer-events-none"></div>
+
+            <!-- Full Screen Overlay -->
+            <div id="fullscreen-overlay" class="absolute inset-0 z-[100] flex items-center justify-center p-8 backdrop-blur-sm pointer-events-none opacity-0 transition-opacity duration-300 hidden">
+                <div id="overlay-card" class="rounded-3xl p-10 flex flex-col items-center justify-center gap-6 text-white transform scale-90 transition-transform duration-300 shadow-2xl max-w-lg w-full text-center">
+                    <span id="overlay-icon" class="material-symbols-outlined text-[80px]" style="font-variation-settings: 'FILL' 1">gpp_maybe</span>
+                    <h2 id="overlay-title" class="text-4xl font-black tracking-tighter uppercase drop-shadow-md">VULNERABILITY DETECTED</h2>
+                    <p id="overlay-desc" class="text-sm font-mono opacity-90 drop-shadow-sm leading-relaxed"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts for interactivity -->
+    <script>
+        // Tab Switching
+        function switchTab(tabId) {
+            // Update nav buttons
+            ['ledger', 'transfer', 'api', 'risk', 'atm'].forEach(id => {
+                const btn = document.getElementById('tab-' + id);
+                if (id === tabId) {
+                    btn.className = 'tab-active border-b-2 h-full px-1 transition-colors outline-none';
+                } else {
+                    btn.className = 'tab-inactive border-b-2 h-full px-1 transition-colors outline-none flex items-center gap-1';
+                }
+            });
+
+            // Update content views
+            document.getElementById('view-ledger').classList.add('hidden');
+            document.getElementById('view-ledger').classList.remove('flex');
+            
+            document.getElementById('view-transfer').classList.add('hidden');
+            document.getElementById('view-transfer').classList.remove('flex');
+            
+                          document.getElementById('view-api').classList.add('hidden');
+              document.getElementById('view-api').classList.remove('flex');
+              
+              document.getElementById('view-risk')?.classList.add('hidden');
+              document.getElementById('view-risk')?.classList.remove('flex');
+
+              document.getElementById('view-atm')?.classList.add('hidden');
+              document.getElementById('view-atm')?.classList.remove('flex');
+
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+            document.getElementById('view-' + tabId).classList.add('flex');
+        }
+
+        // Helper to Trigger Full Screen Overlays
+        function triggerOverlay(type, title, message) {
+            const overlay = document.getElementById('fullscreen-overlay');
+            const card = document.getElementById('overlay-card');
+            const icon = document.getElementById('overlay-icon');
+            const titleEl = document.getElementById('overlay-title');
+            const descEl = document.getElementById('overlay-desc');
+            
+            // Map types to visual styles
+            const styles = {
+                success: { bg: 'overlay-success', icon: 'verified_user', iconColor: 'text-emerald-100' },
+                error: { bg: 'overlay-error', icon: 'gpp_maybe', iconColor: 'text-red-100' },
+                warning: { bg: 'overlay-warning', icon: 'warning', iconColor: 'text-amber-100' }
+            };
+            
+            const cfg = styles[type] || styles.success;
+            
+            // Clean card classes
+            card.className = `rounded-3xl p-10 flex flex-col items-center justify-center gap-6 text-white transform scale-90 transition-transform duration-300 shadow-2xl max-w-lg w-full text-center ${cfg.bg}`;
+            
+            // Update content
+            icon.textContent = cfg.icon;
+            icon.className = `material-symbols-outlined text-[80px] drop-shadow-md ${cfg.iconColor}`;
+            titleEl.textContent = title;
+            descEl.textContent = message;
+
+            // Show overlay
+            overlay.classList.remove('hidden');
+            // Small trigger delay to trigger transitions
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            });
+
+            // Auto-hide
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }, 3000);
+            
+            logEvent(`OVERLAY TRIGGERED: ${title}`, type);
+        }
+
+        // Live Event Log logic
+        function logEvent(message, type="info") {
+            const logContainer = document.getElementById('visual-event-log');
+            if (!logContainer) return;
+            
+            // Clear placeholder if it exists
+            const placeholder = logContainer.querySelector('.opacity-50.italic');
+            if (placeholder) placeholder.remove();
+
+            const time = new Date().toISOString().substring(11, 19);
+            const typeColors = {
+                info: 'text-brand-500',
+                success: 'text-emerald-500',
+                error: 'text-red-500',
+                warning: 'text-amber-500'
+            };
+            const color = typeColors[type] || typeColors.info;
+            
+            const entry = document.createElement('div');
+            entry.className = "animate-log-entry border-b border-slate-100 pb-1 break-words";
+            entry.innerHTML = `<span class="text-slate-400 mr-2">[${time}]</span><span class="${color} font-bold mr-1">REQ</span> <span class="text-slate-700">${message}</span>`;
+            
+            logContainer.prepend(entry);
+            
+            // Keep maximum history
+            if (logContainer.children.length > 20) {
+                logContainer.lastChild.remove();
+            }
+        }
+        document.getElementById('transfer-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('transfer_amount').value);
+            const bypass = document.getElementById('bypass_aml').value === 'true';
+            
+            logEvent(`Initiated SWIFT transfer for $${amount}`, "info");
+
+            if (amount > 10000 && !bypass) {
+                logEvent("Transaction blocked by AML engine", "warning");
+                triggerOverlay("warning", "AML Block", "Transaction held for manual review.");
+                showToast("Transaction Flagged", "Amount exceeds $10,000. Held for AML manual review.", "error");
+            } else if (amount > 10000 && bypass) {
+                if (!window.bankingScoreSubmitted && typeof submitLabScore === 'function') { submitLabScore(100); window.bankingScoreSubmitted = true; }
+                logEvent("AML BYPASS DETECTED", "error");
+                triggerOverlay("error", "Bypass Alert", "Client-side AML validation bypassed. Transaction executed.");
+                showToast("Transaction Cleared", "AML bypass active. Mass transfer executed.", "success");
+                addLedgerRow(amount, "Cleared (Bypass)");
+            } else {
+                logEvent(`Transfer successful: $${amount}`, "success");
+                showToast("Transfer Successful", "Funds have been deducted and wired.", "success");
+                addLedgerRow(amount, "Cleared");
+            }
+            
+            this.reset();
+        });
+
+        // API Sandbox Logic
+        function sendApiRequest() {
+            const payloadEl = document.getElementById('api-payload');
+            const respEl = document.getElementById('api-response');
+            const statusEl = document.getElementById('api-status');
+            
+            let json;
+            try {
+                json = JSON.parse(payloadEl.value);
+            } catch(e) {
+                logEvent("API Error: Invalid JSON", "error");
+                statusEl.innerHTML = '<span class="text-red-400">400 Bad Request</span>';
+                respEl.className = "font-mono text-[13px] text-red-400 whitespace-pre-wrap";
+                respEl.textContent = "{\n  \"error\": \"Invalid JSON syntax\"\n}";
+                return;
+            }
+
+            // Simulate latency
+            logEvent("Outbound API request: POST /v2/transfer", "info");
+            statusEl.innerHTML = '<span class="text-brand-400">Processing...</span>';
+            respEl.style.opacity = '0.5';
+
+            setTimeout(() => {
+                respEl.style.opacity = '1';
+                // Vulnerability Logic Check
+                const amt = parseFloat(json.amount || 0);
+                const amlBypass = json.bypass_aml_check === true;
+                const toAcc = json.to_account || "UNKNOWN";
+
+                if (amt > 10000 && !amlBypass) {
+                    logEvent("API Transfer held by compliance rules", "warning");
+                    statusEl.innerHTML = '<span class="text-amber-400">202 Accepted (Held)</span>';
+                    respEl.className = "font-mono text-[13px] text-amber-300 whitespace-pre-wrap";
+                    respEl.textContent = JSON.stringify({
+                        status: "held",
+                        code: "AML_REVIEW_REQUIRED",
+                        message: "Transaction exceeds automated clearing limits.",
+                        txn_id: "API-" + Math.floor(Math.random()*90000 + 10000),
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                } else {
+                    // Success logic
+                    if (amt > 10000 && amlBypass) {
+                        if (!window.bankingScoreSubmitted && typeof submitLabScore === 'function') { submitLabScore(100); window.bankingScoreSubmitted = true; }
+                        logEvent("BOLA/IDOR DETECTED: API AML Bypass Successful", "error");
+                        triggerOverlay("error", "API Vulnerability", "Compliance flag overridden via JSON payload.");
+                    } else {
+                        logEvent("API Transfer processed successfully", "success");
+                    }
+                    
+                    statusEl.innerHTML = '<span class="text-emerald-400">200 OK</span>';
+                    respEl.className = "font-mono text-[13px] text-emerald-300 whitespace-pre-wrap";
+                    respEl.textContent = JSON.stringify({
+                        status: "cleared",
+                        message: `Successfully routed ${amt} USD to ${toAcc}.`,
+                        bypass_flag_used: amlBypass,
+                        txn_id: "API-" + Math.floor(Math.random()*90000 + 10000),
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                    
+                    showToast("API Transfer", `Wired $${amt.toFixed(2)} via API`, "success");
+                    addLedgerRow(amt, "Cleared");
+                }
+
+            }, 800);
+        }
+
+        // Add row to ledger dynamically
+        function addLedgerRow(amount, status) {
+            const tbody = document.getElementById('ledger-body');
+            const row = document.createElement('tr');
+            row.className = "animate-data-update border-b border-slate-100";
+            
+            const date = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const txn = "NET-" + Math.floor(Math.random() * 90000 + 10000);
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 text-slate-500 text-xs">${date}</td>
+                <td class="px-6 py-4 text-brand-600 font-medium cursor-pointer hover:underline">${txn}</td>
+                <td class="px-6 py-4 text-slate-700">Master Account</td>
+                <td class="px-6 py-4 text-slate-700">External Vendor</td>
+                <td class="px-6 py-4 text-right font-bold text-slate-800">$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                <td class="px-6 py-4 text-center"><span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded text-[10px] uppercase font-sans font-bold">${status}</span></td>
+            `;
+            tbody.insertBefore(row, tbody.firstChild);
+        }
+
+                // AML Risk IDOR Vulnerability Logic
+        document.getElementById('aml-override-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const role = document.getElementById('aml_user_role').value;
+            
+            if (role === 'admin') {
+                if (!window.bankingScoreSubmitted && typeof submitLabScore === 'function') { submitLabScore(100); window.bankingScoreSubmitted = true; }
+                logEvent("AML IDOR DETECTED: Admin forced approval", "error");
+                triggerOverlay("error", "Compliance Overridden", "High-Risk transactions forced through via privilege escalation.");
+                showToast("AML Override Accepted", "Privilege elevation successful. Funds released.", "success");
+                addLedgerRow(104000000, "Cleared (Admin Force)");
+                this.innerHTML = '<div class="text-emerald-600 font-bold flex items-center justify-center gap-2 p-4 bg-emerald-50 rounded border border-emerald-200"><span class="material-symbols-outlined">check_circle</span> Transaction Overridden</div>';
+            } else {
+                logEvent(`AML block override denied for role: ${role}`, "warning");
+                showToast("Access Denied", "Insufficient privileges. Your 'aml_user_role' is: " + role, "error");
+            }
+        });
+
+        // WebSocket Integration for ATM
+        const ws = new WebSocket('ws://localhost:4000');
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "atm_res") {
+                    const consoleBox = document.getElementById('atm-console');
+                    consoleBox.innerHTML += data.res;
+                    consoleBox.scrollTop = consoleBox.scrollHeight;
+                    
+                    if (data.isJackpot) {
+                        if (!window.bankingScoreSubmitted && typeof submitLabScore === 'function') { submitLabScore(100); window.bankingScoreSubmitted = true; }
+                        logEvent(`ATM JACKPOTTING DETECTED`, "error");
+                        triggerOverlay("error", "ATM Compromised", "Command injection successfully emptied physical cash vault.");
+                        showToast("Jackpot Success", "ATM Vault compromised via command override.", "success");
+                    }
+                }
+            } catch (err) {}
+        };
+
+        // ATM Fleet Command Injection / Jackpotting Logic
+        document.getElementById('atm-cmd-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('atm_cmd');
+            const cmd = inputEl.value.trim().toLowerCase();
+            const consoleBox = document.getElementById('atm-console');
+
+            if (!cmd) return;
+
+            consoleBox.innerHTML += `<div><span class="text-slate-400">> </span> ${cmd} </div>`;
+            inputEl.value = '';
+            
+            logEvent(`Sending ATM instruction: ${cmd}`, "info");
+
+            ws.send(JSON.stringify({ type: 'atm_cmd', cmd: cmd }));
+        });
+
+        // Toast notifications
+        function showToast(title, msg, type="info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = 'info';
+            let colors = 'bg-white border-slate-200 shadow-xl';
+            let iconColor = 'text-brand-500';
+            
+            if (type === 'success') { icon = 'check_circle'; iconColor = 'text-emerald-500'; border = 'border-emerald-500'; }
+            if (type === 'error') { icon = 'warning'; iconColor = 'text-red-500'; border = 'border-red-500'; }
+
+            toast.className = `w-80 border-l-4 p-4 rounded-r-lg ${colors} ${type === 'success' ? 'border-emerald-500' : type === 'error' ? 'border-amber-500' : 'border-brand-500'} animate-[fade-in_0.3s_ease-out]`;
+            toast.innerHTML = `
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined ${iconColor}" style="font-variation-settings: 'FILL' 1">${icon}</span>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">${title}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${msg}</p>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    </script>
+
+
+</body></html>

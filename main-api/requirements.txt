@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+psycopg2-binary
+databases
+asyncpg
+passlib[bcrypt]
+pyjwt
+redis
+httpx
+python-dotenv

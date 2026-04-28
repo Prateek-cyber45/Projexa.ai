@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Profile</title>
+<script src="/common_pages/cyber_auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "surface-container": "#1f1f1f",
+          "surface-container-high": "#2a2a2a",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #131313; color: #e2e2e2; }
+  /* Toast */
+  .toast-msg { position: fixed; bottom: 24px; right: 24px; z-index: 10000; background: rgba(30,30,30,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 20px; color: #e2e2e2; font-size: 13px; font-weight: 600; backdrop-filter: blur(12px); transform: translateY(80px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
+  .toast-msg.show { transform: translateY(0); opacity: 1; }
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal-overlay .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+  .modal-overlay.active .modal-content { transform: scale(1); }
+  .edit-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; width: 100%; padding: 10px 14px; outline: none; font-size: 14px; }
+  .edit-input:focus { border-color: #adc7ff; box-shadow: 0 0 12px rgba(173,199,255,0.15); }
+  .tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(173,199,255,0.1); border: 1px solid rgba(173,199,255,0.2); color: #adc7ff; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .tag .remove { cursor: pointer; opacity: 0.6; }
+  .tag .remove:hover { opacity: 1; }
+  /* Privacy dropdown */
+  .privacy-menu { position: absolute; top: 100%; right: 0; margin-top: 6px; background: #1f1f1f; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; min-width: 160px; z-index: 100; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: all 0.2s ease; }
+  .privacy-menu.open { opacity: 1; transform: translateY(0); pointer-events: all; }
+</style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-[#00285b] min-h-screen flex flex-col">
+
+  <!-- Nav -->
+  <nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="/main/dashboard_pro.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+            <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <div class="hidden md:flex items-center gap-6 border-l border-white/10 pl-6 space-x-2">
+          <a href="/main/dashboard_pro.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">home</span> Home
+          </a>
+          <a href="/main/profile.html" class="flex items-center gap-2 text-sm font-bold text-white transition-colors">
+            <span class="material-symbols-outlined text-base">person</span> Profile
+          </a>
+          <a href="/main/settings.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">settings</span> Settings
+          </a>
+          <a href="/main/report_generation.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">description</span> Reports
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">help</span>
+        <div class="relative">
+          <span id="apps-button" class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer transition-colors duration-200">apps</span>
+          <div id="apps-dropdown" class="absolute right-0 mt-3 w-72 bg-surface-container/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] invisible opacity-0 transition-all duration-300 transform origin-top-right scale-95 z-[100] overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/5">
+              <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Platform Modules</h3>
+            </div>
+            <div class="p-2">
+              <a href="/academy/dashboard.html" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group/item">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors border border-primary/20">
+                  <span class="material-symbols-outlined text-primary">school</span>
+                </div>
+                <div><p class="text-sm font-bold text-white">Academy</p><p class="text-[11px] text-on-surface-variant">Learn & Certify</p></div>
+                <span class="material-symbols-outlined text-on-surface-variant ml-auto text-sm opacity-0 group-hover/item:opacity-100 transition-opacity">chevron_right</span>
+              </a>
+              <a href="/labs/dashboard.html" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group/item">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500/20 transition-colors border border-blue-500/20">
+                  <span class="material-symbols-outlined text-blue-400">terminal</span>
+                </div>
+                <div><p class="text-sm font-bold text-white">Labs</p><p class="text-[11px] text-on-surface-variant">Hands-on Practice</p></div>
+                <span class="material-symbols-outlined text-on-surface-variant ml-auto text-sm opacity-0 group-hover/item:opacity-100 transition-opacity">chevron_right</span>
+              </a>
+            </div>
+            <div class="bg-white/5 p-3 flex justify-center">
+              <p class="text-[10px] text-on-surface-variant font-medium">Deep Hunt v2.0</p>
+            </div>
+          </div>
+        </div>
+        <button onclick="logout()" class="text-sm border border-red-500/50 text-red-400 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors font-bold ml-2">LOGOUT</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    <!-- User Header Block -->
+    <div class="flex items-center justify-between mb-8 pb-8 border-b border-white/5">
+      <div class="flex items-center gap-6">
+        <div class="w-24 h-24 bg-[#1f2023] border-2 border-primary rounded-lg flex items-center justify-center relative shadow-[0_0_20px_rgba(173,199,255,0.15)]">
+          <span class="material-symbols-outlined text-primary text-6xl">view_in_ar</span>
+          <div id="avatar-edit-btn" class="absolute -bottom-2 -right-2 bg-surface-container border border-white/10 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors">
+            <span class="material-symbols-outlined text-[14px] text-white">edit</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-headline text-3xl font-bold text-white flex items-center gap-2">
+            <span id="username-display">Operator_01</span> <span id="username-handle" class="text-on-surface-variant text-sm font-mono mt-1 font-normal tracking-wide">@operator</span>
+          </h1>
+          <p class="text-on-surface-variant text-sm flex items-center gap-1 mt-2">
+            <span class="material-symbols-outlined text-[16px]">location_on</span> <span id="location-display">Global Operations</span>
+          </p>
+          <p class="text-on-surface-variant text-xs flex items-center gap-1 mt-1">
+            <span class="material-symbols-outlined text-[14px]">mail</span> <span id="email-display">...</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="/main/settings.html" class="hidden md:flex items-center gap-2 px-6 py-2 bg-surface-container border border-white/10 text-white font-bold text-sm rounded hover:bg-white/5 transition-colors">
+          Edit Profile
+        </a>
+        <div class="relative">
+          <button id="privacy-btn" class="hidden md:flex items-center gap-1 px-4 py-2 bg-surface-container border border-white/10 text-white font-bold text-sm rounded hover:bg-white/5 transition-colors">
+            <span class="material-symbols-outlined text-[16px]" id="privacy-icon">lock</span> 
+            <span id="privacy-label">Private</span> 
+            <span class="material-symbols-outlined text-[16px]">expand_more</span>
+          </button>
+          <div id="privacy-menu" class="privacy-menu">
+            <button data-vis="private" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 flex items-center gap-2 font-semibold"><span class="material-symbols-outlined text-[16px]">lock</span> Private</button>
+            <button data-vis="public" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 flex items-center gap-2 font-semibold"><span class="material-symbols-outlined text-[16px]">public</span> Public</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-6 mb-10 border-b border-white/5" id="profile-tabs">
+      <div class="pb-3 border-b-2 border-primary text-white font-bold text-sm cursor-pointer tab-btn active" data-tab="about">About</div>
+      <div class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-colors cursor-pointer tab-btn" data-tab="badges">Badges</div>
+      <div class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-colors cursor-pointer tab-btn" data-tab="activity">Activity</div>
+    </div>
+
+    <!-- About Tab (Default) -->
+    <div id="tab-about" class="tab-content">
+      <div class="flex flex-col md:flex-row gap-6">
+        <!-- Left Column -->
+        <div class="w-full md:w-2/3 flex flex-col gap-6">
+          <!-- Summary -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Summary</h2>
+            <div id="summary-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-8 flex flex-col items-center justify-center min-h-[140px] text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Tell the world about yourself and your cyber defense powers...</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="summary">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add summary
+              </button>
+            </div>
+          </div>
+          <!-- Certifications -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3 mt-2">Certifications</h2>
+            <div id="certifications-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-8 flex flex-col items-center justify-center min-h-[140px] text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Share with us your biggest achievements across platforms.</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="certifications">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add certifications
+              </button>
+            </div>
+          </div>
+          <!-- Achievements -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3 mt-2">Achievements</h2>
+            <div id="achievements-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-8 flex flex-col items-center justify-center min-h-[140px] text-center">
+              <p class="text-on-surface-variant text-sm mb-4">You haven't earned any achievements yet. Start with a Deep Hunt Lab building your track record.</p>
+              <a href="/labs/" class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors">
+                Explore Live Labs <span class="material-symbols-outlined text-[16px]">north_east</span>
+              </a>
+            </div>
+          </div>
+          <!-- Events Certificates -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3 mt-2">Events Certificates</h2>
+            <div class="bg-[#1f2023] border border-white/5 rounded-xl p-8 flex flex-col items-center justify-center min-h-[140px] text-center">
+              <p class="text-on-surface-variant text-sm mb-4">You haven't joined any events yet. Jump into an Academy Challenge to get started.</p>
+              <a href="/academy/all_course" class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors">
+                Browse Challenges <span class="material-symbols-outlined text-[16px]">north_east</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="w-full md:w-1/3 flex flex-col gap-6">
+          <!-- Socials -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Socials</h2>
+            <div id="socials-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Add your social profiles and a website link.</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="socials">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add socials
+              </button>
+            </div>
+          </div>
+          <!-- Top Interests -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Top Interests</h2>
+            <div id="interests-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Let us know what are your top interests.</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="interests">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add interests
+              </button>
+            </div>
+          </div>
+          <!-- Badges (mini) -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Badges</h2>
+            <div id="badges-mini-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+              <p class="text-on-surface-variant text-sm mb-2">Your journey leaves marks. Badges are where they show.</p>
+              <p class="text-on-surface-variant text-sm">Users earn them on <a href="/labs/" class="text-white underline">Labs</a> and <a href="/academy/" class="text-white underline">Academy</a>.</p>
+            </div>
+          </div>
+          <!-- Skills -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Skills</h2>
+            <div id="skills-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Highlight the top skills that define how you work.</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="skills">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add skills
+              </button>
+            </div>
+          </div>
+          <!-- Toolstack -->
+          <div>
+            <h2 class="font-headline font-bold text-white text-lg mb-3">Toolstack</h2>
+            <div id="tools-container" class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+              <p class="text-on-surface-variant text-sm mb-4">Let us know what tools you use in your workflow.</p>
+              <button class="text-primary font-bold text-sm flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="tools">
+                <span class="material-symbols-outlined text-[16px]">edit</span> Add tools
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges Tab -->
+    <div id="tab-badges" class="tab-content hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="badges-grid">
+        <div class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col items-center text-center min-h-[160px] justify-center">
+          <p class="text-on-surface-variant text-sm">Complete labs to earn badges.</p>
+          <a href="/labs/" class="text-primary font-bold text-sm mt-3">Start a Lab →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div id="tab-activity" class="tab-content hidden">
+      <div id="activity-list" class="space-y-3">
+        <div class="bg-[#1f2023] border border-white/5 rounded-xl p-6 text-center">
+          <p class="text-on-surface-variant text-sm">No activity recorded yet. Complete labs and courses to build your timeline.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-content bg-surface-container border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+      <div class="flex items-center justify-between mb-6">
+        <h3 id="modal-title" class="font-headline font-bold text-white text-lg">Edit Section</h3>
+        <button id="modal-close" class="text-on-surface-variant hover:text-white transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div id="modal-body">
+        <!-- Dynamic content -->
+      </div>
+      <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
+        <button id="modal-cancel" class="px-4 py-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Cancel</button>
+        <button id="modal-save" class="px-6 py-2 bg-primary text-[#00285b] text-sm font-bold rounded-lg hover:bg-primary/80 transition-colors">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast-msg"></div>
+
+  <script>
+  (function() {
+    // ── Toast ──────────────────────────────────────────
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ── Apps Dropdown ──────────────────────────────────
+    const appsButton = document.getElementById('apps-button');
+    const appsDropdown = document.getElementById('apps-dropdown');
+    if (appsButton && appsDropdown) {
+      appsButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        appsDropdown.classList.toggle('invisible');
+        appsDropdown.classList.toggle('opacity-0');
+        appsDropdown.classList.toggle('scale-95');
+      });
+      document.addEventListener('click', (e) => {
+        if (!appsDropdown.contains(e.target) && e.target !== appsButton) {
+          appsDropdown.classList.add('invisible', 'opacity-0', 'scale-95');
+        }
+      });
+    }
+
+    // ── Privacy Toggle ────────────────────────────────
+    const privacyBtn = document.getElementById('privacy-btn');
+    const privacyMenu = document.getElementById('privacy-menu');
+    let currentVisibility = localStorage.getItem('profile_visibility') || 'private';
+    updatePrivacyUI();
+
+    privacyBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      privacyMenu.classList.toggle('open');
+    });
+    document.addEventListener('click', () => privacyMenu.classList.remove('open'));
+
+    privacyMenu.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentVisibility = btn.dataset.vis;
+        localStorage.setItem('profile_visibility', currentVisibility);
+        updatePrivacyUI();
+        privacyMenu.classList.remove('open');
+        toast(`Profile set to ${currentVisibility}`);
+      });
+    });
+
+    function updatePrivacyUI() {
+      document.getElementById('privacy-icon').textContent = currentVisibility === 'private' ? 'lock' : 'public';
+      document.getElementById('privacy-label').textContent = currentVisibility === 'private' ? 'Private' : 'Public';
+    }
+
+    // ── Avatar edit ───────────────────────────────────
+    document.getElementById('avatar-edit-btn').addEventListener('click', () => {
+      toast('Avatar customization coming soon!');
+    });
+
+    // ── Tab Switching ─────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('border-transparent', 'text-on-surface-variant');
+          b.classList.remove('border-primary', 'text-white');
+        });
+        btn.classList.add('active');
+        btn.classList.remove('border-transparent', 'text-on-surface-variant');
+        btn.classList.add('border-primary', 'text-white');
+
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // ── Inline Edit Modal ─────────────────────────────
+    const modal = document.getElementById('edit-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    let currentEditSection = null;
+
+    function openModal(section) {
+      currentEditSection = section;
+      const saved = JSON.parse(localStorage.getItem('profile_' + section) || '[]');
+      const config = {
+        summary: { title: 'Edit Summary', type: 'textarea', placeholder: 'Write about yourself, your experience, and your cyber defense expertise...' },
+        skills: { title: 'Edit Skills', type: 'tags', placeholder: 'Type a skill and press Enter (e.g. SIEM, Threat Hunting, Python)' },
+        interests: { title: 'Edit Interests', type: 'tags', placeholder: 'Type an interest and press Enter (e.g. Cloud Security, CTF, Malware Analysis)' },
+        tools: { title: 'Edit Toolstack', type: 'tags', placeholder: 'Type a tool and press Enter (e.g. Wireshark, Splunk, Burp Suite)' },
+        socials: { title: 'Edit Socials', type: 'socials', placeholder: '' },
+        certifications: { title: 'Add Certification', type: 'certification', placeholder: '' },
+      };
+      const c = config[section];
+      modalTitle.textContent = c.title;
+
+      if (c.type === 'textarea') {
+        const val = saved.length > 0 ? saved[0] : '';
+        modalBody.innerHTML = `<textarea class="edit-input h-32 resize-none" id="modal-textarea" placeholder="${c.placeholder}">${val}</textarea>`;
+      } else if (c.type === 'tags') {
+        modalBody.innerHTML = `
+          <div id="modal-tags" class="flex flex-wrap gap-2 mb-3 min-h-[32px]">${saved.map(t => `<span class="tag">${t} <span class="remove material-symbols-outlined text-[12px]" onclick="this.parentElement.remove()">close</span></span>`).join('')}</div>
+          <input class="edit-input" id="modal-tag-input" placeholder="${c.placeholder}" />
+        `;
+        const tagInput = document.getElementById('modal-tag-input');
+        tagInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && tagInput.value.trim()) {
+            e.preventDefault();
+            const val = tagInput.value.trim();
+            document.getElementById('modal-tags').insertAdjacentHTML('beforeend', `<span class="tag">${val} <span class="remove material-symbols-outlined text-[12px]" onclick="this.parentElement.remove()">close</span></span>`);
+            tagInput.value = '';
+          }
+        });
+      } else if (c.type === 'socials') {
+        const s = saved.length > 0 ? saved[0] : {};
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <input class="edit-input" id="social-website" placeholder="Website URL" value="${s.website || ''}" />
+            <input class="edit-input" id="social-github" placeholder="GitHub username" value="${s.github || ''}" />
+            <input class="edit-input" id="social-linkedin" placeholder="LinkedIn profile URL" value="${s.linkedin || ''}" />
+            <input class="edit-input" id="social-twitter" placeholder="X/Twitter handle" value="${s.twitter || ''}" />
+          </div>
+        `;
+      } else if (c.type === 'certification') {
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <input class="edit-input" id="cert-title" placeholder="Certification name (e.g. CompTIA Security+)" />
+            <input class="edit-input" id="cert-org" placeholder="Issuing organization" />
+            <input class="edit-input" id="cert-year" placeholder="Year obtained" />
+          </div>
+        `;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      currentEditSection = null;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    document.getElementById('modal-save').addEventListener('click', () => {
+      const section = currentEditSection;
+      if (!section) return;
+      let data;
+
+      if (section === 'summary') {
+        data = [document.getElementById('modal-textarea').value.trim()];
+      } else if (['skills', 'interests', 'tools'].includes(section)) {
+        data = Array.from(document.getElementById('modal-tags').querySelectorAll('.tag')).map(t => t.textContent.replace('close','').trim());
+      } else if (section === 'socials') {
+        data = [{ website: document.getElementById('social-website').value.trim(), github: document.getElementById('social-github').value.trim(), linkedin: document.getElementById('social-linkedin').value.trim(), twitter: document.getElementById('social-twitter').value.trim() }];
+      } else if (section === 'certifications') {
+        const existing = JSON.parse(localStorage.getItem('profile_certifications') || '[]');
+        const title = document.getElementById('cert-title').value.trim();
+        if (title) {
+          existing.push({ title, org: document.getElementById('cert-org').value.trim(), year: document.getElementById('cert-year').value.trim() });
+          data = existing;
+        } else { data = existing; }
+      }
+
+      localStorage.setItem('profile_' + section, JSON.stringify(data));
+      renderSection(section);
+      closeModal();
+      toast(`${section.charAt(0).toUpperCase() + section.slice(1)} saved successfully`);
+    });
+
+    document.querySelectorAll('.edit-section-btn').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.section));
+    });
+
+    // ── Render saved sections from localStorage ───────
+    function renderSection(section) {
+      const data = JSON.parse(localStorage.getItem('profile_' + section) || '[]');
+      const container = document.getElementById(section + '-container');
+      if (!container) return;
+
+      if (section === 'summary' && data.length > 0 && data[0]) {
+        container.innerHTML = `
+          <div class="w-full text-left">
+            <p class="text-on-surface text-sm leading-relaxed whitespace-pre-wrap">${data[0]}</p>
+            <button class="text-primary font-bold text-xs mt-4 flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="summary">
+              <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+            </button>
+          </div>
+        `;
+        container.classList.remove('justify-center', 'text-center');
+        container.querySelector('.edit-section-btn').addEventListener('click', () => openModal('summary'));
+      } else if (['skills', 'interests', 'tools'].includes(section) && data.length > 0) {
+        container.innerHTML = `
+          <div class="w-full">
+            <div class="flex flex-wrap gap-2">${data.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <button class="text-primary font-bold text-xs mt-4 flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="${section}">
+              <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+            </button>
+          </div>
+        `;
+        container.classList.remove('justify-center', 'text-center');
+        container.querySelector('.edit-section-btn').addEventListener('click', () => openModal(section));
+      } else if (section === 'socials' && data.length > 0 && data[0]) {
+        const s = data[0];
+        const links = [];
+        if (s.website) links.push(`<div class="flex items-center gap-3 bg-black/20 p-3 rounded border border-white/5"><span class="material-symbols-outlined text-primary">link</span><a href="https://${s.website.replace(/^https?:\/\//, '')}" target="_blank" class="text-white hover:text-primary text-sm font-mono truncate">${s.website}</a></div>`);
+        if (s.github) links.push(`<div class="flex items-center gap-3 bg-black/20 p-3 rounded border border-white/5"><span class="material-symbols-outlined text-primary">code</span><span class="text-white text-sm font-mono">${s.github}</span></div>`);
+        if (s.linkedin) links.push(`<div class="flex items-center gap-3 bg-black/20 p-3 rounded border border-white/5"><span class="material-symbols-outlined text-primary">work</span><a href="${s.linkedin}" target="_blank" class="text-white hover:text-primary text-sm font-mono truncate">LinkedIn</a></div>`);
+        if (s.twitter) links.push(`<div class="flex items-center gap-3 bg-black/20 p-3 rounded border border-white/5"><span class="material-symbols-outlined text-primary">alternate_email</span><span class="text-white text-sm font-mono">@${s.twitter.replace('@','')}</span></div>`);
+        if (links.length > 0) {
+          container.innerHTML = `<div class="w-full space-y-2">${links.join('')}<button class="text-primary font-bold text-xs mt-3 flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="socials"><span class="material-symbols-outlined text-[14px]">edit</span> Edit</button></div>`;
+          container.classList.remove('justify-center', 'text-center');
+          container.querySelector('.edit-section-btn').addEventListener('click', () => openModal('socials'));
+        }
+      } else if (section === 'certifications' && data.length > 0) {
+        container.innerHTML = `
+          <div class="w-full space-y-3">
+            ${data.map(c => `
+              <div class="bg-[#131416] border border-white/10 rounded-lg p-4 flex gap-4 text-left">
+                <div class="h-10 w-10 shrink-0 bg-primary/10 flex items-center justify-center rounded-md border border-primary/20 text-primary">
+                  <span class="material-symbols-outlined">workspace_premium</span>
+                </div>
+                <div>
+                  <p class="text-white font-bold text-sm leading-tight">${c.title}</p>
+                  <p class="text-on-surface-variant text-[10px] uppercase tracking-wider mt-1.5 font-mono">${c.org || ''}${c.year ? ' • ' + c.year : ''}</p>
+                </div>
+              </div>
+            `).join('')}
+            <button class="text-primary font-bold text-xs mt-2 flex items-center gap-1 hover:text-primary-container transition-colors edit-section-btn" data-section="certifications">
+              <span class="material-symbols-outlined text-[14px]">add</span> Add more
+            </button>
+          </div>
+        `;
+        container.classList.remove('justify-center', 'text-center');
+        container.querySelector('.edit-section-btn').addEventListener('click', () => openModal('certifications'));
+      }
+    }
+
+    // ── Load saved profile sections ───────────────────
+    ['summary', 'skills', 'interests', 'tools', 'socials', 'certifications'].forEach(s => renderSection(s));
+
+    // ── Logout ────────────────────────────────────────
+    window.logout = function() {
+      if (window.cyberLogout) window.cyberLogout();
+    };
+
+    // ── Load Profile from Backend ─────────────────────
+    if (window.cyberAuthToken) {
+      async function loadProfile() {
+        try {
+          const res = await fetch('/api/main/profile', {
+            headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }
+          });
+          if (!res.ok) {
+            if (res.status === 401 && window.cyberLogout) window.cyberLogout();
+            return;
+          }
+          const data = await res.json();
+          
+          let displayName = data.username ? data.username.toUpperCase() : 'OPERATOR';
+          let locationStr = "Global Operations";
+          
+          if (data.profile) {
+              if (data.profile.fullname) displayName = data.profile.fullname;
+              if (data.profile.country) locationStr = data.profile.country;
+              if (data.profile.timezone) locationStr += ` \u2022 ${data.profile.timezone}`;
+              
+              if (data.profile.website) {
+                  const socData = JSON.parse(localStorage.getItem('profile_socials') || '[]');
+                  if (socData.length === 0) {
+                      localStorage.setItem('profile_socials', JSON.stringify([{ website: data.profile.website }]));
+                      renderSection('socials');
+                  }
+              }
+          }
+          
+          document.getElementById('username-display').innerHTML = displayName;
+          document.getElementById('username-handle').textContent = `@${(data.username || 'operator').toLowerCase()}`;
+          document.getElementById('location-display').textContent = locationStr;
+          document.getElementById('email-display').textContent = data.email || '';
+          
+          // Fetch Certifications from backend
+          if (data.id) {
+              try {
+                  const certRes = await fetch(`/api/academy/users/${data.id}/certifications`);
+                  if (certRes.ok) {
+                      const certs = await certRes.json();
+                      if (certs.length > 0) {
+                          const existing = JSON.parse(localStorage.getItem('profile_certifications') || '[]');
+                          if (existing.length === 0) {
+                              localStorage.setItem('profile_certifications', JSON.stringify(certs.map(c => ({ title: c.title, org: 'Deep Hunt Academy', year: '2026' }))));
+                              renderSection('certifications');
+                          }
+                      }
+                  }
+              } catch(e) {}
+
+              // Fetch Achievements (Lab Scores)
+              try {
+                  const scoreRes = await fetch(`/api/main/scores?user_id=${data.id}`, {
+                      headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }
+                  });
+                  if (scoreRes.ok) {
+                      const scores = await scoreRes.json();
+                      if (scores.length > 0) {
+                          const achBox = document.getElementById('achievements-container');
+                          achBox.classList.remove('justify-center', 'text-center');
+                          achBox.classList.add('justify-start');
+                          
+                          let html = '<div class="w-full grid grid-cols-1 gap-3">';
+                          scores.forEach((scoreObj) => {
+                              html += `
+                              <div class="bg-[#131416] border border-white/10 rounded-lg p-3 flex items-center gap-4 text-left">
+                                <div class="h-8 w-8 shrink-0 bg-primary/10 flex items-center justify-center rounded-md border border-primary/20 text-primary">
+                                    <span class="material-symbols-outlined text-[16px]">military_tech</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-white font-bold text-sm">Lab Simulation Completed</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-primary font-mono font-bold text-sm">${scoreObj.score}</p>
+                                    <p class="text-on-surface-variant text-[10px] uppercase">Score</p>
+                                </div>
+                              </div>`;
+                          });
+                          html += '</div>';
+                          achBox.innerHTML = html;
+
+                          // Populate Activity tab
+                          const actList = document.getElementById('activity-list');
+                          let actHtml = '';
+                          scores.forEach((s, i) => {
+                            actHtml += `
+                              <div class="bg-[#1f2023] border border-white/5 rounded-xl p-4 flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                                  <span class="material-symbols-outlined text-primary text-[18px]">science</span>
+                                </div>
+                                <div class="flex-1">
+                                  <p class="text-white text-sm font-semibold">Lab Session Completed</p>
+                                  <p class="text-on-surface-variant text-xs mt-0.5">Score: <span class="text-primary font-mono">${s.score}</span></p>
+                                </div>
+                                <span class="text-on-surface-variant text-xs font-mono">#${s.id || i+1}</span>
+                              </div>
+                            `;
+                          });
+                          actList.innerHTML = actHtml;
+
+                          // Populate Badges tab
+                          const badgesGrid = document.getElementById('badges-grid');
+                          const badgeTypes = [
+                            { icon: 'shield', label: 'First Defender', desc: 'Complete your first lab', condition: scores.length >= 1 },
+                            { icon: 'verified_user', label: 'Consistent', desc: 'Complete 3 labs', condition: scores.length >= 3 },
+                            { icon: 'stars', label: 'High Performer', desc: 'Score above 80%', condition: scores.some(s => s.score > 80) },
+                            { icon: 'military_tech', label: 'Elite', desc: 'Score above 95%', condition: scores.some(s => s.score > 95) },
+                          ];
+                          badgesGrid.innerHTML = badgeTypes.map(b => `
+                            <div class="bg-[#1f2023] border ${b.condition ? 'border-primary/30' : 'border-white/5'} rounded-xl p-6 flex flex-col items-center text-center">
+                              <span class="material-symbols-outlined ${b.condition ? 'text-primary' : 'text-on-surface-variant/30'} text-4xl mb-3">${b.icon}</span>
+                              <p class="text-white font-bold text-sm">${b.label}</p>
+                              <p class="text-on-surface-variant text-xs mt-1">${b.desc}</p>
+                              ${b.condition ? '<span class="text-[10px] text-green-400 font-mono mt-2 uppercase">Earned</span>' : '<span class="text-[10px] text-on-surface-variant font-mono mt-2 uppercase">Locked</span>'}
+                            </div>
+                          `).join('');
+                      }
+                  }
+              } catch(e) {}
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      loadProfile();
+    }
+  })();
+  </script>
+</body>
+</html>

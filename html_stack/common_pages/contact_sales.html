@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Deep Hunt — Contact Sales</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #131313;
+      background-image:
+        radial-gradient(ellipse at 70% 20%, rgba(74, 142, 255, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(74, 142, 255, 0.06) 0%, transparent 45%);
+      min-height: 100vh;
+      color: #e2e2e2;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.35;
+    }
+
+    .glass {
+      background: rgba(25, 25, 35, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
+      border-radius: 10px;
+      width: 100%;
+      padding: 13px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none !important;
+      transition: all 0.25s ease;
+    }
+    .input-field::placeholder { color: rgba(193, 198, 215, 0.5); }
+    .input-field:focus {
+      border-color: rgba(173, 199, 255, 0.6) !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(74, 142, 255, 0.2) !important;
+      outline: none !important;
+    }
+
+    .input-field:-webkit-autofill,
+    .input-field:-webkit-autofill:hover, 
+    .input-field:-webkit-autofill:focus, 
+    .input-field:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .label-text {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(193, 198, 215, 0.7);
+      margin-bottom: 8px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #adc7ff, #4a8eff);
+      color: #00285b;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(74, 142, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .shimmer-line {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 3s ease infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      50%, 100% { transform: translateX(100%); }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 font-body">
+
+  <div class="relative w-full max-w-[540px]">
+    <div class="glass rounded-2xl shadow-2xl p-9 relative overflow-hidden">
+      <div class="shimmer-line"></div>
+
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <a href="/" class="inline-flex items-center justify-center gap-3 mb-5 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_24px_rgba(74,142,255,0.3)] overflow-hidden">
+            <img src="/logo/new.gif" alt="Deep Hunt Logo" class="w-full h-full object-contain" />
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <h1 class="text-2xl font-extrabold text-white font-headline tracking-tight mb-1">Enterprise Solutions</h1>
+        <p class="text-on-surface-variant text-sm">Secure your infrastructure with Deep Hunt.</p>
+      </div>
+
+      <!-- Form -->
+      <form class="space-y-5" id="salesForm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+                <label class="label-text">First Name</label>
+                <input type="text" class="input-field" placeholder="John" required>
+            </div>
+            <div>
+                <label class="label-text">Last Name</label>
+                <input type="text" class="input-field" placeholder="Doe" required>
+            </div>
+        </div>
+
+        <div>
+            <label class="label-text">Work Email</label>
+            <input type="email" class="input-field" placeholder="john.doe@company.com" required>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+                <label class="label-text">Company Name</label>
+                <input type="text" class="input-field" placeholder="Acme Corp" required>
+            </div>
+            <div>
+                <label class="label-text">Job Title</label>
+                <input type="text" class="input-field" placeholder="CISO / Security Lead" required>
+            </div>
+        </div>
+
+        <div>
+            <label class="label-text">Primary Interest</label>
+            <select class="input-field bg-[#1a1a2e]" style="appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' fill=\'%23adc7ff\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z\'/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 14px center;">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="intel">Threat Intelligence API</option>
+                <option value="redteam">Red Teaming Engagements</option>
+                <option value="training">Enterprise Training</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="label-text">Inquiry Details</label>
+            <textarea rows="3" class="input-field resize-none" placeholder="Tell us about your requirements..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary mt-4">
+          CONTACT SALES
+        </button>
+      </form>
+    </div>
+    
+    <p class="text-center text-xs font-mono text-on-surface-variant/30 mt-6 tracking-widest uppercase">Deep Hunt // SECURE INQUIRY v2.4</p>
+  </div>
+
+  <script>
+    document.getElementById('salesForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Thank you! Your inquiry has been sent to our security architects. We will contact you shortly.');
+        e.target.reset();
+    });
+  </script>
+</body>
+</html>

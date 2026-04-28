@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Apex Global Bank - Master Ledger</title>
+    <!-- CSS and Setup -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#121212",
+              "surface-variant": "#1e1e1e",
+              "primary": "#4A8EFF",
+              "secondary": "#2563eb",
+              "err": "#ff5c5c",
+              "success": "#10b981",
+              "warn": "#fbbf24",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #0d0d0d; color: #e5e5e5; font-family: 'Geist', sans-serif; }
+        .glass { background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(10px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Top Navigation -->
+<nav class="glass border-b border-white/10 px-6 py-4 flex justify-between items-center z-50 fixed w-full top-0">
+    <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+        <div>
+            <h1 class="text-xl font-bold font-headline text-white leading-tight">Apex Global</h1>
+            <p class="text-[10px] text-primary uppercase tracking-widest font-mono">Simulated Financial Infrastructure</p>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-6">
+        <a href="../dashboard.html" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-sm">exit_to_app</span> Lab Exit
+        </a>
+        <div class="flex items-center gap-3 border-l border-white/10 pl-6">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">A</div>
+            <div class="hidden sm:block">
+                <div class="text-sm font-bold text-white leading-none">Admin Teller</div>
+                <div class="text-xs text-success font-mono">Role: Authorized</div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Sidebar & Content -->
+<div class="flex flex-1 pt-[73px]">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 glass border-r border-white/10 hidden md:flex flex-col p-4">
+        <div class="space-y-2 mt-4">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">dashboard</span> Overview
+            </a>
+            <a href="ledger.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold transition-all">
+                <span class="material-symbols-outlined">receipt_long</span> Master Ledger
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">currency_exchange</span> Wire Transfers
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">shield_person</span> SWIFT Logs
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <header class="mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-headline font-bold text-white mb-1">Transactional Ledger</h2>
+                <p class="text-gray-400 text-sm">Live clearing feed for all global branch movements. Read-only for Teller role.</p>
+            </div>
+            
+            <div class="flex gap-2">
+                <button class="bg-surface border border-white/10 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-white/5 transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">filter_list</span> Filter
+                </button>
+                <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">download</span> Export CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="mb-6 relative">
+            <input type="text" placeholder="Search by TxID, Account or Amount..." class="w-full bg-surface border border-white/10 rounded-lg py-3 pl-12 pr-4 text-white font-mono text-sm focus:border-primary focus:outline-none transition-colors" />
+            <span class="material-symbols-outlined absolute left-4 top-3 text-gray-500">search</span>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="glass border border-white/5 rounded-xl overflow-hidden">
+            <div class="overflow-x-auto min-h-[500px]">
+                <table class="w-full text-left text-sm whitespace-nowrap font-mono selection:bg-primary/30">
+                    <thead class="text-gray-400 text-xs uppercase border-b border-white/5 bg-white/[0.02]">
+                        <tr>
+                            <th class="px-6 py-4">Timestamp</th>
+                            <th class="px-6 py-4 border-l border-white/5">TxID</th>
+                            <th class="px-6 py-4 border-l border-white/5">Origin</th>
+                            <th class="px-6 py-4 border-l border-white/5">Destination</th>
+                            <th class="px-6 py-4 border-l border-white/5">Protocol</th>
+                            <th class="px-6 py-4 border-l border-white/5 text-right">Amount</th>
+                            <th class="px-6 py-4 border-l border-white/5">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4 text-gray-500 text-xs">2026-04-09 14:02:11</td>
+                            <td class="px-6 py-4 text-primary border-l border-white/5 group-hover:underline cursor-pointer">TX-SWIFT-1002</td>
+                            <td class="px-6 py-4 border-l border-white/5">London Branch #4</td>
+                            <td class="px-6 py-4 border-l border-white/5">NY clearing #1</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-xs">SWIFT MT103</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-right font-bold text-white">$450,000.00</td>
+                            <td class="px-6 py-4 border-l border-white/5"><span class="bg-success text-white px-2 py-0.5 rounded text-[10px] uppercase">Cleared</span></td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors group cursor-not-allowed">
+                            <td class="px-6 py-4 text-gray-500 text-xs">2026-04-09 14:00:45</td>
+                            <td class="px-6 py-4 text-primary border-l border-white/5 group-hover:underline cursor-pointer">TX-INT-1003</td>
+                            <td class="px-6 py-4 border-l border-white/5">Teller Session A</td>
+                            <td class="px-6 py-4 border-l border-white/5">Customer 0x82A1</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-xs">INTERNAL</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-right font-bold text-white">$1,200.50</td>
+                            <td class="px-6 py-4 border-l border-white/5"><span class="bg-success text-white px-2 py-0.5 rounded text-[10px] uppercase">Cleared</span></td>
+                        </tr>
+                        <!-- Vulnerable logic visible on UI -->
+                        <tr class="border-b border-white/5 hover:bg-err/10 transition-colors group cursor-crosshair relative" title="Suspicious activity flag: Origin balance -$4.3B">
+                            <td class="px-6 py-4 text-err text-xs">2026-04-09 13:45:00</td>
+                            <td class="px-6 py-4 text-err border-l border-white/5 font-bold">TX-ACH-9923</td>
+                            <td class="px-6 py-4 border-l border-white/5">Unknown (API)</td>
+                            <td class="px-6 py-4 border-l border-white/5">Offshore 0x00B</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-xs text-err">API FORCE</td>
+                            <td class="px-6 py-4 border-l border-white/5 text-right font-bold text-err">-$4,294,967,295.00</td>
+                            <td class="px-6 py-4 border-l border-white/5"><span class="bg-err text-white px-2 py-0.5 rounded text-[10px] uppercase">System Err</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <span class="text-xs text-gray-500 font-mono">Showing 1-3 of 8,491 records</span>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-surface border border-white/10 rounded text-xs text-gray-400 hover:text-white transition-colors cursor-not-allowed opacity-50">Prev</button>
+                    <button class="px-3 py-1 bg-surface border border-white/10 rounded text-xs text-gray-400 hover:text-white transition-colors">Next</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

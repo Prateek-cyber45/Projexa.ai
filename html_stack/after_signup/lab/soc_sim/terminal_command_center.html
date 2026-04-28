@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL SOC | TERMINAL COMMAND CENTER</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="/common/cyber_auth.js"></script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#232323",
+              "surface-container-lowest": "#0a0a0a",
+              "surface-container-low": "#171717",
+              "surface-container": "#1c1c1c",
+              "background": "#0f0f0f",
+              "surface": "#0f0f0f",
+              "on-surface": "#d1d5db",
+              "outline-variant": "#2d3739",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .glow-cyan { text-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        .glow-red { text-shadow: 0 0 15px rgba(255, 42, 42, 0.4); }
+        .glow-green { text-shadow: 0 0 15px rgba(0, 255, 163, 0.4); }
+        
+        /* Custom Scrollbar Styling */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4a4d; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Terminal Line Animations */
+        @keyframes fade-in { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: translateY(0); } }
+        .terminal-line { animation: fade-in 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-[#00f2ff]/30 overflow-hidden flex flex-col h-screen">
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 bg-background/90 backdrop-blur-md h-16 border-b border-outline-variant/40">
+    <div class="flex items-center gap-10">
+        <div class="flex flex-col">
+            <span class="text-xl font-bold text-[#00f2ff] font-headline uppercase leading-none glow-cyan tracking-wide">Sentinel SOC</span>
+            <span class="text-xs font-mono text-on-surface/50 uppercase mt-1">Command Center</span>
+        </div>
+        <div class="flex gap-8 items-center">
+            <div class="flex items-center gap-2.5 bg-[#00ffa3]/10 px-3 py-1 rounded-full border border-[#00ffa3]/20">
+                <span id="ws-status-dot" class="w-2 h-2 bg-[#00ffa3] rounded-full animate-pulse shadow-[0_0_8px_#00ffa3]"></span>
+                <span id="ws-status-label" class="text-[#00ffa3] font-bold font-mono text-xs uppercase">System Active</span>
+            </div>
+            <span class="text-on-surface/60 font-mono text-xs uppercase hidden md:inline">Session Time: <span class="text-[#00f2ff] font-bold ml-2" id="session-clock">00:45:12</span></span>
+        </div>
+    </div>
+    <div class="flex items-center gap-6">
+        <button class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg shadow-red-900/20">
+            <span class="material-symbols-outlined text-base">lock</span>
+            Lockdown
+        </button>
+        <div class="flex items-center gap-5 border-l border-outline-variant/50 pl-6">
+            <button id="theme-toggle" class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">light_mode</button><span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">notifications</span>
+            <span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">account_circle</span>
+        </div>
+    </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden pt-16">
+    <nav class="fixed left-0 top-16 h-[calc(100vh-4rem)] flex flex-col z-40 bg-surface-container-low/80 backdrop-blur-md w-20 hover:w-64 transition-all duration-300 ease-in-out border-r border-outline-variant/30 group overflow-x-hidden overflow-y-auto custom-scrollbar shadow-2xl">
+        <div class="flex flex-col flex-1 py-6 gap-2">
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="dashboard.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">dashboard</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Dashboard</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="alerts_management.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">warning</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Alerts</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="threat_intelligence.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">security</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Threat Intel</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="incident_investigation.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">error</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Incidents</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="endpoint_security.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">computer</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Endpoints</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="siem_logs.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">terminal</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">SIEM Logs</span>
+            </a>
+        </div>
+        <div class="mt-auto border-t border-outline-variant/30 py-6 gap-2 flex flex-col">
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg border-l-[3px] border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 transition-all duration-200" href="terminal_command_center.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">code</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Terminal</span>
+            </a>
+            <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="settings_soc.html">
+                <span class="material-symbols-outlined text-2xl flex-shrink-0">settings</span>
+                <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="ml-20 flex-1 p-6 flex flex-col gap-6 overflow-hidden bg-background relative">
+        <div class="scanlines absolute inset-0 opacity-10 pointer-events-none"></div>
+        
+        <div class="h-14 flex items-end border-b border-outline-variant/30 px-2 shrink-0 bg-surface-container-low relative z-10">
+            <div class="flex gap-1 h-full pt-3" id="terminal-tabs">
+                <div class="terminal-tab active-tab px-6 bg-background border-x border-t border-outline-variant/50 text-[#00f2ff] text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-3 rounded-t-xl shadow-[inset_0_2px_10px_rgba(0,242,255,0.05)] border-b border-b-background -mb-[1px] cursor-pointer" data-target="view-root">
+                    <span class="w-2 h-2 rounded-full bg-[#00f2ff] animate-pulse"></span>
+                    <span>root_shell@aegis-v4</span>
+                </div>
+                <div class="terminal-tab px-6 text-on-surface/40 hover:text-on-surface/60 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/[0.03] transition-colors cursor-pointer rounded-t-xl group" data-target="view-net">
+                    <span class="material-symbols-outlined text-sm group-hover:text-[#00f2ff]">network_node</span>
+                    <span>net_analyzer</span>
+                </div>
+                <div class="terminal-tab px-6 text-on-surface/40 hover:text-on-surface/60 text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/[0.03] transition-colors cursor-pointer rounded-t-xl group hidden lg:flex" data-target="view-threat">
+                    <span class="material-symbols-outlined text-sm group-hover:text-red-400">gpp_maybe</span>
+                    <span>threat_monitor</span>
+                </div>
+            </div>
+            <div class="ml-auto mb-3 flex items-center gap-6 text-[11px] font-mono font-bold tracking-widest text-on-surface/30">
+                <span class="flex items-center gap-2">PID:<span class="text-[#00f2ff]">44291</span></span>
+                <span class="flex items-center gap-2">TTY:<span class="text-[#00f2ff]">/dev/pts/0</span></span>
+                <span class="bg-black/40 px-3 py-1 rounded border border-outline-variant/20">MEM: 12.4GB / 32GB</span>
+            </div>
+        </div>
+
+        <div class="flex-1 flex gap-6 overflow-hidden relative z-10">
+            <div id="view-root" class="terminal-view flex-1 flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-2xl">
+                <div class="flex-1 overflow-y-auto p-8 font-mono text-sm leading-relaxed custom-scrollbar flex flex-col gap-1" id="terminal-output">
+                    <pre class="text-[#00f2ff] glow-cyan font-bold leading-tight mb-8">
+      █████╗ ███████╗ ██████╗ ██╗███████╗
+     ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝
+     ███████║█████╗  ██║  ███╗██║███████╗
+     ██╔══██║██╔══╝  ██║   ██║██║╚════██║
+     ██║  ██║███████╗╚██████╔╝██║███████╗
+     ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝
+     [ AEGIS AUTOMATED THREAT INTELLIGENCE SYSTEM ]
+                    </pre>
+                    
+                    <div class="text-on-surface/50 mb-6">
+                        <p>Last login: Wed Oct 24 04:21:09 from 10.44.12.8</p>
+                        <p class="text-[#00ffa3]/80">[ OK ] Tunneling established over port 443 (HK-REGION-44)</p>
+                        <p class="text-[#00ffa3]/80">[ OK ] AEGIS-V4 kernel link verified.</p>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <span class="text-[#00f2ff] font-bold shrink-0">root@aegis-cmd:~#</span>
+                        <span class="text-white">netstat -tulpn | grep LISTEN</span>
+                    </div>
+                    <div class="text-on-surface/40 whitespace-pre font-mono text-xs pl-6 mb-4">
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      892/sshd            
+tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      1023/redis-server   
+tcp6       0      0 :::80                   :::*                    LISTEN      1412/nginx: master  
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           712/ntpd            </div>
+
+                    <div class="flex gap-4">
+                        <span class="text-[#00f2ff] font-bold shrink-0">root@aegis-cmd:~#</span>
+                        <span class="text-white">ps aux | grep -i malicious</span>
+                    </div>
+                    <div class="bg-red-500/10 border-l-[3px] border-red-600 p-4 rounded-r-lg my-4 flex flex-col gap-2">
+                        <p class="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm translate-y-[1px]">warning</span>
+                            Unauthorized process detected
+                        </p>
+                        <div class="text-red-400 font-mono text-xs pl-4 whitespace-pre">
+root      12092  8.4  1.2 452120 18231 ?        Sl   04:18   0:12 [system_daemon_v2] --malicious
+root      12098  0.0  0.0  14224   912 pts/0    S+   04:22   0:00 grep --color=auto malicious</div>
+                    </div>
+
+                    <div id="dynamic-lines"></div>
+
+                    <div class="flex items-center gap-4 pt-4">
+                        <span class="text-[#00f2ff] font-bold shrink-0">root@aegis-cmd:~#</span>
+                        <input type="text" id="terminal-input" class="bg-transparent border-none focus:ring-0 focus:outline-none text-white font-mono flex-1 caret-[#00f2ff] caret-[12px] placeholder:text-on-surface/20" autofocus autocomplete="off" spellcheck="false" />
+                    </div>
+                </div>
+
+                <div class="px-8 py-3 bg-white/[0.02] border-t border-outline-variant/30 flex items-center gap-6 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] uppercase font-bold text-on-surface/40 tracking-widest">Input Filter</span>
+                        <div class="h-6 w-96 bg-black/40 border border-outline-variant/30 rounded flex items-center px-3 gap-2">
+                            <span class="material-symbols-outlined text-xs text-[#00ffa3]">search</span>
+                            <input class="bg-transparent border-none focus:ring-0 text-[11px] font-mono text-[#00f2ff] w-full placeholder:text-white/10" placeholder="Filter buffer..." type="text"/>
+                        </div>
+                    </div>
+                    <div class="ml-auto flex gap-4">
+                        <button class="bg-surface-container border border-outline-variant/40 text-on-surface/60 px-4 py-1 rounded text-[10px] font-bold uppercase tracking-widest hover:text-white hover:bg-surface-container-high transition-all">Clear Buffer</button>
+                        <button class="bg-red-600/10 border border-red-600/30 text-red-500 px-4 py-1 rounded text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-900/10">Halt Signal</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="view-net" class="terminal-view hidden flex-1 flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-2xl">
+                <div class="flex-1 overflow-y-auto p-8 font-mono text-sm leading-relaxed custom-scrollbar flex flex-col gap-1">
+                    <pre class="text-[#00ffa3] glow-green font-bold leading-tight mb-8">
+     /\\     
+    /  \\    NET_ANALYZER v1.2
+   /____\\   PACKET CAPTURE & INTERROGATION
+  /      \\  
+ /        \\ 
+ [ DEEP PACKET INSPECTION ENABLED ]
+                    </pre>
+                    <div class="text-on-surface/50 mb-6">
+                        <p>[ OK ] Primary interface eth0 sniffing active.</p>
+                        <p>[ OK ] Promiscuous mode enabled.</p>
+                        <p>[ OK ] BPF filter: none</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-[#00ffa3] font-bold shrink-0">analyzer@aegis-net:~#</span>
+                        <span class="text-white">tcpdump -i eth0 -n port 80 or port 443</span>
+                    </div>
+                    <div class="text-on-surface/40 whitespace-pre font-mono text-xs pl-6 mb-4">
+listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+04:47:11.293 IP 10.44.12.8.49012 > 192.168.1.100.443: Flags [S], seq 129038, win 64240
+04:47:11.390 IP 192.168.1.100.443 > 10.44.12.8.49012: Flags [S.], seq 458902, ack 129039
+04:47:11.455 IP 10.44.12.8.49012 > 192.168.1.100.443: Flags [.], ack 1, win 502
+04:47:12.012 IP 10.44.12.8.49012 > 192.168.1.100.443: P 1:518(517) ack 1 win 502
+04:47:12.050 IP 192.168.1.100.443 > 10.44.12.8.49012: . ack 518 win 498
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-threat" class="terminal-view hidden flex-1 flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-2xl">
+                <div class="flex-1 overflow-y-auto p-8 font-mono text-sm leading-relaxed custom-scrollbar flex flex-col gap-1">
+                    <pre class="text-red-500 glow-red font-bold leading-tight mb-8">
+  _______ _                     _     __  __             _ _             
+ |__   __| |                   | |   |  \\/  |           (_) |            
+    | |  | |__  _ __ ___  __ _| |_  | \\  / | ___  _ __  _| |_ ___  _ __ 
+    | |  | '_ \\| '__/ _ \\/ _\` | __| | |\\/| |/ _ \\| '_ \\| | __/ _ \\| '__|
+    | |  | | | | | |  __/ (_| | |_  | |  | | (_) | | | | | || (_) | |   
+    |_|  |_| |_|_|  \\___|\\__,_|\\__| |_|  |_|\\___/|_| |_|_|\\__\\___/|_|   
+ [ LIVE THREAT INTELLIGENCE STREAM ]
+                    </pre>
+                    <div class="text-on-surface/50 mb-6">
+                        <p>[ RUNNING ] Threat stream correlated with global feeds.</p>
+                        <p class="text-red-400">[ WARN ] Multiple anomalous signatures detected in last hour.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="text-red-400 font-bold shrink-0">monitor@aegis-threat:~#</span>
+                        <span class="text-white">tail -n 15 /var/log/suricata/fast.log</span>
+                    </div>
+                    <div class="text-on-surface/40 whitespace-pre font-mono text-xs pl-6 mb-4">
+10/24/2024-04:02:11.891 [**] [1:2010935:3] ET EXPLOIT Possible CVE-2014-6271 Attempt in HTTP Header [**] [Classification: Attempted Administrator Privilege Gain] [Priority: 1] {TCP} 198.51.100.42:54321 -> 192.168.1.100:80
+10/24/2024-04:05:32.112 [**] [1:2018959:2] ET POLICY PE EXE or DLL Windows file download HTTP [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {TCP} 203.0.113.88:80 -> 192.168.1.100:38902
+10/24/2024-04:18:00.005 [**] [1:2024364:4] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 10.44.12.8:55213 -> 192.168.1.100:3306
+10/24/2024-04:22:15.540 [**] [1:2001219:18] ET MALWARE Suspicious User-Agent (Mozilla/4.0 (compatible)) [**] [Classification: A Network Trojan was detected] [Priority: 1] {TCP} 198.51.100.12:49382 -> 192.168.1.100:80
+                    </div>
+                    <div class="bg-red-500/10 border-l-[3px] border-red-600 p-4 rounded-r-lg my-4 flex flex-col gap-2">
+                        <p class="text-red-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm translate-y-[1px]">warning</span>
+                            Critical Severity Event
+                        </p>
+                        <p class="text-red-400 font-mono text-[11px]">Source IP: 198.51.100.42 | Destination: 192.168.1.100 | Signature: CVE-2014-6271 Shellshock</p>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="w-80 flex flex-col gap-6 shrink-0 h-full overflow-y-auto custom-scrollbar">
+                <div class="bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-xl">
+                    <h3 class="text-xs font-bold font-headline tracking-widest uppercase text-white mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-[#00f2ff]">analytics</span>
+                        Resource telemetry
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[11px] font-mono font-bold tracking-widest text-on-surface/40 uppercase">
+                                <span>CPU Usage</span>
+                                <span class="text-[#00f2ff]">42%</span>
+                            </div>
+                            <div class="h-1.5 bg-background rounded-full overflow-hidden border border-white/5">
+                                <div class="h-full bg-[#00f2ff] shadow-[0_0_10px_#00f2ff]" id="cpu-bar" style="width: 42%;"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[11px] font-mono font-bold tracking-widest text-on-surface/40 uppercase">
+                                <span>Memory Heap</span>
+                                <span class="text-[#00ffa3]">68%</span>
+                            </div>
+                            <div class="h-1.5 bg-background rounded-full overflow-hidden border border-white/5">
+                                <div class="h-full bg-[#00ffa3] shadow-[0_0_10px_#00ffa3]"  id="mem-bar" style="width: 68%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-4 gap-1 h-12 mt-4">
+                            <div class="bg-[#00f2ff]/20 h-full rounded-sm animate-pulse" style="height: 40%"></div>
+                            <div class="bg-[#00f2ff]/40 h-full rounded-sm animate-pulse" style="height: 70%; animation-delay: 0.1s"></div>
+                            <div class="bg-red-500/40 h-full rounded-sm animate-pulse" style="height: 90%; animation-delay: 0.2s"></div>
+                            <div class="bg-[#00f2ff]/30 h-full rounded-sm animate-pulse" style="height: 55%; animation-delay: 0.3s"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-xl">
+                    <h3 class="text-xs font-bold font-headline tracking-widest uppercase text-white mb-5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-[#00f2ff]">key_visualizer</span>
+                        Active Sessions
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-white/[0.03] p-3 rounded-lg border border-outline-variant/30 flex items-center gap-4 transition-all hover:bg-white/[0.05] cursor-default border-l-[3px] border-l-[#00ffa3]">
+                            <div class="w-10 h-10 bg-[#00ffa3]/10 border border-[#00ffa3]/20 flex items-center justify-center rounded-lg">
+                                <span class="material-symbols-outlined text-xl text-[#00ffa3]">person</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-bold text-white uppercase tracking-tighter">OPERATOR_01</p>
+                                <p class="text-[9px] font-mono font-bold uppercase text-[#00ffa3]/60">Local Admin</p>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-on-surface/30">04:12</span>
+                        </div>
+                        <div class="bg-white/[0.03] p-3 rounded-lg border border-outline-variant/30 flex items-center gap-4 opacity-50 grayscale transition-all hover:opacity-80 border-l-[3px] border-l-outline-variant">
+                            <div class="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center rounded-lg">
+                                <span class="material-symbols-outlined text-xl text-on-surface/40">smart_toy</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-bold text-on-surface/80 uppercase tracking-tighter">SYS_BOT_ALPHA</p>
+                                <p class="text-[9px] font-mono font-bold uppercase text-on-surface/30">Automated</p>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-on-surface/20">--:--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto bg-surface-container-low border border-outline-variant/40 rounded-xl p-4 shadow-xl mb-4">
+                     <h3 class="text-[10px] font-black uppercase text-[#00f2ff] tracking-[.3em] mb-4 text-center opacity-60">Emergency Overrides</h3>
+                     <div class="grid grid-cols-1 gap-2">
+                        <button onclick="window.SOC.score('terminal_command','Medium')" class="bg-[#00f2ff]/5 hover:bg-[#00f2ff]/20 border border-[#00f2ff]/30 text-[#00f2ff] text-[10px] font-bold tracking-widest py-3 px-4 rounded-lg uppercase transition-all active:scale-95">Flush System IPTables</button>
+                        <button onclick="window.SOC.score('escalate','Critical')" class="bg-red-600/10 hover:bg-red-600 border border-red-600/40 text-red-500 hover:text-white text-[10px] font-bold tracking-widest py-3 px-4 rounded-lg uppercase transition-all active:scale-95">Purge Security Logs</button>
+                     </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="h-8 flex justify-between items-center px-8 border-t border-outline-variant/20 shrink-0 relative z-10">
+            <div class="flex gap-10">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#00ffa3] shadow-[0_0_8px_#00ffa3]"></span>
+                    <span class="text-[9px] font-mono font-black tracking-widest text-[#00ffa3]">UPLINK_ESTABLISHED</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-mono font-black tracking-widest text-on-surface/30 uppercase">Encryption:</span>
+                    <span class="text-[9px] font-mono font-black tracking-widest text-on-surface/60">AES-256-GCM (TLS 1.3)</span>
+                </div>
+                <div class="flex items-center gap-2 hidden md:flex">
+                    <span class="text-[9px] font-mono font-black tracking-widest text-on-surface/30 uppercase">Node ID:</span>
+                    <span class="text-[9px] font-mono font-black tracking-widest text-on-surface/60">AEGIS-DC-NORTH-04</span>
+                </div>
+            </div>
+            <div class="text-[9px] font-mono font-black tracking-widest text-on-surface/20">
+                SENTINEL_SOC_V4.0.0_STABLE_BUILD_882
+            </div>
+        </footer>
+    </main>
+</div>
+
+<script src="soc_ui.js"></script>
+<script src="soc_runtime.js"></script>
+<script>
+// ─────────────────────────────────────────
+//  TERMINAL EMULATOR ENGINE
+// ─────────────────────────────────────────
+(function() {
+    const dynamicLines = document.getElementById('dynamic-lines');
+    const terminalOutput = document.getElementById('terminal-output');
+    const terminalInput  = document.getElementById('terminal-input');
+    const cpuBar  = document.getElementById('cpu-bar');
+    const memBar  = document.getElementById('mem-bar');
+
+    let cmdHistory = [];
+    let histIdx    = -1;
+    let running    = null; // reference to a running interval (tail -f, tcpdump, etc.)
+
+    // ── Command database ────────────────────────────────
+    const COMMANDS = {
+        help: () => `
+<span style="color:#00f2ff;font-weight:700;">AEGIS SOC Command Reference</span>
+<span style="color:rgba(255,255,255,0.3);">─────────────────────────────────────────────</span>
+  <span style="color:#00ffa3;">help</span>            Show this help
+  <span style="color:#00ffa3;">ls [-la]</span>        List directory
+  <span style="color:#00ffa3;">pwd</span>             Print working directory
+  <span style="color:#00ffa3;">whoami / id</span>     Show current user
+  <span style="color:#00ffa3;">uname -a</span>        System information
+  <span style="color:#00ffa3;">hostname</span>        Show hostname
+  <span style="color:#00ffa3;">uptime</span>          System uptime
+  <span style="color:#00ffa3;">ps aux</span>          List all processes
+  <span style="color:#00ffa3;">kill -9 &lt;pid&gt;</span>   Terminate a process (scores Isolate)
+  <span style="color:#00ffa3;">netstat -tulpn</span>  Open ports &amp; listening services
+  <span style="color:#00ffa3;">ss -an</span>          Socket statistics
+  <span style="color:#00ffa3;">ifconfig / ip a</span> Network interfaces
+  <span style="color:#00ffa3;">iptables -L</span>     List firewall rules
+  <span style="color:#00ffa3;">iptables -F</span>     Flush firewall (scores)
+  <span style="color:#00ffa3;">cat /etc/passwd</span> View user accounts
+  <span style="color:#00ffa3;">cat /var/log/auth.log</span>  Auth log tail
+  <span style="color:#00ffa3;">tail -f /var/log/syslog</span> Live syslog (Ctrl+C to stop)
+  <span style="color:#00ffa3;">nmap -A &lt;ip&gt;</span>    Network scan target
+  <span style="color:#00ffa3;">tcpdump -i eth0</span> Live packet capture (Ctrl+C to stop)
+  <span style="color:#00ffa3;">curl &lt;url&gt;</span>      HTTP request
+  <span style="color:#00ffa3;">clear</span>           Clear terminal
+  <span style="color:#00ffa3;">exit</span>            Close session`,
+
+        pwd: () => `<span style="color:rgba(255,255,255,0.7);">/root/aegis</span>`,
+
+        whoami: () => `<span style="color:#00ffa3;font-weight:700;">root</span>`,
+
+        id: () => `<span style="color:rgba(255,255,255,0.7);">uid=0(root) gid=0(root) groups=0(root),4(adm),27(sudo),114(netdev)</span>`,
+
+        hostname: () => `<span style="color:#00f2ff;">aegis-sentinel-cmd-v4</span>`,
+
+        'uname -a': () => `<span style="color:rgba(255,255,255,0.7);">Linux aegis-sentinel-cmd-v4 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux</span>`,
+
+        uptime: () => {
+            const h = Math.floor(Math.random()*24+1), m = Math.floor(Math.random()*60);
+            return `<span style="color:rgba(255,255,255,0.7);"> ${new Date().toTimeString().slice(0,8)} up ${h}:${String(m).padStart(2,'0')},  1 user,  load average: ${(Math.random()*2).toFixed(2)}, ${(Math.random()*1.5).toFixed(2)}, ${(Math.random()).toFixed(2)}</span>`;
+        },
+
+        ls: () => `<span style="color:#00f2ff;">aegis_core/</span>  <span style="color:#00f2ff;">evidence_vault/</span>  <span style="color:#00f2ff;">playbooks/</span>  <span style="color:#00ffa3;">containment.sh</span>*  <span style="color:rgba(255,255,255,0.6);">aegis.conf</span>  <span style="color:rgba(255,255,255,0.6);">threat_intel.db</span>`,
+
+        'ls -la': () => `<span style="color:rgba(255,255,255,0.4);">total 64
+drwxr-x--- 5 root  root  4096 Oct 24 04:01 <span style="color:#00f2ff;">.</span>
+drwxr-xr-x 3 root  root  4096 Sep 12 18:22 <span style="color:#00f2ff;">..</span>
+-rw------- 1 root  root   342 Oct 22 09:11 <span style="color:rgba(255,255,255,0.6);">.bash_history</span>
+drwxr-x--- 2 root  root  4096 Oct 24 03:44 <span style="color:#00f2ff;">aegis_core</span>
+-rwxr-x--- 1 root  root  2804 Oct 18 14:22 <span style="color:#00ffa3;">containment.sh</span>
+drwxrwx--- 2 root  soc   4096 Oct 24 04:17 <span style="color:#00f2ff;">evidence_vault</span>
+drwxr-x--- 3 root  root  4096 Oct 19 09:30 <span style="color:#00f2ff;">playbooks</span>
+-rw-r----- 1 root  root  1104 Oct 21 11:05 <span style="color:rgba(255,255,255,0.6);">aegis.conf</span>
+-rw-r----- 1 root  root 18432 Oct 24 03:58 <span style="color:rgba(255,255,255,0.6);">threat_intel.db</span></span>`,
+
+        'ps aux': () => `<span style="color:rgba(255,255,255,0.4);">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1  22540  3840 ?        Ss   04:00   0:01 /sbin/init
+root       892  0.0  0.2  72304  4220 ?        Ss   04:01   0:00 /usr/sbin/sshd
+root      1023  0.1  0.5 188032  9210 ?        Ssl  04:01   0:03 /usr/bin/redis-server
+root      1412  0.0  0.8  68324 14200 ?        Ss   04:01   0:00 nginx: master process
+root      4402  1.2  2.1 452120 34420 ?        Sl   04:15   0:08 /usr/sbin/aegis-core
+<span style="color:#ff4444;font-weight:700;">root     12092  8.4  1.2 452120 18231 ?        Sl   04:18   0:12 [system_daemon_v2] --malicious</span>
+root     44291  0.0  0.0  21632   892 pts/0    Ss   04:22   0:00 -bash
+root     44300  0.0  0.0  39108  1640 pts/0    R+   04:22   0:00 ps aux</span>`,
+
+        'ps aux | grep malicious': () => `<span style="color:#ff4444;font-weight:700;">root     12092  8.4  1.2 452120 18231 ?        Sl   04:18   0:12 [system_daemon_v2] --malicious</span>
+<span style="color:rgba(255,255,255,0.4);">root     44302  0.0  0.0  14224   912 pts/0    S+   04:22   0:00 grep --color=auto malicious</span>`,
+
+        'netstat -tulpn': () => `<span style="color:rgba(255,255,255,0.4);">Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      892/sshd
+tcp        0      0 127.0.0.1:6379          0.0.0.0:*               LISTEN      1023/redis-server
+tcp6       0      0 :::80                   :::*                    LISTEN      1412/nginx: master
+tcp6       0      0 :::443                  :::*                    LISTEN      1412/nginx: master
+<span style="color:#facc15;">tcp        0      0 0.0.0.0:31337           0.0.0.0:*               LISTEN      12092/system_daemon</span>
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           712/ntpd</span>`,
+
+        'ss -an': () => `<span style="color:rgba(255,255,255,0.4);">Netid  State   Recv-Q  Send-Q    Local Address:Port   Peer Address:Port
+udp    UNCONN  0       0         0.0.0.0:123         0.0.0.0:*
+tcp    LISTEN  0       128       0.0.0.0:22          0.0.0.0:*
+tcp    LISTEN  0       128       :::443              :::*
+<span style="color:#facc15;">tcp    ESTAB   0       0         10.0.1.44:52812     185.220.101.53:443</span></span>`,
+
+        ifconfig: () => _ifconfig(),
+        'ip a': () => _ifconfig(),
+
+        'iptables -L': () => `<span style="color:rgba(255,255,255,0.4);">Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             anywhere             state RELATED,ESTABLISHED
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:ssh
+DROP       all  --  anywhere             anywhere
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+<span style="color:#facc15;">ACCEPT     tcp  --  anywhere             185.220.101.53       /* C2 channel open — INVESTIGATE */</span></span>`,
+
+        'iptables -F': (args, doScore) => {
+            if (doScore !== false) window.SOC && window.SOC.score('terminal_command', 'High');
+            return `<span style="color:#00ffa3;font-weight:700;">[ OK ] All iptables rules flushed.</span>
+<span style="color:rgba(255,255,255,0.4);">Warning: Default ACCEPT policy now active on all chains.</span>`;
+        },
+
+        'cat /etc/passwd': () => `<span style="color:rgba(255,255,255,0.4);">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+syslog:x:104:110::/home/syslog:/usr/sbin/nologin
+aegis-svc:x:1001:1001:Aegis Service Account:/home/aegis-svc:/bin/bash
+<span style="color:#ff4444;">backdoor:x:0:0::/tmp:/bin/bash  ← SUSPICIOUS: UID 0 non-root account</span></span>`,
+
+        'cat /var/log/auth.log': () => {
+            const t = new Date(); const fmt = (d) => d.toLocaleString();
+            return `<span style="color:rgba(255,255,255,0.4);">Oct 24 03:58:12 sshd[892]: Accepted publickey for root from 10.44.12.8 port 51204
+Oct 24 04:01:44 sshd[892]: <span style="color:#facc15;">Failed password for invalid user admin from 203.0.113.5 port 22</span>
+Oct 24 04:01:46 sshd[892]: <span style="color:#facc15;">Failed password for invalid user admin from 203.0.113.5 port 22</span>
+Oct 24 04:01:48 sshd[892]: <span style="color:#facc15;">Failed password for invalid user admin from 203.0.113.5 port 22</span>
+Oct 24 04:02:11 su[12044]: <span style="color:#ff4444;font-weight:700;">session opened for user root by backdoor(uid=0)</span>
+Oct 24 04:18:02 sudo[12092]: root : TTY=pts/0 ; CWD=/tmp ; USER=root ; COMMAND=/bin/chmod</span>`;
+        },
+
+        'cat /var/log/syslog': () => {
+            return `<span style="color:rgba(255,255,255,0.4);">[Use <span style="color:#00ffa3;">tail -f /var/log/syslog</span> for live stream]</span>`;
+        },
+
+        clear: () => '__CLEAR__',
+
+        exit: () => `<span style="color:#facc15;">Session closed. Connection to aegis-sentinel-cmd-v4 closed.</span>`,
+    };
+
+    function _ifconfig() {
+        return `<span style="color:rgba(255,255,255,0.4);">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 10.0.1.44  netmask 255.255.255.0  broadcast 10.0.1.255
+        inet6 fe80::215:5dff:fe00:2  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether 00:15:5d:00:00:02  txqueuelen 1000  (Ethernet)
+
+lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0</span>`;
+    }
+
+    // ── Parse and dispatch a command ─────────────────────
+    function runCommand(raw) {
+        const cmd = raw.trim();
+        if (!cmd) return;
+
+        cmdHistory.unshift(cmd);
+        histIdx = -1;
+
+        // Echo the command
+        appendLine(`<div class="flex gap-4 mt-4">
+            <span style="color:#00f2ff;font-weight:700;flex-shrink:0;">root@aegis-cmd:~#</span>
+            <span style="color:white;">${escHtml(cmd)}</span>
+        </div>`);
+
+        // Stop any running process
+        if (running) {
+            clearInterval(running);
+            running = null;
+        }
+
+        // Special: kill -9 <pid>
+        if (/^kill\s+-9\s+(\d+)/.test(cmd)) {
+            const pid = cmd.match(/(\d+)$/)[1];
+            window.SOC && window.SOC.score('isolate', 'Critical');
+            appendOutput(`<span style="color:#00ffa3;font-weight:700;">[ OK ] Process ${pid} terminated (SIGKILL)</span>\n<span style="color:rgba(255,255,255,0.5);">Process removed from process table. Verify with: ps aux | grep ${pid}</span>`);
+            return;
+        }
+
+        // Special: nmap -A <ip>
+        if (/^nmap\b/.test(cmd)) {
+            const ip = cmd.match(/(\d{1,3}(?:\.\d{1,3}){3}|localhost)/) ? cmd.match(/(\d{1,3}(?:\.\d{1,3}){3}|localhost)/)[1] : '192.168.1.1';
+            window.SOC && window.SOC.score('acknowledge', 'High');
+            fakeDelay(() => appendOutput(nmapOutput(ip)));
+            return;
+        }
+
+        // Special: curl
+        if (/^curl\s+/.test(cmd)) {
+            const url = cmd.replace('curl','').trim();
+            window.SOC && window.SOC.score('acknowledge','Medium');
+            fakeDelay(() => appendOutput(`<span style="color:rgba(255,255,255,0.5);">  % Total    % Received % Xferd  Average Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (7) Failed to connect to ${escHtml(url)} port 80: Connection refused\n<span style="color:#facc15;">[Outbound connections restricted by SOC firewall]</span></span>`));
+            return;
+        }
+
+        // Special: tail -f /var/log/syslog (live stream)
+        if (/^tail\s+-f\b/.test(cmd)) {
+            appendOutput(`<span style="color:#00ffa3;">Streaming ${cmd.replace('tail -f','').trim()} — press Ctrl+C to stop</span>`);
+            const syslogEntries = [
+                'kernel: [UFW BLOCK] IN=eth0 SRC=198.51.100.42 DST=10.0.1.44 PROTO=TCP SPT=54321',
+                'aegis-core[4402]: Threat signature match: ET.MALWARE.CobaltStrike',
+                'systemd[1]: Started aegis-watchdog.service.',
+                'kernel: [UFW BLOCK] IN=eth0 SRC=203.0.113.5 DST=10.0.1.44 PROTO=TCP SPT=22',
+                'aegis-core[4402]: Alert forwarded to SIEM — severity: HIGH',
+                'sshd[892]: pam_unix(sshd:auth): authentication failure; user=root',
+                'cron[1901]: (root) CMD (/usr/sbin/aegis-scan --quick)',
+            ];
+            let i = 0;
+            running = setInterval(() => {
+                const ts = new Date().toLocaleTimeString('en-US',{hour12:false});
+                appendOutput(`<span style="color:rgba(255,255,255,0.35);">Oct 24 ${ts} aegis-host ${syslogEntries[i % syslogEntries.length]}</span>`);
+                i++;
+            }, 1200);
+            return;
+        }
+
+        // Special: tcpdump
+        if (/^tcpdump\b/.test(cmd)) {
+            appendOutput(`<span style="color:#00ffa3;">tcpdump: listening on eth0, link-type EN10MB — press Ctrl+C to stop</span>`);
+            const pkts = [
+                () => `${_ts()} IP 10.44.12.8.49012 > 192.168.1.100.443: Flags [S], seq ${_rnd()}, win 64240`,
+                () => `${_ts()} IP ${_eip()}.${_rnd(4000,9999)} > 10.0.1.44.22: Flags [S], seq ${_rnd()} <span style="color:#facc15;">← SSH PROBE</span>`,
+                () => `${_ts()} IP 10.0.1.44.${_rnd(40000,65000)} > 185.220.101.53.443: Flags [P.] len 528 <span style="color:#ff4444;">← OUTBOUND C2?</span>`,
+                () => `${_ts()} IP 192.168.4.122.${_rnd()} > 10.0.0.1.445: Flags [S] <span style="color:#facc15;">← SMB LATERAL?</span>`,
+                () => `${_ts()} ARP, Request who-has 10.0.1.${_rnd(1,254)} tell 10.0.1.44`,
+            ];
+            let i = 0;
+            running = setInterval(() => {
+                appendOutput(`<span style="color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:11px;">${pkts[i%pkts.length]()}</span>`);
+                i++;
+            }, 800);
+            return;
+        }
+
+        // Lookup static commands
+        const handler = COMMANDS[cmd] || COMMANDS[cmd.toLowerCase()];
+        if (handler) {
+            const result = typeof handler === 'function' ? handler(cmd) : handler;
+            if (result === '__CLEAR__') {
+                // Clear all dynamic lines + static initial output
+                const staticLines = terminalOutput.querySelectorAll('pre, div.text-on-surface\\/50, div.bg-red-500\\/10');
+                staticLines.forEach(el => el.style.opacity = '0');
+                dynamicLines.innerHTML = '';
+            } else {
+                appendOutput(result);
+                // Score certain read-only commands
+                if (['ps aux','ps aux | grep malicious','netstat -tulpn','cat /var/log/auth.log','cat /etc/passwd','iptables -L'].includes(cmd)) {
+                    window.SOC && window.SOC.score('acknowledge','High');
+                }
+            }
+        } else {
+            appendOutput(`<span style="color:#ff4444;">bash: ${escHtml(cmd)}: command not found</span>\n<span style="color:rgba(255,255,255,0.3);">Type <span style="color:#00ffa3;">help</span> to see available commands.</span>`);
+        }
+
+        bumpResources();
+    }
+
+    function appendLine(html) {
+        const d = document.createElement('div');
+        d.innerHTML = html;
+        dynamicLines.appendChild(d);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    function appendOutput(html) {
+        const d = document.createElement('div');
+        d.style.cssText = 'padding-left:2rem;margin-top:4px;white-space:pre-wrap;font-size:12px;line-height:1.6;';
+        d.innerHTML = html;
+        dynamicLines.appendChild(d);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    function fakeDelay(fn, ms) { setTimeout(fn, ms || 600 + Math.random()*400); }
+
+    function bumpResources() {
+        if (!cpuBar || !memBar) return;
+        const cpu = Math.min(98, Math.floor(parseInt(cpuBar.style.width||'40') + Math.random()*15 - 5));
+        const mem = Math.min(98, Math.floor(parseInt(memBar.style.width||'68') + Math.random()*8 - 3));
+        cpuBar.style.width = cpu + '%';
+        memBar.style.width = mem + '%';
+        const cpuLabel = cpuBar.closest('.space-y-2')?.querySelector('.text-\\[\\#00f2ff\\]');
+        const memLabel = memBar.closest('.space-y-2')?.querySelector('.text-\\[\\#00ffa3\\]');
+        if (cpuLabel) cpuLabel.textContent = cpu + '%';
+        if (memLabel) memLabel.textContent = mem + '%';
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function nmapOutput(ip) {
+        return `<span style="color:rgba(255,255,255,0.5);">Starting Nmap 7.94 ( https://nmap.org ) at ${new Date().toLocaleString()}
+Nmap scan report for ${ip}
+Host is up (0.0011s latency).
+
+PORT     STATE SERVICE      VERSION
+22/tcp   open  ssh          OpenSSH 8.9p1 Ubuntu
+80/tcp   open  http         nginx 1.24.0
+443/tcp  open  https        nginx 1.24.0
+<span style="color:#facc15;">6379/tcp open  redis        Redis key-value store 7.0.x</span>
+<span style="color:#ff4444;font-weight:700;">31337/tcp open  unknown      [SUSPICIOUS PORT — malicious process?]</span>
+
+Device type: general purpose | Running: Linux 5.X
+OS CPE: cpe:/o:linux:linux_kernel:5
+OS details: Linux 5.4 - 5.15
+
+Nmap done: 1 IP address (1 host up) scanned in 4.22 seconds</span>`;
+    }
+
+    function _ts() { return new Date().toLocaleTimeString('en-US',{hour12:false})+'.'+_rnd(100,999); }
+    function _rnd(min=100000,max=999999) { return Math.floor(Math.random()*(max-min)+min); }
+    function _eip() { return `${_rnd(100,220)}.${_rnd(0,255)}.${_rnd(0,255)}.${_rnd(1,254)}`; }
+
+
+    // ── Input Event Handlers ──────────────────────────────
+    if (terminalInput) {
+        terminalInput.addEventListener('keydown', (e) => {
+
+            // Ctrl+C — stop running process
+            if (e.ctrlKey && e.key === 'c') {
+                e.preventDefault();
+                if (running) {
+                    clearInterval(running);
+                    running = null;
+                    appendLine(`<div style="color:rgba(255,255,255,0.4);padding-left:2rem;font-size:12px;">^C</div>`);
+                } else {
+                    appendLine(`<div style="color:rgba(255,255,255,0.4);padding-left:2rem;font-size:12px;">^C</div>`);
+                }
+                terminalInput.value = '';
+                return;
+            }
+
+            // Up arrow - history
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (histIdx < cmdHistory.length - 1) histIdx++;
+                terminalInput.value = cmdHistory[histIdx] || '';
+                return;
+            }
+
+            // Down arrow - history
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (histIdx > 0) histIdx--;
+                else { histIdx = -1; terminalInput.value = ''; return; }
+                terminalInput.value = cmdHistory[histIdx] || '';
+                return;
+            }
+
+            // Enter
+            if (e.key === 'Enter') {
+                const val = terminalInput.value;
+                terminalInput.value = '';
+                runCommand(val);
+                // Also send to backend if connected
+                if (val.trim()) window.SOC && window.SOC.send({ type:'command', cmd: val.trim() });
+            }
+        });
+
+        // Focus terminal on click anywhere in terminal area
+        terminalOutput.addEventListener('click', () => terminalInput.focus());
+    }
+
+    // ── Clear Buffer button ──────────────────────────────
+    document.querySelectorAll('button').forEach(btn => {
+        const txt = btn.textContent.trim();
+        if (txt === 'Clear Buffer') {
+            btn.addEventListener('click', () => { dynamicLines.innerHTML = ''; });
+        }
+        if (txt === 'Halt Signal') {
+            btn.addEventListener('click', () => {
+                if (running) { clearInterval(running); running = null; }
+                appendLine(`<div style="color:#ff4444;padding-left:2rem;font-size:12px;margin-top:4px;">^C — Signal sent. Process halted.</div>`);
+                window.SOC && window.SOC.score('terminal_command','Medium');
+            });
+        }
+    });
+
+    // ── Backend command response ─────────────────────────
+    window.SOC && window.SOC.on('terminal_output', (data) => {
+        if (data.res) appendOutput(`<span style="color:rgba(255,255,255,0.6);">${escHtml(data.res)}</span>`);
+        bumpResources();
+    });
+
+    // ── Tab Switching ────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs  = document.querySelectorAll('.terminal-tab');
+        const views = document.querySelectorAll('.terminal-view');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.getAttribute('data-target');
+                views.forEach(v => v.classList.add('hidden'));
+                tabs.forEach(t => {
+                    t.classList.remove('bg-background','border-x','border-t','border-outline-variant/50',
+                        'shadow-[inset_0_2px_10px_rgba(0,242,255,0.05)]','border-b','border-b-background','-mb-[1px]','text-[#00f2ff]');
+                    t.classList.add('text-on-surface/40','hover:text-on-surface/60','hover:bg-white/[0.03]');
+                });
+                const target = document.getElementById(targetId);
+                if (target) target.classList.remove('hidden');
+                tab.classList.add('bg-background','border-x','border-t','border-outline-variant/50',
+                    'shadow-[inset_0_2px_10px_rgba(0,242,255,0.05)]','border-b','border-b-background','-mb-[1px]','text-[#00f2ff]');
+                tab.classList.remove('text-on-surface/40','hover:text-on-surface/60','hover:bg-white/[0.03]');
+            });
+        });
+    });
+
+    // Focus input on load
+    window.addEventListener('load', () => terminalInput && terminalInput.focus());
+})();
+</script>
+</body>
+</html>

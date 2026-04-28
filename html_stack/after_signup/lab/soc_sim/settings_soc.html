@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL SOC | COMMAND CENTER SETTINGS</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="/common/cyber_auth.js"></script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#232323",
+              "surface-container-lowest": "#0a0a0a",
+              "surface-container-low": "#171717",
+              "surface-container": "#1c1c1c",
+              "background": "#0f0f0f",
+              "surface": "#0f0f0f",
+              "on-surface": "#d1d5db",
+              "outline-variant": "#2d3739",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            },
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateX(-10px)' },
+                    '100%': { opacity: '1', transform: 'translateX(0)' }
+                }
+            },
+            animation: {
+                'fade-in': 'fade-in 0.3s ease-out forwards'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .glow-cyan { text-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        .glow-red { text-shadow: 0 0 15px rgba(255, 42, 42, 0.4); }
+        
+        @keyframes pulse-critical {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-critical { animation: pulse-critical 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* Custom Scrollbar Styling */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4a4d; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+        /* Style the native resize handle slightly */
+        ::-webkit-resizer {
+            background-color: #2d3739;
+            border-radius: 2px;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-x-hidden selection:bg-[#00f2ff]/30 min-h-screen flex flex-col">
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 bg-background/90 backdrop-blur-md h-16 border-b border-outline-variant/40">
+    <div class="flex items-center gap-10">
+        <div class="flex flex-col">
+            <span class="text-xl font-bold text-[#00f2ff] font-headline uppercase leading-none glow-cyan tracking-wide">Sentinel SOC</span>
+            <span class="text-xs font-mono text-on-surface/50 uppercase mt-1">Command Center</span>
+        </div>
+        <div class="flex gap-8 items-center">
+            <div class="flex items-center gap-2.5 bg-[#00ffa3]/10 px-3 py-1 rounded-full border border-[#00ffa3]/20">
+                <span id="ws-status-dot" class="w-2 h-2 bg-[#00ffa3] rounded-full animate-pulse shadow-[0_0_8px_#00ffa3]"></span>
+                <span id="ws-status-label" class="text-[#00ffa3] font-bold font-mono text-xs uppercase">System Active</span>
+            </div>
+            <span class="text-on-surface/60 font-mono text-xs uppercase hidden md:inline">Session Time: <span class="text-[#00f2ff] font-bold ml-2" id="session-clock">00:45:12</span></span>
+        </div>
+    </div>
+    <div class="flex items-center gap-6">
+        <button class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg shadow-red-900/20">
+            <span class="material-symbols-outlined text-base">lock</span>
+            Lockdown
+        </button>
+        <div class="flex items-center gap-5 border-l border-outline-variant/50 pl-6">
+            <button id="theme-toggle" class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">light_mode</button><span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">notifications</span>
+            <span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">account_circle</span>
+        </div>
+    </div>
+</header>
+
+<nav class="fixed left-0 top-16 h-[calc(100vh-4rem)] flex flex-col z-40 bg-surface-container-low/80 backdrop-blur-md w-20 hover:w-64 transition-all duration-300 ease-in-out border-r border-outline-variant/30 group overflow-x-hidden overflow-y-auto custom-scrollbar shadow-2xl">
+    <div class="flex flex-col flex-1 py-6 gap-2">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="dashboard.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">dashboard</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Dashboard</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="alerts_management.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">warning</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Alerts</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="threat_intelligence.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">security</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Threat Intel</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="incident_investigation.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">error</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Incidents</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="endpoint_security.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">computer</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Endpoints</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="siem_logs.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">terminal</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">SIEM Logs</span>
+        </a>
+    </div>
+    <div class="mt-auto border-t border-outline-variant/30 py-6 gap-2 flex flex-col">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="terminal_command_center.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">code</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Terminal</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg border-l-[3px] border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 transition-all duration-200" href="settings_soc.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">settings</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Settings</span>
+        </a>
+    </div>
+</nav>
+
+<main class="ml-20 mt-16 p-6 flex flex-col flex-1">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white font-headline tracking-tight uppercase flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#00f2ff] text-4xl">settings</span>
+            System Settings
+        </h1>
+        <p class="text-on-surface/60 font-mono text-sm mt-2 uppercase tracking-wide">Configure Sentinel SOC environment & preferences</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 max-w-full">
+        <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col shadow-xl">
+            <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#00f2ff] text-xl">palette</span>
+                <span class="text-sm uppercase font-bold text-on-surface">Appearance & Theme</span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Color Theme</h4>
+                        <p class="text-sm text-on-surface/60">Toggle between Cyber Dark and Matrix Green</p>
+                    </div>
+                    <div class="flex bg-surface-container border border-outline-variant/40 rounded-lg p-1">
+                        <button class="px-4 py-2 bg-[#00f2ff]/20 text-[#00f2ff] rounded font-bold text-xs uppercase tracking-wider">Cyber</button>
+                        <button class="px-4 py-2 text-on-surface/60 hover:text-white rounded font-bold text-xs uppercase tracking-wider transition-colors">Matrix</button>
+                    </div>
+                </div>
+                <div class="h-px w-full bg-outline-variant/20"></div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-white font-bold mb-1">CRT Scanlines</h4>
+                        <p class="text-sm text-on-surface/60">Enable retro terminal visual effects</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00f2ff]"></div>
+                    </label>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col shadow-xl">
+            <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#00f2ff] text-xl">notifications_active</span>
+                <span class="text-sm uppercase font-bold text-on-surface">Alert Preferences</span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Critical Alerts Audio</h4>
+                        <p class="text-sm text-on-surface/60">Play sound on priority 1 & 2 incidents</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                    </label>
+                </div>
+                <div class="h-px w-full bg-outline-variant/20"></div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-white font-bold mb-1">Desktop Notifications</h4>
+                        <p class="text-sm text-on-surface/60">Show OS-level notification banners</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00f2ff]"></div>
+                    </label>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col shadow-xl">
+            <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#00f2ff] text-xl">database</span>
+                <span class="text-sm uppercase font-bold text-on-surface">Data Sources</span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="bg-surface-container border border-outline-variant/40 rounded-lg p-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-bold text-sm">Threat Intel Feeds</span>
+                        <button class="text-xs text-[#00f2ff] hover:underline uppercase tracking-wider font-bold">Manage</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="px-2 py-1 bg-surface-container-highest rounded text-xs text-on-surface/80 border border-outline-variant/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffa3]"></span> Kaspersky</span>
+                        <span class="px-2 py-1 bg-surface-container-highest rounded text-xs text-on-surface/80 border border-outline-variant/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffa3]"></span> AlienVault</span>
+                        <span class="px-2 py-1 bg-surface-container-highest rounded text-xs text-on-surface/80 border border-outline-variant/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> FireEye (Offline)</span>
+                    </div>
+                </div>
+                
+                <div class="bg-surface-container border border-outline-variant/40 rounded-lg p-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-bold text-sm">SIEM Aggregation Nodes</span>
+                        <button class="text-xs text-[#00f2ff] hover:underline uppercase tracking-wider font-bold">Manage</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="px-2 py-1 bg-surface-container-highest rounded text-xs text-on-surface/80 border border-outline-variant/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffa3]"></span> Node-Alpha</span>
+                        <span class="px-2 py-1 bg-surface-container-highest rounded text-xs text-on-surface/80 border border-outline-variant/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#00ffa3]"></span> Node-Beta</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-surface-container-low border border-outline-variant/40 rounded-xl flex flex-col shadow-xl">
+            <div class="px-5 py-4 border-b border-outline-variant/40 bg-surface flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-500 text-xl">gavel</span>
+                <span class="text-sm uppercase font-bold text-red-500">Danger Zone</span>
+            </div>
+            <div class="p-6 flex-1 flex flex-col gap-6 items-start">
+                <p class="text-sm text-on-surface/60">Advanced system controls. Use with extreme caution.</p>
+                <button onclick="window.SOC.score('playbook_step','High')" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-4 py-2 rounded font-bold uppercase tracking-wider text-sm transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">restart_alt</span> Disable Protection Nodes
+                </button>
+                <div class="h-px w-full bg-outline-variant/20 my-2"></div>
+                <button onclick="window.SOC.score('escalate','Critical')" class="bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/30 px-4 py-2 rounded font-bold uppercase tracking-wider text-sm transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">power_settings_new</span> Purge System Logs
+                </button>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="soc_ui.js"></script>
+<script src="soc_runtime.js"></script>
+<script>
+(function() {
+    // ── Toggle switch persistence ──────────────────────────
+    document.querySelectorAll('input[type="checkbox"]').forEach(toggle => {
+        const label = toggle.closest('div.flex')?.querySelector('h4')?.textContent.trim() || 'setting';
+        const key = 'soc_setting_' + label.toLowerCase().replace(/\s+/g,'_');
+
+        // Restore saved state
+        if (localStorage.getItem(key) !== null) {
+            toggle.checked = localStorage.getItem(key) === 'true';
+        }
+
+        toggle.addEventListener('change', () => {
+            localStorage.setItem(key, toggle.checked);
+            const msg = toggle.checked ? `${label} enabled.` : `${label} disabled.`;
+            window.SOC_UI && window.SOC_UI.toast(msg, toggle.checked ? 'success' : 'info');
+        });
+    });
+
+    // ── Manage buttons ─────────────────────────────────────
+    document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.trim() === 'Manage') {
+            btn.addEventListener('click', function() {
+                const section = this.closest('[class*="bg-surface-container"]')?.querySelector('span.text-white')?.textContent.trim()
+                             || this.closest('div')?.querySelector('span.text-white')?.textContent.trim()
+                             || 'Source';
+                window.SOC_UI && window.SOC_UI.toast(`${section} management panel — coming soon.`, 'info');
+                this.textContent = '✓ Saved';
+                this.style.color = '#00ffa3';
+                setTimeout(() => { this.textContent = 'Manage'; this.style.color = ''; }, 2000);
+            });
+        }
+        if (btn.textContent.trim() === 'Disable Protection Nodes') {
+            btn.addEventListener('click', function() {
+                window.SOC && window.SOC.score('playbook_step', 'High');
+                window.SOC_UI && window.SOC_UI.toast('Warning: Protection nodes disabled — system is unprotected.', 'warn');
+                this.textContent = 'Nodes Disabled';
+                this.style.background = 'rgba(220,38,38,0.3)';
+                setTimeout(() => { this.textContent = 'Disable Protection Nodes'; this.style.background = ''; }, 4000);
+            });
+        }
+        if (btn.textContent.trim() === 'Purge System Logs') {
+            btn.addEventListener('click', function() {
+                window.SOC && window.SOC.score('escalate', 'Critical');
+                const confirmed = confirm('⚠️ This will purge all system logs. This action is logged and scored. Proceed?');
+                if (confirmed) {
+                    this.textContent = 'Purging...';
+                    setTimeout(() => {
+                        this.textContent = 'Logs Purged ✓';
+                        this.style.background = '#7f1d1d';
+                        window.SOC_UI && window.SOC_UI.toast('System logs purged — forensic evidence destroyed. Escalated to CISO.', 'warn');
+                        setTimeout(() => { this.textContent = 'Purge System Logs'; this.style.background = ''; }, 5000);
+                    }, 1500);
+                }
+            });
+        }
+    });
+})();
+</script>
+</body>
+</html>

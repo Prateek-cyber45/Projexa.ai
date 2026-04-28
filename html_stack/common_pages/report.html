@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Leadership Report — AI-Driven Cyber Training</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#adc7ff",
+                        "primary-container": "#4a8eff",
+                        "background": "#131313",
+                        "on-surface": "#e2e2e2",
+                        "on-surface-variant": "#c1c6d7",
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #131313;
+            color: #e2e2e2;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .bg-grid { 
+            background-size: 40px 40px; 
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+        .glass {
+            background: rgba(25, 25, 35, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #ADC7FF 0%, #4A8EFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col">
+    <div class="fixed inset-0 bg-grid -z-20 pointer-events-none opacity-40"></div>
+    <div class="glow-orb w-[600px] h-[600px] bg-primary/10 -top-48 -right-48 animate-pulse"></div>
+    <div class="glow-orb w-[400px] h-[400px] bg-primary-container/5 -bottom-24 -left-24" style="animation-delay: 2s;"></div>
+
+    <!-- Navigation Header -->
+    <nav class="sticky top-0 z-50 bg-[#131313]/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center overflow-hidden">
+                    <img src="/logo/new.gif" alt="Deep Hunt" class="w-full h-full object-contain" />
+                </div>
+                <span class="text-lg font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+            </a>
+            <a href="/index.html" class="text-sm font-semibold text-primary hover:text-white transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Home
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-4xl mx-auto px-6 py-20">
+        <div class="text-center mb-16">
+            <span class="inline-block px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-mono font-bold text-primary uppercase tracking-[0.2em] mb-6">
+                Special Industry Report
+            </span>
+            <h1 class="font-headline text-5xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter leading-tight">
+                Named a Leader in <span class="text-gradient">AI-Scored Cyber Range Training.</span>
+            </h1>
+            <p class="text-on-surface-variant text-xl leading-relaxed font-light mb-12">
+                Deep Hunt has been recognized for its innovative dual-engine scoring model and seamless integration of hands-on labs with MITRE ATT&CK techniques.
+            </p>
+        </div>
+
+        <div class="glass rounded-3xl p-8 md:p-12 mb-12">
+            <h2 class="font-headline text-2xl font-bold text-white mb-6">Key Insights from the 2026 Report</h2>
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+                        <div>
+                            <p class="text-white font-bold mb-1">Behavioral Integrity Scoring</p>
+                            <p class="text-on-surface-variant text-sm">Deep Hunt's AI evaluates not just the solution, but the tactical path taken by the operator.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+                        <div>
+                            <p class="text-white font-bold mb-1">Live-Fire Fidelity</p>
+                            <p class="text-on-surface-variant text-sm">Environments mirror production infrastructure with real-world noise and adversary TTPs.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+                        <div>
+                            <p class="text-white font-bold mb-1">Enterprise Readiness</p>
+                            <p class="text-on-surface-variant text-sm">Mapping directly to NIST and MITRE frameworks simplifies team readiness reporting.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-primary mt-1">check_circle</span>
+                        <div>
+                            <p class="text-white font-bold mb-1">Scalability</p>
+                            <p class="text-on-surface-variant text-sm">Cloud-native architecture allows for thousands of concurrent, isolated training instances.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="space-y-12">
+            <div>
+                <h3 class="font-headline text-3xl font-bold text-white mb-4 italic">"The future of cyber training isn't just knowing, it's doing."</h3>
+                <p class="text-on-surface-variant leading-relaxed">
+                    The report highlights that traditional LMS-based training is no longer sufficient for high-stakes security operations. Deep Hunt's approach of merging structured learning with intensive, unguided simulation is setting a new standard for the industry.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass p-6 rounded-2xl text-center">
+                    <p class="text-4xl font-extrabold text-primary mb-2">98%</p>
+                    <p class="text-xs font-mono uppercase tracking-widest text-[#a1a8c2]">Retention Rate</p>
+                </div>
+                <div class="glass p-6 rounded-2xl text-center">
+                    <p class="text-4xl font-extrabold text-primary mb-2">3.5x</p>
+                    <p class="text-xs font-mono uppercase tracking-widest text-[#a1a8c2]">Faster Onboarding</p>
+                </div>
+                <div class="glass p-6 rounded-2xl text-center">
+                    <p class="text-4xl font-extrabold text-primary mb-2">MITRE</p>
+                    <p class="text-xs font-mono uppercase tracking-widest text-[#a1a8c2]">Fully Mapped</p>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-12 text-center">
+                <p class="text-white font-bold mb-6">Ready to see why we're a leader?</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="/register" class="bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-8 py-3.5 font-bold rounded-xl shadow-lg hover:shadow-primary/20 transition-all">
+                        Get Started Free
+                    </a>
+                    <a href="/contact_sales.html" class="bg-white/5 border border-white/10 text-white px-8 py-3.5 font-bold rounded-xl hover:bg-white/10 transition-all">
+                        Talk to Sales
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-20 border-t border-white/5 py-12 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-on-surface-variant/40 text-[10px] font-mono uppercase tracking-[0.2em]">
+                DEEP HUNT // SECURE REPORTING v2.4
+            </p>
+            <div class="flex gap-6">
+                <a href="#" class="text-[10px] text-on-surface-variant/60 hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="text-[10px] text-on-surface-variant/60 hover:text-white transition-colors">Terms</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

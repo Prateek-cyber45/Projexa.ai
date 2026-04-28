@@ -1,0 +1,361 @@
+# version: '3.8' - removed as it is obsolete
+
+# ════════════════════════════════════════════════════════
+# DeepHunt Platform — Docker Compose Orchestration
+# ════════════════════════════════════════════════════════
+
+networks:
+  deephunt-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redis-data:
+
+services:
+
+  # ── Data Layer ─────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: deephunt_postgres
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    container_name: deephunt_redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ── API Layer ──────────────────────────────────────────
+  main-api:
+    build: ./main-api
+    container_name: deephunt_main_api
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL_MAIN}
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    ports:
+      - "${MAIN_API_PORT}:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/main/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  academy-api:
+    build: ./academy-api
+    container_name: deephunt_academy_api
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL_ACADEMY}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    ports:
+      - "${ACADEMY_API_PORT}:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/api/academy/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  labs-backend:
+    build: ./labs-backend
+    container_name: deephunt_labs_backend
+    env_file: .env
+    environment:
+      - REDIS_URL=${REDIS_URL_LABS}
+      - MAIN_API_URL=${MAIN_API_URL}
+    ports:
+      - "${LABS_PORT}:4000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/labs/health', r => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ── AI Layer ───────────────────────────────────────────
+  ai-engine:
+    build: ./ai-engine
+    container_name: deephunt_ai_engine
+    env_file: .env
+    environment:
+      - REDIS_URL=${REDIS_URL_AI}
+    ports:
+      - "${AI_ENGINE_PORT}:8003"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  ai-stream:
+    build: ./ai-stream
+    container_name: deephunt_ai_stream
+    env_file: .env
+    environment:
+      - REDIS_URL=${REDIS_URL_AI}
+      - AI_ENGINE_URL=${AI_ENGINE_URL}
+    ports:
+      - "${AI_STREAM_PORT}:8004"
+    depends_on:
+      redis:
+        condition: service_healthy
+      ai-engine:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ── Frontend & Gateway ─────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: deephunt_frontend
+    env_file: .env
+    depends_on:
+      main-api:
+        condition: service_healthy
+      academy-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3003/', r => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  nginx:
+    image: nginx:alpine
+    container_name: deephunt_nginx
+    ports:
+      - "${GATEWAY_PORT}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      main-api:
+        condition: service_healthy
+      academy-api:
+        condition: service_healthy
+      labs-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ── Observability & Monitoring Layer ───────────────────
+  elasticsearch:
+    image: elasticsearch:8.10.2
+    container_name: deephunt_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  logstash:
+    image: logstash:8.10.2
+    container_name: deephunt_logstash
+    volumes:
+      - ./observability/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  kibana:
+    image: kibana:8.10.2
+    container_name: deephunt_kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  filebeat:
+    image: elastic/filebeat:8.10.2
+    container_name: deephunt_filebeat
+    user: root
+    volumes:
+      - ./observability/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: filebeat -e -strict.perms=false
+    depends_on:
+      - logstash
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: deephunt_prometheus
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: deephunt_grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    ports:
+      - "3100:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - deephunt-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+

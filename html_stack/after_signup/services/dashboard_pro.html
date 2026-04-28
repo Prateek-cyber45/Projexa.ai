@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Dashboard</title>
+<script src="/common_pages/cyber_auth.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+            "primary": "#d1c4e9",
+            "primary-container": "#673ab7",
+            "secondary": "#adc7ff",
+            "background": "#131313",
+            "surface-container": "#1f1f1f",
+            "surface-container-high": "#2a2a2a",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #131313; color: #e2e2e2; }
+  .glass-panel { background: rgba(53, 53, 53, 0.35); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); }
+  .card-glow { position: relative; overflow: hidden; transition: transform 0.4s ease; }
+  .card-glow:hover { transform: translateY(-4px); }
+</style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-white min-h-screen flex flex-col">
+
+  <nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="/main/dashboard_pro.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+            <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+            <span class="bg-gradient-to-r from-primary to-primary-container text-[#00285b] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded">PRO</span>
+          </div>
+        </a>
+        <div class="hidden md:flex items-center gap-6 border-l border-white/10 pl-6 space-x-2">
+          <a href="/main/dashboard_pro.html" class="flex items-center gap-2 text-sm font-bold text-white transition-colors">
+            <span class="material-symbols-outlined text-base">home</span> Home
+          </a>
+          <a href="/main/my_scores.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">scores</span> My Scores
+          </a>
+          <a href="/main/profile.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">person</span> Profile
+          </a>
+          <a href="/main/settings.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">settings</span> Settings
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">help</span>
+        <div class="relative">
+          <span id="apps-button" class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer transition-colors duration-200">apps</span>
+          
+          <!-- Apps Dropdown -->
+          <div id="apps-dropdown" class="absolute right-0 mt-3 w-72 bg-surface-container/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] invisible opacity-0 transition-all duration-300 transform origin-top-right scale-95 z-[100] overflow-hidden text-left">
+            <div class="px-5 py-4 border-b border-white/5">
+              <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Platform Modules</h3>
+            </div>
+            <div class="p-2">
+              <a href="/academy/dashboard.html" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group/item">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors border border-primary/20">
+                  <span class="material-symbols-outlined text-primary">school</span>
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-white">Academy</p>
+                  <p class="text-[11px] text-on-surface-variant">Learn & Certify</p>
+                </div>
+                <span class="material-symbols-outlined text-on-surface-variant ml-auto text-sm opacity-0 group-hover/item:opacity-100 transition-opacity">chevron_right</span>
+              </a>
+              
+              <a href="/labs/dashboard.html" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group/item">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover/item:bg-blue-500/20 transition-colors border border-blue-500/20">
+                  <span class="material-symbols-outlined text-blue-400">terminal</span>
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-white">Labs</p>
+                  <p class="text-[11px] text-on-surface-variant">Hands-on Practice</p>
+                </div>
+                <span class="material-symbols-outlined text-on-surface-variant ml-auto text-sm opacity-0 group-hover/item:opacity-100 transition-opacity">chevron_right</span>
+              </a>
+            </div>
+            <div class="bg-white/5 p-3 flex justify-center">
+              <p class="text-[10px] text-on-surface-variant font-medium">Deep Hunt v2.0</p>
+            </div>
+          </div>
+        </div>
+        <button onclick="if(window.cyberLogout) window.cyberLogout()" class="text-sm border border-red-500/50 text-red-400 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors font-bold ml-2">LOGOUT</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    <!-- User Identity Block -->
+    <div class="flex items-center justify-between mb-10 pb-6 border-b border-white/5">
+      <div class="flex items-center gap-6">
+        <div class="w-20 h-20 bg-[#1f2023] border-2 border-primary-container rounded-lg flex items-center justify-center relative shadow-[0_0_20px_rgba(103,58,183,0.3)]">
+          <span class="material-symbols-outlined text-primary-container text-5xl">view_in_ar</span>
+          <div class="absolute -bottom-2 -right-2 bg-surface-container border border-white/10 rounded-full w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-white/10">
+            <span class="material-symbols-outlined text-[12px] text-white">edit</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-headline text-2xl font-bold text-white flex items-center gap-2">
+            <span id="username-display">Loading...</span> <span class="text-on-surface-variant text-sm font-mono mt-1">@pro_operator</span>
+          </h1>
+          <p class="text-on-surface-variant text-sm flex items-center gap-1 mt-1">
+            <span class="material-symbols-outlined text-[14px]">location_on</span> Global Platform
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <a href="/main/profile.html" class="hidden md:flex items-center gap-2 px-6 py-2 bg-surface-container border border-white/10 text-white font-bold rounded hover:bg-white/5 transition-colors">
+          View Profile
+        </a>
+        <a href="/main/report_generation.html" class="bg-gradient-to-r from-primary-container to-purple-800 text-white px-4 py-2 rounded font-bold text-sm tracking-wide border border-primary/20 hover:shadow-[0_0_15px_rgba(103,58,183,0.4)] transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span> Generate Audit
+        </a>
+      </div>
+    </div>
+
+    <!-- Massive Reference Cards for Academy & Labs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <div class="rounded-xl overflow-hidden relative" style="background: linear-gradient(145deg, #1f2023, #151618); border: 1px solid rgba(255,255,255,0.05);">
+        <div class="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#73a3ff]/10 to-transparent pointer-events-none"></div>
+        <div class="absolute -right-4 -top-4 opacity-50"><span class="material-symbols-outlined text-[180px] text-secondary/10">joystick</span></div>
+        <div class="relative z-10 p-8 h-full flex flex-col justify-between min-h-[260px]">
+          <div>
+            <p class="text-on-surface-variant font-bold text-sm mb-4">Deep Hunt Academy</p>
+            <h2 class="font-headline text-3xl font-extrabold text-white mb-4">Learn and get<br/>certified</h2>
+            <p class="text-on-surface-variant text-xs leading-relaxed max-w-sm mb-6">Begin or advance your journey in cybersecurity with our online learning paths and earn industry certifications to prove your expertise.</p>
+          </div>
+          <button onclick="location.href='/academy/dashboard.html'" class="bg-[#adc7ff] self-start text-[#00285b] font-bold px-6 py-2.5 rounded shadow-[0_0_15px_rgba(173,199,255,0.3)] hover:brightness-110 transition-all">Start learning</button>
+        </div>
+      </div>
+
+      <div class="rounded-xl overflow-hidden relative" style="background: linear-gradient(145deg, #1f2023, #151618); border: 1px solid rgba(255,255,255,0.05);">
+        <div class="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-[#ff6b6b]/10 to-transparent pointer-events-none"></div>
+        <div class="absolute right-0 bottom-0 hidden md:block opacity-60 mix-blend-screen"><span class="material-symbols-outlined text-[150px] text-red-500/10">terminal</span></div>
+        <div class="relative z-10 p-8 h-full flex flex-col justify-between min-h-[260px]">
+          <div>
+            <p class="text-on-surface-variant font-bold text-sm mb-4">Deep Hunt Labs</p>
+            <h2 class="font-headline text-3xl font-extrabold text-white mb-4">Practice with hands-<br/>on Labs</h2>
+            <p class="text-on-surface-variant text-xs leading-relaxed max-w-sm mb-6">Access cybersecurity labs simulating real-world vulnerabilities, misconfigurations, and incidents. With live scenarios updated constantly!</p>
+          </div>
+          <button onclick="location.href='/labs/dashboard.html'" class="bg-[#ffb4ab] self-start text-[#410002] font-bold px-6 py-2.5 rounded shadow-[0_0_15px_rgba(255,180,171,0.3)] hover:brightness-110 transition-all">Start playing</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Profile Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="glass-panel rounded-2xl p-8 card-glow">
+        <span class="material-symbols-outlined text-primary mb-4 text-3xl">psychology</span>
+        <p class="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-1">Rolling Score</p>
+        <p class="text-5xl font-headline font-extrabold text-white" id="score-display">--</p>
+      </div>
+
+      <div class="glass-panel rounded-2xl p-8 md:col-span-2 card-glow">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-on-surface-variant mb-1">Skill Vector Analysis</p>
+            <p class="text-white font-headline font-bold text-lg">AI Calculated Proficiency</p>
+          </div>
+          <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Live Sync</span>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">SOC Operations</span>
+              <span class="text-primary" id="soc-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="soc-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">Digital Forensics</span>
+              <span class="text-primary" id="for-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="for-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-white font-mono">Network Security</span>
+              <span class="text-primary" id="net-val">0%</span>
+            </div>
+            <div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+              <div id="net-bar" class="h-full bg-gradient-to-r from-primary to-primary-container" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List Group (CTF, Enterprise, etc. reference) -->
+    <div class="flex flex-col gap-2 mb-12">
+      <a href="/labs/dashboard.html" class="flex items-center justify-between p-5 bg-surface-container rounded-lg border border-white/5 hover:bg-white/5 transition-colors">
+        <div>
+          <h3 class="font-bold text-white mb-1">Deep Hunt Live Range</h3>
+          <p class="text-sm text-on-surface-variant">Level up your defensive skills against live threats</p>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </a>
+      <a href="/academy/dashboard.html" class="flex items-center justify-between p-5 bg-surface-container rounded-lg border border-white/5 hover:bg-white/5 transition-colors">
+        <div>
+          <h3 class="font-bold text-white mb-1">Play or host a Simulation CTF</h3>
+          <p class="text-sm text-on-surface-variant">Compete globally or train your team internally</p>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </a>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <h2 class="font-headline text-2xl font-bold text-white mb-6 flex items-center justify-between">
+      Recent Past Activity
+      <a href="/main/my_scores.html" class="text-primary text-sm font-bold font-body hover:underline">View All</a>
+    </h2>
+    <div class="glass-panel rounded-2xl overflow-hidden mb-10">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-on-surface-variant">
+          <thead class="text-xs uppercase bg-white/5 text-on-surface font-mono tracking-wider border-b border-white/5">
+            <tr>
+              <th scope="col" class="px-6 py-4">Scenario / Course</th>
+              <th scope="col" class="px-6 py-4">Type</th>
+              <th scope="col" class="px-6 py-4">Status</th>
+              <th scope="col" class="px-6 py-4">Final Score</th>
+              <th scope="col" class="px-6 py-4">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 font-body">
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 font-bold text-white font-headline">SOC-SIM-ALPHA (PRO Scenario)</td>
+              <td class="px-6 py-4"><span class="px-2 py-1 bg-[#ffb4ab]/10 text-[#ffb4ab] font-mono text-[10px] rounded uppercase border border-[#ffb4ab]/20">Lab Range</span></td>
+              <td class="px-6 py-4 text-green-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-400"></span> Completed</td>
+              <td class="px-6 py-4 font-mono font-bold">88%</td>
+              <td class="px-6 py-4"><a href="/labs/score_summary.html" class="text-primary hover:text-white transition-colors">View Report</a></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 font-bold text-white font-headline">Incident Response: Core Infrastructure</td>
+              <td class="px-6 py-4"><span class="px-2 py-1 bg-primary/10 text-primary font-mono text-[10px] rounded uppercase border border-primary/20">Academy</span></td>
+              <td class="px-6 py-4 text-green-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-400"></span> Completed</td>
+              <td class="px-6 py-4 font-mono font-bold">95%</td>
+              <td class="px-6 py-4"><a href="/academy/course.html" class="text-primary hover:text-white transition-colors">Review Module</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+
+
+    // Apps Dropdown Toggle
+    const appsButton = document.getElementById('apps-button');
+    const appsDropdown = document.getElementById('apps-dropdown');
+
+    if (appsButton && appsDropdown) {
+      appsButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = !appsDropdown.classList.contains('invisible');
+        
+        if (isVisible) {
+          appsDropdown.classList.add('invisible', 'opacity-0', 'scale-95');
+        } else {
+          appsDropdown.classList.remove('invisible', 'opacity-0', 'scale-95');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!appsDropdown.contains(e.target) && e.target !== appsButton) {
+          appsDropdown.classList.add('invisible', 'opacity-0', 'scale-95');
+        }
+      });
+    }
+
+    async function fetchDashboard() {
+      if (!window.cyberAuthToken) return;
+
+      try {
+        const res = await fetch('/api/main/dashboard', {
+          headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }
+        });
+        
+        if (!res.ok) {
+           if (res.status === 401 && window.cyberLogout) { window.cyberLogout(); return; }
+           throw new Error('Failed to load dashboard data');
+        }
+        
+        const data = await res.json();
+
+        document.getElementById('username-display').textContent = data.username.toUpperCase();
+        
+        // Animate score counter
+        const scoreEl = document.getElementById('score-display');
+        let currentScore = 0;
+        const targetScore = Math.round(data.rolling_score);
+        if (targetScore > 0) {
+          const timer = setInterval(() => {
+            currentScore += Math.max(1, Math.floor(targetScore / 20));
+            if (currentScore >= targetScore) {
+              currentScore = targetScore;
+              clearInterval(timer);
+            }
+            scoreEl.textContent = currentScore;
+          }, 30);
+        } else {
+          scoreEl.textContent = '0';
+        }
+
+        // Animate skill bars
+        setTimeout(() => {
+          const soc = Math.round(data.skill_vectors.soc_analysis * 100);
+          const forc = Math.round(data.skill_vectors.forensics * 100);
+          const net = Math.round(data.skill_vectors.network_security * 100);
+
+          document.getElementById('soc-bar').style.width = soc + '%';
+          document.getElementById('soc-val').textContent = soc + '%';
+          
+          document.getElementById('for-bar').style.width = forc + '%';
+          document.getElementById('for-val').textContent = forc + '%';
+          
+          document.getElementById('net-bar').style.width = net + '%';
+          document.getElementById('net-val').textContent = net + '%';
+        }, 100);
+        
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener('load', fetchDashboard);
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+node_modules
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+academy.db
+academy_db.sqlite
+main_db.sqlite
+main_db.db
+.git
+.vscode

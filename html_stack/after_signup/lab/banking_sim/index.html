@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Apex Global Bank - Teller Dashboard</title>
+    <!-- CSS and Setup -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#121212",
+              "surface-variant": "#1e1e1e",
+              "primary": "#4A8EFF",
+              "secondary": "#2563eb",
+              "err": "#ff5c5c",
+              "success": "#10b981",
+              "warn": "#fbbf24",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #0d0d0d; color: #e5e5e5; font-family: 'Geist', sans-serif; }
+        .glass { background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(10px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Top Navigation -->
+<nav class="glass border-b border-white/10 px-6 py-4 flex justify-between items-center z-50 fixed w-full top-0">
+    <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+        <div>
+            <h1 class="text-xl font-bold font-headline text-white leading-tight">Apex Global</h1>
+            <p class="text-[10px] text-primary uppercase tracking-widest font-mono">Simulated Financial Infrastructure</p>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-6">
+        <a href="../dashboard.html" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-sm">exit_to_app</span> Lab Exit
+        </a>
+        <div class="flex items-center gap-3 border-l border-white/10 pl-6">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">A</div>
+            <div class="hidden sm:block">
+                <div class="text-sm font-bold text-white leading-none">Admin Teller</div>
+                <div class="text-xs text-success font-mono">Role: Authorized</div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Sidebar & Content -->
+<div class="flex flex-1 pt-[73px]">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 glass border-r border-white/10 hidden md:flex flex-col p-4">
+        <div class="space-y-2 mt-4">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold transition-all">
+                <span class="material-symbols-outlined">dashboard</span> Overview
+            </a>
+            <a href="ledger.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">receipt_long</span> Master Ledger
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">currency_exchange</span> Wire Transfers
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <span class="material-symbols-outlined">shield_person</span> SWIFT Logs
+            </a>
+        </div>
+        
+        <div class="mt-auto mb-4 px-4">
+            <div class="p-3 rounded-lg bg-err/10 border border-err/20 text-err">
+                <div class="flex items-center gap-2 font-bold mb-1">
+                    <span class="material-symbols-outlined text-sm">warning</span> Test Target
+                </div>
+                <p class="text-xs font-mono opacity-80">This module is part of the SOC Simulation lab. Attack vectors are actively monitored.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+        <header class="mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-headline font-bold text-white mb-1">Core Operations</h2>
+                <p class="text-gray-400 text-sm">Main Branch (US-EAST-1) â€¢ Vault Status: Secured</p>
+            </div>
+            <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">add</span> New Transfer
+            </button>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass border border-white/5 rounded-xl p-5">
+                <div class="text-gray-400 text-xs font-mono mb-2 uppercase flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-success animate-pulse"></span> Daily Processing</div>
+                <div class="text-4xl font-headline font-bold text-white mb-2">$842.1M</div>
+                <div class="text-sm text-success">+12.4% vs Yesterday</div>
+            </div>
+            <div class="glass border border-white/5 rounded-xl p-5">
+                <div class="text-gray-400 text-xs font-mono mb-2 uppercase">Pending SWIFT Messages</div>
+                <div class="text-4xl font-headline font-bold text-white mb-2">1,024</div>
+                <div class="text-sm text-warn">4 flagged for review</div>
+            </div>
+            <div class="glass border border-white/5 rounded-xl p-5">
+                <div class="text-gray-400 text-xs font-mono mb-2 uppercase">Active Teller Sessions</div>
+                <div class="text-4xl font-headline font-bold text-white mb-2">48</div>
+                <div class="text-sm text-gray-500">Across 12 branches</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Module -->
+        <div class="glass border border-white/5 rounded-xl overflow-hidden">
+            <div class="border-b border-white/5 px-6 py-4 flex justify-between items-center bg-white/[0.02]">
+                <h3 class="font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined text-primary">history</span> Recent Flagged Transactions</h3>
+                <a href="ledger.html" class="text-xs text-primary font-bold hover:text-white transition-colors">View Master Ledger -></a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="text-gray-400 font-mono text-xs uppercase border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-3">TxID</th>
+                            <th class="px-6 py-3">Origin</th>
+                            <th class="px-6 py-3">Destination</th>
+                            <th class="px-6 py-3">Amount</th>
+                            <th class="px-6 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                            <td class="px-6 py-4 font-mono text-xs text-primary">TX-9921</td>
+                            <td class="px-6 py-4">Internal Vault #01</td>
+                            <td class="px-6 py-4">Offshore Routing (Grand Cayman)</td>
+                            <td class="px-6 py-4 text-white font-bold">$12,050,000.00</td>
+                            <td class="px-6 py-4"><span class="bg-warn/10 text-warn border border-warn/20 px-2 py-1 rounded text-xs font-bold">AML Hold</span></td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                            <td class="px-6 py-4 font-mono text-xs text-primary">TX-9922</td>
+                            <td class="px-6 py-4">Corp Account #942</td>
+                            <td class="px-6 py-4">Vendor Payment ACH</td>
+                            <td class="px-6 py-4 text-white font-bold">$42,100.50</td>
+                            <td class="px-6 py-4"><span class="bg-success/10 text-success border border-success/20 px-2 py-1 rounded text-xs font-bold">Cleared</span></td>
+                        </tr>
+                        <!-- Exploit Hint -->
+                        <tr class="border-b border-white/5 hover:bg-err/10 transition-colors cursor-pointer" onclick="alert('Lab Hint: Notice the negative integer rollover vector possible here if not validated.')">
+                            <td class="px-6 py-4 font-mono text-xs text-primary">TX-9923 <span class="material-symbols-outlined text-[10px] text-err ml-1">bug_report</span></td>
+                            <td class="px-6 py-4">User Account #101</td>
+                            <td class="px-6 py-4">User Account #102</td>
+                            <td class="px-6 py-4 text-err font-bold">-$4,294,967,295.00</td>
+                            <td class="px-6 py-4"><span class="bg-err/10 text-err border border-err/20 px-2 py-1 rounded text-xs font-bold">Sys Err 0x01</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </main>
+
+</div>
+
+</body>
+</html>

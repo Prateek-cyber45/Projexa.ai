@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deep Hunt Academy — Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="/common_pages/cyber_auth.js"></script>
+<!-- Markdown library to parse Gemini's output -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode:"class",
+  theme:{extend:{
+    colors:{
+      "primary":"#adc7ff","primary-container":"#4a8eff",
+      "background":"#050505","surface":"#1f1f1f","surface-high":"#2a2a2a",
+      "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+      "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+      "accent-orange":"#ffb4ab",
+    },
+    fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]},
+    animation: {
+      'text-gradient': 'text-gradient 6s linear infinite',
+      'float': 'float 6s ease-in-out infinite',
+    },
+    keyframes: {
+      'text-gradient': {
+        '0%, 100%': { 'background-position': '0% center' },
+        '50%': { 'background-position': '100% center' },
+      },
+      'float': {
+        '0%, 100%': { transform: 'translateY(0)' },
+        '50%': { transform: 'translateY(-10px)' },
+      }
+    }
+  }}
+}
+</script>
+<style>
+  body { background: #050505; color: #e2e2e2; overflow-x: hidden; }
+  
+  /* Technical Grid Pattern */
+  .bg-grid { 
+    background-size: 40px 40px; 
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+  }
+
+  section{padding-top:0;}
+  .section-divider{border-top:1px solid rgba(255,255,255,0.04);margin-bottom:3rem;padding-top:3rem;}
+  .glass{background:rgba(53,53,53,0.35);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.05);}
+  
+  /* Advanced Blog-like Card Styling */
+  .module-card {
+    background: rgba(31, 31, 31, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 20px 40px -20px rgba(255, 255, 255, 0.1), 0 4px 20px -2px rgba(0,0,0,0.5);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    transform-style: preserve-3d;
+  }
+  .module-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100px;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .module-card::after {
+    content: ''; position: absolute; inset: -10px; border-radius: inherit;
+    background: radial-gradient(circle at 50% 100%, rgba(173,199,255,0.15) 0%, transparent 70%);
+    filter: blur(15px); opacity: 0; transition: opacity 0.5s; pointer-events: none;
+  }
+  .module-card:hover {
+    border-color: rgba(173, 199, 255, 0.3);
+    transform: translateY(-6px);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), inset 0 40px 60px -20px rgba(255, 255, 255, 0.15), 0 20px 40px -10px rgba(74, 142, 255, 0.15);
+    background: rgba(40, 40, 40, 0.8);
+  }
+  .module-card:hover::after {
+    opacity: 1;
+    animation: smokeMove 4s infinite alternate ease-in-out;
+  }
+  .module-card > div.image-wrapper, .module-card > h3 { transform: translateZ(30px); }
+  .module-card > div:not(.image-wrapper) { transform: translateZ(20px); }
+
+  @keyframes smokeMove {
+    0% { transform: translateY(10px) scale(0.95); opacity: 0.6; }
+    100% { transform: translateY(-15px) scale(1.05); opacity: 1; }
+  }
+
+  .path-card {
+    background: rgba(31, 31, 31, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+  }
+  .path-card > div, .path-card > h3 { transform: translateZ(20px); }
+  .path-card:hover {
+    border-color: rgba(173, 199, 255, 0.3);
+    background: rgba(40, 40, 40, 0.8);
+  }
+  
+  .job-card {
+    background: rgba(31, 31, 31, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+  }
+  .job-card > div { transform: translateZ(20px); }
+  .job-card:hover {
+    border-color: rgba(173, 199, 255, 0.25);
+    background: rgba(40, 40, 40, 0.8);
+  }
+  /* AI Chat */
+  .ai-msg-user{background:rgba(74,142,255,0.15);border:1px solid rgba(173,199,255,0.2);border-radius:12px 12px 4px 12px;max-width:80%;}
+  .ai-msg-bot{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);border-radius:12px 12px 12px 4px;max-width:85%;}
+  .ai-input{background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);outline:none;transition:border-color 0.2s;}
+  .ai-input:focus{border-color:#adc7ff;}
+  .typing-dot{animation:blink 1.4s infinite both;}
+  .typing-dot:nth-child(2){animation-delay:0.2s;}
+  .typing-dot:nth-child(3){animation-delay:0.4s;}
+  @keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
+  .scroll-x{overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(173,199,255,0.2) transparent;}
+  .scroll-x::-webkit-scrollbar{height:4px;}
+  .scroll-x::-webkit-scrollbar-thumb{background:rgba(173,199,255,0.2);border-radius:2px;}
+  .progress-bar{height:4px;background:#2a2a2a;border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#4a8eff,#adc7ff);border-radius:2px;}
+  .tag{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.05em;}
+  .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;color:#c1c6d7;transition:all 0.2s;}
+  .nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.05);}
+  .ai-suggestion{background:#252525;border:1px solid rgba(173,199,255,0.12);border-radius:8px;cursor:pointer;transition:all 0.2s;}
+  .ai-suggestion:hover{border-color:rgba(173,199,255,0.35);background:#2a2a2a;}
+</style>
+</head>
+<body class="font-body min-h-screen flex flex-col relative">
+  <div class="fixed inset-0 bg-grid -z-20 pointer-events-none"></div>
+
+
+  <!-- Glowing Orbs matching Blog page -->
+  <div class="absolute top-[-10%] left-[20%] w-[600px] h-[500px] bg-primary/15 rounded-full blur-[140px] pointer-events-none -z-10 mix-blend-screen animate-float"></div>
+  <div class="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-accent-purple/10 rounded-full blur-[150px] pointer-events-none -z-10 mix-blend-screen animate-float" style="animation-delay: -3s;"></div>
+
+<!-- TOP NAV -->
+<nav class="sticky top-0 z-50 bg-[#050505]/70 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+  <div class="max-w-screen-2xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/academy/dashboard.html" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 border-l border-white/5 pl-6">
+        <a href="/academy/dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="#popular-modules" class="nav-link">Modules</a>
+        <a href="/academy/path_soc.html" class="nav-link">Paths</a>
+        <a href="/academy/certifications.html" class="nav-link">Certifications</a>
+        <a href="/academy/ai.html" class="nav-link text-accent-purple">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>AI Assistant
+        </a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">🔥 7 Day Streak</span>
+      <a href="/main/profile.html" class="w-8 h-8 bg-[#2a2a2a] border border-white/10 rounded-full flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+      </a>
+      <a href="/main/dashboard_pro.html" class="nav-link text-on-surface-variant">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>Main
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-screen-2xl mx-auto px-6 py-8 space-y-16">
+
+  <!-- HERO: Welcome + Profile Sidebar -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Welcome + Getting Started Banner -->
+    <div class="lg:col-span-2 space-y-4">
+      <h1 class="font-headline text-3xl font-extrabold text-white">Welcome back, <span class="text-primary" id="welcome-username">Operator</span> 👋</h1>
+
+      <!-- Getting Started Card -->
+      <div class="rounded-xl overflow-hidden relative min-h-[180px] flex items-center" style="background:linear-gradient(135deg,#1a1f35 0%,#0d1535 50%,#1a1535 100%);border:1px solid rgba(173,199,255,0.15);">
+        <div class="absolute inset-0" style="background:radial-gradient(ellipse at 70% 50%,rgba(88,166,255,0.12),transparent 60%);"></div>
+        <!-- Grid lines decoration -->
+        <div class="absolute inset-0 opacity-5" style="background-image:linear-gradient(rgba(173,199,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(173,199,255,0.5) 1px,transparent 1px);background-size:40px 40px;"></div>
+        <div class="relative z-10 p-8 flex items-center gap-8 w-full">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="material-symbols-outlined text-accent-purple text-lg" style="font-variation-settings:'FILL' 1;">rocket_launch</span>
+              <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">Getting Started</span>
+            </div>
+            <h2 class="font-headline text-2xl font-extrabold text-white mb-2">Don't know where to start?</h2>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-5 max-w-md">Our AI recommends starting with the SOC Analyst learning path — matched to your current skill level and career goals.</p>
+            <div class="flex gap-3">
+              <a href="/academy/path_soc.html" class="bg-primary text-[#00285b] font-bold text-sm px-5 py-2.5 rounded-lg hover:brightness-110 transition-all shadow-[0_0_15px_rgba(173,199,255,0.3)]">Start Path →</a>
+              <button onclick="document.getElementById('ai-section').scrollIntoView({behavior:'smooth'})" class="border border-accent-purple/40 text-accent-purple font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-accent-purple/10 transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>Ask AI
+              </button>
+            </div>
+          </div>
+          <!-- Decorative element -->
+          <div class="hidden md:block relative w-32 h-32 flex-shrink-0">
+            <div class="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent-purple/20 blur-xl"></div>
+            <div class="relative w-32 h-32 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[80px] text-primary/40" style="font-variation-settings:'FILL' 1;">school</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Strip -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-white">12</p>
+          <p class="text-xs text-on-surface-variant mt-1">Modules Done</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-accent-green">3</p>
+          <p class="text-xs text-on-surface-variant mt-1">In Progress</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-accent-purple">2</p>
+          <p class="text-xs text-on-surface-variant mt-1">Paths Active</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-primary">87</p>
+          <p class="text-xs text-on-surface-variant mt-1">AI Score</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Sidebar -->
+    <div class="glass rounded-xl p-5 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-[#2a2a2a] border-2 border-primary/40 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings:'FILL' 1;">view_in_ar</span>
+        </div>
+        <div>
+          <p class="font-bold text-white text-sm" id="sidebar-username">Operator_01</p>
+          <p class="text-xs text-on-surface-variant" id="sidebar-handle">@operator â€¢ Global</p>
+        </div>
+      </div>
+
+      <!-- Rank -->
+      <div class="bg-[#131313] rounded-lg p-3">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs text-on-surface-variant">Academy Rank</span>
+          <span class="tag bg-accent-orange/10 text-accent-orange border border-accent-orange/20">Apprentice</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:44%"></div></div>
+        <p class="text-[10px] text-on-surface-variant mt-1">1,240 / 2,800 pts to next rank</p>
+      </div>
+
+      <!-- Module domains -->
+      <div>
+        <p class="text-xs text-on-surface-variant uppercase tracking-widest mb-3">Progress by Domain</p>
+        <div class="space-y-2.5">
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-white">SOC Analysis</span><span class="text-primary font-mono">78%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-white">Digital Forensics</span><span class="text-primary font-mono">45%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-white">Network Security</span><span class="text-primary font-mono">62%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-white">Threat Hunting</span><span class="text-primary font-mono">30%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <a href="/main/profile.html" class="flex items-center justify-center gap-2 w-full py-2 border border-white/10 rounded-lg text-sm text-on-surface-variant hover:text-white hover:border-white/20 transition-colors font-bold">
+        <span class="material-symbols-outlined text-sm">person</span>View Full Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- MODULES IN PROGRESS -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-headline text-xl font-bold text-white">Modules In Progress</h2>
+      <a href="/academy/all_courses.html" class="text-sm text-primary hover:text-white transition-colors font-bold flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">chevron_right</span></a>
+    </div>
+    <div class="scroll-x flex gap-4 pb-2">
+      <!-- Card -->
+      <div class="module-card rounded-xl p-4 flex-shrink-0 w-72 group cursor-pointer" onclick="location.href='/academy/course.html'">
+        <div class="image-wrapper w-full h-32 bg-[#0a0a0a] rounded-lg mb-4 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80" alt="SOC" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">SOC</span>
+          <span class="tag bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Intermediate</span>
+        </div>
+        <h3 class="font-bold text-white text-sm mb-1">SOC Fundamentals</h3>
+        <div class="progress-bar mb-2"><div class="progress-fill" style="width:65%"></div></div>
+        <div class="flex justify-between text-xs">
+          <span class="text-on-surface-variant">65% complete</span>
+          <a href="/academy/course.html" class="text-primary font-bold hover:text-white transition-colors">Continue →</a>
+        </div>
+      </div>
+      <div class="module-card rounded-xl p-4 flex-shrink-0 w-72 group cursor-pointer" onclick="location.href='/academy/course.html'">
+        <div class="image-wrapper w-full h-32 bg-[#0a0a0a] rounded-lg mb-4 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80" alt="Forensics" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">Forensics</span>
+          <span class="tag bg-blue-500/10 text-blue-400 border border-blue-500/20">Beginner</span>
+        </div>
+        <h3 class="font-bold text-white text-sm mb-1">Digital Forensics Essentials</h3>
+        <div class="progress-bar mb-2"><div class="progress-fill" style="width:32%"></div></div>
+        <div class="flex justify-between text-xs">
+          <span class="text-on-surface-variant">32% complete</span>
+          <a href="/academy/course.html" class="text-primary font-bold hover:text-white transition-colors">Continue →</a>
+        </div>
+      </div>
+      <div class="module-card rounded-xl p-4 flex-shrink-0 w-72 group cursor-pointer" onclick="location.href='/academy/course.html'">
+        <div class="image-wrapper w-full h-32 bg-[#0a0a0a] rounded-lg mb-4 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80" alt="Network" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">Network</span>
+          <span class="tag bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Intermediate</span>
+        </div>
+        <h3 class="font-bold text-white text-sm mb-1">Network Threat Detection</h3>
+        <div class="progress-bar mb-2"><div class="progress-fill" style="width:18%"></div></div>
+        <div class="flex justify-between text-xs">
+          <span class="text-on-surface-variant">18% complete</span>
+          <a href="/academy/course.html" class="text-primary font-bold hover:text-white transition-colors">Continue →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POPULAR MODULES -->
+  <section id="popular-modules">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-headline text-xl font-bold text-white">Popular Modules</h2>
+      <a href="/academy/path_soc.html" class="text-sm text-primary hover:text-white transition-colors font-bold flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">north_east</span></a>
+    </div>
+    <div class="scroll-x flex gap-4 pb-2">
+      <a href="/academy/path_soc.html" class="module-card rounded-xl p-4 flex-shrink-0 w-64 block group">
+        <div class="image-wrapper w-full h-28 bg-[#0a0a0a] rounded-lg mb-3 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=800&q=80" alt="SIEM" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-1.5 mb-2"><span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">SOC</span><span class="tag bg-red-500/10 text-red-400 border border-red-500/20">Advanced</span></div>
+        <h3 class="font-bold text-white text-sm mb-1">SIEM Log Analysis</h3>
+        <div class="flex items-center gap-2 mt-3 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">group</span>4.2K enrolled</div>
+      </a>
+      <a href="/academy/path_ir.html" class="module-card rounded-xl p-4 flex-shrink-0 w-64 block group">
+        <div class="image-wrapper w-full h-28 bg-[#0a0a0a] rounded-lg mb-3 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Malware Analysis" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-1.5 mb-2"><span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">IR</span><span class="tag bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Intermediate</span></div>
+        <h3 class="font-bold text-white text-sm mb-1">Malware Analysis 101</h3>
+        <div class="flex items-center gap-2 mt-3 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">group</span>3.1K enrolled</div>
+      </a>
+      <a href="/academy/path_ir.html" class="module-card rounded-xl p-4 flex-shrink-0 w-64 block group">
+        <div class="image-wrapper w-full h-28 bg-[#0a0a0a] rounded-lg mb-3 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1659366647666-6a25b39d3a24?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Incident Response" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-1.5 mb-2"><span class="tag bg-accent-orange/10 text-accent-orange border border-accent-orange/20">Forensics</span><span class="tag bg-blue-500/10 text-blue-400 border border-blue-500/20">Beginner</span></div>
+        <h3 class="font-bold text-white text-sm mb-1">Incident Response Basics</h3>
+        <div class="flex items-center gap-2 mt-3 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">group</span>5.8K enrolled</div>
+      </a>
+      <a href="/academy/path_threat_intel.html" class="module-card rounded-xl p-4 flex-shrink-0 w-64 block group">
+        <div class="image-wrapper w-full h-28 bg-[#0a0a0a] rounded-lg mb-3 relative overflow-hidden shadow-inner">
+          <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80" alt="Threat Hunting" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#1f1f1f]/90 via-[#1f1f1f]/20 to-transparent"></div>
+        </div>
+        <div class="flex gap-1.5 mb-2"><span class="tag bg-accent/10 text-accent border border-accent/20">Network</span><span class="tag bg-red-500/10 text-red-400 border border-red-500/20">Advanced</span></div>
+        <h3 class="font-bold text-white text-sm mb-1">Threat Hunting w/ OSINT</h3>
+        <div class="flex items-center gap-2 mt-3 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">group</span>2.7K enrolled</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- POPULAR PATHS -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-headline text-xl font-bold text-white">Popular Paths</h2>
+      <a href="/academy/path_soc.html" class="text-sm text-primary hover:text-white transition-colors font-bold flex items-center gap-1">View All <span class="material-symbols-outlined text-sm">north_east</span></a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a href="/academy/path_soc.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-accent-purple/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-accent-purple" style="font-variation-settings:'FILL' 1;">monitor_heart</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">SOC</span><span class="tag bg-white/5 text-on-surface-variant">14 Modules</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">SOC Analyst Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~40 hrs</div>
+      </a>
+      <a href="/academy/path_forensics.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-accent-green/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-accent-green" style="font-variation-settings:'FILL' 1;">search</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">DFIR</span><span class="tag bg-white/5 text-on-surface-variant">11 Modules</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">Digital Forensics Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~32 hrs</div>
+      </a>
+      <a href="/academy/path_ir.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-accent-orange/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-accent-orange" style="font-variation-settings:'FILL' 1;">bug_report</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-accent-orange/10 text-accent-orange border border-accent-orange/20">IR</span><span class="tag bg-white/5 text-on-surface-variant">9 Modules</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">Incident Response Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~28 hrs</div>
+      </a>
+      <a href="/academy/path_threat_intel.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-accent" style="font-variation-settings:'FILL' 1;">travel_explore</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-accent/10 text-accent border border-accent/20">Threat Intel</span><span class="tag bg-white/5 text-on-surface-variant">8 Modules</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">Threat Intelligence Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~24 hrs</div>
+      </a>
+      <a href="/academy/path_ciso.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">manage_accounts</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-primary/10 text-primary border border-primary/20">CISO</span><span class="tag bg-white/5 text-on-surface-variant">Advanced</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">Security Manager Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~35 hrs</div>
+      </a>
+      <a href="/academy/path_ai_red_team.html" class="path-card rounded-xl p-5 block">
+        <div class="w-10 h-10 rounded-lg bg-accent-purple/20 flex items-center justify-center mb-4"><span class="material-symbols-outlined text-accent-purple" style="font-variation-settings:'FILL' 1;">psychology</span></div>
+        <div class="flex gap-1.5 mb-3"><span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">AI</span><span class="tag bg-white/5 text-on-surface-variant">Frontier</span></div>
+        <h3 class="font-bold text-white text-sm mb-2">AI Red Teamer Path</h3>
+        <div class="flex items-center gap-2 mt-4 text-xs text-on-surface-variant"><span class="material-symbols-outlined text-xs">schedule</span>~15 hrs</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- GET A NEW JOB -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="font-headline text-xl font-bold text-white">Get a New Job</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Paths curated to land these roles in the cybersecurity industry</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_soc.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-purple/30 to-accent-purple/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-accent-purple text-xl" style="font-variation-settings:'FILL' 1;">monitor_heart</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">SOC Analyst</h3><span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">High Demand</span></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>14 modules</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$70-120K</span></div>
+        </div>
+      </div>
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_forensics.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-green/30 to-accent-green/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-accent-green text-xl" style="font-variation-settings:'FILL' 1;">search</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">Forensics Investigator</h3></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>11 modules</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$80-130K</span></div>
+        </div>
+      </div>
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_ir.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-orange/30 to-accent-orange/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-accent-orange text-xl" style="font-variation-settings:'FILL' 1;">crisis_alert</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">Incident Responder</h3><span class="tag bg-accent-orange/10 text-accent-orange border border-accent-orange/20">Hot</span></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>9 modules</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$90-140K</span></div>
+        </div>
+      </div>
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_threat_intel.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-accent text-xl" style="font-variation-settings:'FILL' 1;">travel_explore</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">Threat Hunter</h3></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>8 modules</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$100-150K</span></div>
+        </div>
+      </div>
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_ciso.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings:'FILL' 1;">manage_accounts</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">CISO / Security Manager</h3></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>Advanced</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$150-250K</span></div>
+        </div>
+      </div>
+      <div class="job-card rounded-xl p-5 flex items-start gap-4 cursor-pointer" onclick="location.href='/academy/path_ai_red_team.html'">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-purple/30 to-accent-purple/10 flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-accent-purple text-xl" style="font-variation-settings:'FILL' 1;">psychology</span></div>
+        <div>
+          <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-white text-sm">AI Red Teamer</h3><span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">Frontier</span></div>
+          <div class="flex items-center gap-3 mt-3 text-xs text-on-surface-variant"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">library_books</span>6 modules</span><span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">attach_money</span>$120-200K</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI CHAT SECTION -->
+  <section id="ai-section" class="section-divider mt-12 pt-8 border-t border-white/10">
+    <div class="glass rounded-xl p-6 relative overflow-hidden border border-accent-purple/20">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-accent-purple/10 rounded-full blur-[80px] pointer-events-none"></div>
+      
+      <div class="flex items-center justify-between mb-4 relative z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-purple to-[#b388ff]/50 flex items-center justify-center">
+            <span class="material-symbols-outlined text-black font-bold" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+          </div>
+          <div>
+            <h2 class="font-headline text-lg font-bold text-white">Deep Hunt AI Guide</h2>
+            <p class="text-xs text-on-surface-variant">Ask about courses, career paths, or get help with a concept</p>
+          </div>
+        </div>
+        <a href="/academy/ai.html" class="text-sm font-bold text-accent-purple hover:text-white transition-colors flex items-center gap-1">Open Full Chat <span class="material-symbols-outlined text-sm">open_in_new</span></a>
+      </div>
+
+      <!-- AI Chat History -->
+      <div class="relative z-10 h-48 overflow-y-auto pr-2 mb-4 space-y-3 flex flex-col scroll-x" id="ai-chat-history">
+        <!-- System Welcome -->
+        <div class="ai-msg-bot p-3 text-sm self-start">
+          <p class="text-white">Hello Operator_01! I am your AI instructor. I see you're working on the <strong>SOC Fundamentals</strong> module. Would you like me to quiz you on recent concepts, or do you need help transitioning to a different path?</p>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Pills -->
+      <div class="flex gap-2 mb-4 overflow-x-auto scroll-x pb-1 relative z-10">
+        <button class="ai-suggestion px-3 py-1.5 text-xs text-on-surface flex-shrink-0 whitespace-nowrap rounded-lg">What skills do I need for DFIR?</button>
+        <button class="ai-suggestion px-3 py-1.5 text-xs text-on-surface flex-shrink-0 whitespace-nowrap rounded-lg">Explain the OSI model</button>
+        <button class="ai-suggestion px-3 py-1.5 text-xs text-on-surface flex-shrink-0 whitespace-nowrap rounded-lg">Help me build a resume</button>
+      </div>
+
+      <!-- Input Area -->
+      <div class="relative z-10 flex gap-2">
+        <input type="text" id="ai-input" placeholder="Message Deep Hunt AI..." class="ai-input flex-1 bg-[#1f1f1f] border border-white/10 outline-none rounded-lg px-4 py-3 text-sm text-white placeholder-on-surface-variant focus:border-accent-purple transition-colors" onkeydown="if(event.key === 'Enter') sendChat()" />
+        <button id="ai-send" class="bg-accent-purple hover:bg-[#c9a6ff] text-black font-bold rounded-lg px-4 py-3 flex items-center justify-center transition-colors" onclick="sendChat()">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">send</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /max-w -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+<script>
+  // Initialize 3D Tilt for cards with adjusted values for glassmorphism
+  VanillaTilt.init(document.querySelectorAll(".module-card, .path-card, .job-card"), {
+    max: 8,
+    speed: 400,
+    glare: true,
+    "max-glare": 0.2,
+    scale: 1.02,
+    easing: "cubic-bezier(.03,.98,.52,.99)"
+  });
+
+  if(window.cyberAuthToken) {
+    async function loadAcademyProfile() {
+      try {
+        const res = await fetch('/api/main/profile', {
+          headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }
+        });
+        if (!res.ok) {
+          if (res.status === 401 && window.cyberLogout) {
+            window.cyberLogout();
+          }
+          return;
+        }
+        const data = await res.json();
+        const username = data.username;
+        document.getElementById('welcome-username').innerText = username;
+        document.getElementById('sidebar-username').innerText = username.toUpperCase();
+        document.getElementById('sidebar-handle').innerText = `@${username.toLowerCase()} • Global`;
+      } catch (e) {
+        console.error('Failed to fetch profile data', e);
+      }
+    }
+    loadAcademyProfile();
+  }
+
+  // AI Chat functionality
+  const aiChatHistory = document.getElementById('ai-chat-history');
+  const aiInput = document.getElementById('ai-input');
+  const aiSendBtn = document.getElementById('ai-send');
+  
+  const GEMINI_API_KEY = "AIzaSyAGyi0hS0K5zAnyqW2T-aREeqRmXtfIxZ0";
+  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  
+  let dashboardChatHistory = [];
+  const dashboardSystemInstruction = "You are the Deep Hunt AI Guide. You are integrated into the Academy Dashboard. Help users with quick cybersecurity questions, explain course concepts, and provide career advice. Keep responses extremely concise and use markdown.";
+
+  async function syncDashboardChat(role, message) {
+    if(!window.cyberAuthToken) return;
+    try {
+      await fetch('/api/main/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.cyberAuthToken}` },
+        body: JSON.stringify({ role, message })
+      });
+    } catch(e) { console.error("Dashboard history sync failed", e); }
+  }
+
+  async function loadDashboardHistory() {
+    if(!window.cyberAuthToken) return;
+    try {
+      const res = await fetch('/api/main/chats', { headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }});
+      if(res.ok) {
+        const saved = await res.json();
+        if(saved && saved.length > 5) { // Only show last 5 in dashboard view
+           aiChatHistory.innerHTML = '';
+           saved.slice(-5).forEach(msg => {
+             dashboardChatHistory.push({ role: msg.role === 'model' ? 'model' : 'user', parts: [{ text: msg.message }] });
+             appendMessage(msg.role === 'model' ? 'bot' : 'user', msg.message);
+           });
+        }
+      }
+    } catch(e) { console.error("Failed loading dashboard history:", e); }
+  }
+
+  function appendMessage(type, content) {
+    const msgDiv = document.createElement('div');
+    if (type === 'user') {
+      msgDiv.className = 'ai-msg-user p-3 text-sm self-end';
+      msgDiv.innerHTML = `<p class="text-white">${content}</p>`;
+    } else {
+      msgDiv.className = 'ai-msg-bot p-3 text-sm self-start mt-2 prose prose-invert max-w-none';
+      msgDiv.innerHTML = marked.parse(content);
+    }
+    aiChatHistory.appendChild(msgDiv);
+    aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+  }
+
+  async function sendChat() {
+    const text = aiInput.value.trim();
+    if(!text) return;
+    
+    aiInput.value = '';
+    aiSendBtn.disabled = true;
+    
+    appendMessage('user', text);
+    dashboardChatHistory.push({ role: 'user', parts: [{ text: text }] });
+    await syncDashboardChat('user', text);
+
+    // Show bot typing indicator
+    const typingMsg = document.createElement('div');
+    typingMsg.className = 'ai-msg-bot p-3 text-sm self-start flex items-center gap-1 mt-2';
+    typingMsg.id = 'typing-indicator';
+    typingMsg.innerHTML = `
+      <div class="w-1.5 h-1.5 bg-accent-purple rounded-full typing-dot"></div>
+      <div class="w-1.5 h-1.5 bg-accent-purple rounded-full typing-dot"></div>
+      <div class="w-1.5 h-1.5 bg-accent-purple rounded-full typing-dot"></div>
+    `;
+    aiChatHistory.appendChild(typingMsg);
+    aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+    try {
+      let response = await fetch(GEMINI_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: dashboardSystemInstruction }] },
+          contents: dashboardChatHistory,
+          generationConfig: { temperature: 0.7 }
+        })
+      });
+
+      if (!response.ok) {
+        const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        response = await fetch(fallbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: dashboardSystemInstruction }] },
+            contents: dashboardChatHistory,
+            generationConfig: { temperature: 0.7 }
+          })
+        });
+      }
+
+      const data = await response.json();
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) indicator.remove();
+
+      if (data.candidates && data.candidates.length > 0) {
+        const botText = data.candidates[0].content.parts[0].text;
+        dashboardChatHistory.push({ role: 'model', parts: [{ text: botText }] });
+        appendMessage('bot', botText);
+        await syncDashboardChat('model', botText);
+      } else {
+        appendMessage('bot', "I encountered an issue processing your request.");
+      }
+    } catch (error) {
+      console.error(error);
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) indicator.remove();
+      appendMessage('bot', "Connection error. Please try again later.");
+    } finally {
+      aiSendBtn.disabled = false;
+    }
+  }
+
+  loadDashboardHistory();
+
+
+  document.querySelectorAll('.ai-suggestion').forEach(btn => {
+    btn.addEventListener('click', function() {
+      aiInput.value = this.innerText;
+      sendChat();
+    });
+  });
+
+</script>
+</body>
+</html>

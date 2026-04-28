@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Deep Hunt — Login</title>
+  <meta name="description" content="Sign in to your Deep Hunt operator account. Access elite cybersecurity training, live-fire simulations, and AI-driven performance analytics."/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #131313;
+      background-image:
+        radial-gradient(ellipse at 70% 20%, rgba(74, 142, 255, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(74, 142, 255, 0.06) 0%, transparent 45%);
+      min-height: 100vh;
+      color: #e2e2e2;
+    }
+
+    /* Noise overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.35;
+    }
+
+    .glass {
+      background: rgba(25, 25, 35, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff !important;
+      border-radius: 10px;
+      width: 100%;
+      padding: 13px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+    .input-field::placeholder { color: rgba(193, 198, 215, 0.5); }
+    .input-field:focus {
+      border-color: rgba(173, 199, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(74, 142, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .input-field:-webkit-autofill,
+    .input-field:-webkit-autofill:hover, 
+    .input-field:-webkit-autofill:focus, 
+    .input-field:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px;
+      color: rgba(173, 199, 255, 0.5);
+      font-size: 18px;
+      pointer-events: none;
+    }
+    .input-wrapper .input-field { padding-left: 42px; }
+    .input-wrapper.has-toggle .input-field { padding-right: 44px; }
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(193, 198, 215, 0.5);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      transition: color 0.2s;
+      font-size: 18px;
+    }
+    .toggle-pw:hover { color: #adc7ff; }
+
+    select.input-field {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23adc7ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+    select.input-field option { background: #1a1a2e; color: #e2e2e2; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #adc7ff, #4a8eff);
+      color: #00285b;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(74, 142, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary.loading { opacity: 0.75; cursor: not-allowed; }
+
+    .btn-social {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #c1c6d7;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-social:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(173,199,255,0.25);
+      color: #fff;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(193, 198, 215, 0.35);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .label-text {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(193, 198, 215, 0.7);
+      margin-bottom: 8px;
+    }
+
+    .shimmer-line {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 3s ease infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      50%, 100% { transform: translateX(100%); }
+    }
+
+    .alert-error {
+      background: rgba(255, 100, 100, 0.08);
+      border: 1px solid rgba(255, 100, 100, 0.2);
+      color: #ffc5c5;
+      font-size: 13px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+      animation: pulse-orb 6s ease-in-out infinite;
+    }
+    @keyframes pulse-orb {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    .checkbox-custom {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border: 1.5px solid rgba(173, 199, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(0,0,0,0.3);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+    }
+    .checkbox-custom:checked {
+      background: linear-gradient(135deg, #adc7ff, #4a8eff);
+      border-color: transparent;
+    }
+    .checkbox-custom:checked::after {
+      content: '';
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid #00285b;
+      border-bottom: 1.5px solid #00285b;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .checkbox-custom:focus { outline: none; box-shadow: 0 0 0 3px rgba(74,142,255,0.2); }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 font-body">
+
+  <div class="relative w-full max-w-[430px]">
+
+    <!-- Decorative glows -->
+    <div class="glow-orb w-64 h-64 bg-blue-500/20 -top-16 -right-16" style="position:absolute;"></div>
+    <div class="glow-orb w-48 h-48 bg-primary/10 -bottom-10 -left-10" style="position:absolute; animation-delay: 3s;"></div>
+
+    <div class="glass rounded-2xl shadow-2xl p-9 relative overflow-hidden">
+      <div class="shimmer-line"></div>
+
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <a href="/" class="inline-flex items-center justify-center gap-3 mb-5 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_24px_rgba(74,142,255,0.3)] group-hover:shadow-[0_0_36px_rgba(74,142,255,0.5)] transition-shadow duration-300 overflow-hidden">
+            <img src="/logo/new.gif" alt="Deep Hunt Logo" class="w-full h-full object-contain" />
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <h1 class="text-2xl font-extrabold text-white font-headline tracking-tight mb-1">Operator Sign In</h1>
+        <p class="text-on-surface-variant text-sm">Access your cyber range dashboard.</p>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" class="space-y-5" novalidate>
+
+        <!-- Error box -->
+        <div id="errorBox" class="alert-error hidden"></div>
+
+        <!-- Email -->
+        <div>
+          <label class="label-text" for="email">Email Address</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">alternate_email</span>
+            <input type="email" id="email" class="input-field" placeholder="operator@deephunt.io" required autocomplete="email"/>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="label-text" for="password">Password</label>
+          <div class="input-wrapper has-toggle">
+            <span class="material-symbols-outlined input-icon">lock</span>
+            <input type="password" id="password" class="input-field" placeholder="Enter your password" required autocomplete="current-password"/>
+            <button type="button" class="toggle-pw" id="togglePassword" aria-label="Toggle password visibility" tabindex="-1">
+              <span class="material-symbols-outlined" id="eyeIcon" style="font-size:18px;">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Operator Tier removed -->
+
+        <!-- Remember + Forgot -->
+        <div class="flex items-center justify-between">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="rememberMe" class="checkbox-custom"/>
+            <span class="text-xs text-on-surface-variant">Remember me</span>
+          </label>
+          <a href="/forgot-password" id="forgotLink" class="text-xs text-primary hover:text-white font-semibold transition-colors duration-200 hover:underline underline-offset-2">
+            Forgot password?
+          </a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn" class="btn-primary mt-1">
+          SIGN IN
+        </button>
+
+        <!-- Sign Up Link -->
+        <p class="text-center text-sm text-on-surface-variant">
+          No account?
+          <a href="/register" class="text-primary font-bold hover:underline underline-offset-2 transition-colors">Sign Up Free</a>
+        </p>
+      </form>
+
+      <!-- Divider -->
+      <div class="divider my-6">OR CONTINUE WITH</div>
+
+      <!-- Social Buttons -->
+      <div class="flex gap-3">
+        <button class="btn-social" type="button" id="googleBtn">
+          <svg width="18" height="18" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#FBBB00" d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456C103.821,274.792,107.225,292.797,113.47,309.408z"/>
+            <path fill="#518EF8" d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"/>
+            <path fill="#28B446" d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"/>
+            <path fill="#F14336" d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0C318.115,0,375.068,22.126,419.404,58.936z"/>
+          </svg>
+          Google
+        </button>
+        <button class="btn-social" type="button" id="githubBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub
+        </button>
+      </div>
+
+      <!-- Bottom note -->
+      <p class="text-center text-xs text-on-surface-variant/50 mt-6">
+        By signing in you agree to our
+        <a href="#" class="text-primary/70 hover:text-primary transition-colors">Terms</a> &amp;
+        <a href="#" class="text-primary/70 hover:text-primary transition-colors">Privacy Policy</a>.
+      </p>
+    </div>
+
+    <!-- Version indicator -->
+    <p class="text-center text-xs font-mono text-on-surface-variant/30 mt-4 tracking-widest">DEEP HUNT // SECURE PORTAL v2.4</p>
+  </div>
+
+  <!-- AUTH SCRIPT -->
+  <script>
+    /* ---------- helpers ---------- */
+    function getCookie(name) {
+      const val = `; ${document.cookie}`;
+      const parts = val.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }
+
+    /* ---------- redirect if already logged in ---------- */
+    window.addEventListener('load', () => {
+      if (getCookie('token') || localStorage.getItem('cyber_token')) {
+        window.location.replace('/main/dashboard_pro.html');
+      }
+    });
+
+    /* ---------- password toggle ---------- */
+    const toggleBtn = document.getElementById('togglePassword');
+    const pwInput   = document.getElementById('password');
+    const eyeIcon   = document.getElementById('eyeIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = pwInput.type === 'password';
+      pwInput.type   = isHidden ? 'text' : 'password';
+      eyeIcon.textContent = isHidden ? 'visibility_off' : 'visibility';
+    });
+
+    /* ---------- login submit ---------- */
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('rememberMe').checked;
+      const errorBox = document.getElementById('errorBox');
+      const btn      = document.getElementById('submitBtn');
+
+      errorBox.classList.add('hidden');
+      btn.textContent = 'AUTHENTICATING...';
+      btn.classList.add('loading');
+
+      try {
+        const response = await fetch('/api/main/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.detail || 'Invalid credentials');
+        }
+
+        const data = await response.json();
+        const mockToken = data.access_token;
+        const maxAge    = remember ? 604800 : 86400; // 7d or 1d
+
+        document.cookie = `token=${mockToken}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        localStorage.setItem('cyber_token', mockToken);
+        localStorage.setItem('cyber_tier', data.user.tier);
+        localStorage.setItem('cyber_email', data.user.email);
+        localStorage.setItem('cyber_user_id', data.user.id);
+
+        btn.textContent = 'ACCESS GRANTED ✓';
+        btn.style.background = 'linear-gradient(135deg, #5eead4, #0d9488)';
+        btn.style.color = '#fff';
+
+        setTimeout(() => { window.location.href = '/main/dashboard_pro.html'; }, 600);
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.remove('hidden');
+        btn.textContent = 'SIGN IN';
+        btn.classList.remove('loading');
+
+        // Shake animation
+        const form = document.getElementById('loginForm');
+        form.style.animation = 'shake 0.4s ease';
+        setTimeout(() => form.style.animation = '', 400);
+      }
+    });
+
+    /* ---------- social buttons (placeholder) ---------- */
+    document.getElementById('googleBtn').addEventListener('click', () => {
+      alert('Google OAuth — Connect your backend OAuth provider.');
+    });
+    document.getElementById('githubBtn').addEventListener('click', () => {
+      alert('GitHub OAuth — Connect your backend OAuth provider.');
+    });
+  </script>
+
+  <style>
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+  </style>
+</body>
+</html>

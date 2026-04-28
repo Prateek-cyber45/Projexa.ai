@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deep Hunt Academy — Certifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode:"class",
+  theme:{extend:{colors:{
+    "primary":"#adc7ff","primary-container":"#4a8eff",
+    "background":"#131313","surface":"#1f1f1f","surface-high":"#2a2a2a",
+    "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+    "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+    "accent-orange":"#ffb4ab",
+  },fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]}}}
+}
+</script>
+<style>
+  body{background:#131313;color:#e2e2e2;}
+  section{padding-top:0;}
+  .section-divider{border-top:1px solid rgba(255,255,255,0.04);margin-bottom:3rem;padding-top:3rem;}
+  .glass{background:rgba(53,53,53,0.35);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.05);}
+  .module-card{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s ease;}
+  .module-card:hover{border-color:rgba(173,199,255,0.25);transform:translateY(-3px);box-shadow:0 8px 30px rgba(173,199,255,0.08);}
+  .path-card{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s ease;}
+  .path-card:hover{border-color:rgba(173,199,255,0.3);transform:translateY(-3px);}
+  .job-card{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s ease;}
+  .job-card:hover{border-color:rgba(173,199,255,0.25);background:#252525;}
+  /* AI Chat */
+  .ai-msg-user{background:rgba(74,142,255,0.15);border:1px solid rgba(173,199,255,0.2);border-radius:12px 12px 4px 12px;max-width:80%;}
+  .ai-msg-bot{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);border-radius:12px 12px 12px 4px;max-width:85%;}
+  .ai-input{background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);outline:none;transition:border-color 0.2s;}
+  .ai-input:focus{border-color:#adc7ff;}
+  .typing-dot{animation:blink 1.4s infinite both;}
+  .typing-dot:nth-child(2){animation-delay:0.2s;}
+  .typing-dot:nth-child(3){animation-delay:0.4s;}
+  @keyframes blink{0%,80%,100%{opacity:0.2;}40%{opacity:1;}}
+  .scroll-x{overflow-x:auto;scrollbar-width:thin;scrollbar-color:rgba(173,199,255,0.2) transparent;}
+  .scroll-x::-webkit-scrollbar{height:4px;}
+  .scroll-x::-webkit-scrollbar-thumb{background:rgba(173,199,255,0.2);border-radius:2px;}
+  .progress-bar{height:4px;background:#2a2a2a;border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#4a8eff,#adc7ff);border-radius:2px;}
+  .tag{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.05em;}
+  .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;color:#c1c6d7;transition:all 0.2s;}
+  .nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.05);}
+  .ai-suggestion{background:#252525;border:1px solid rgba(173,199,255,0.12);border-radius:8px;cursor:pointer;transition:all 0.2s;}
+  .ai-suggestion:hover{border-color:rgba(173,199,255,0.35);background:#2a2a2a;}
+</style>
+</head>
+<body class="font-body min-h-screen">
+
+<!-- TOP NAV -->
+<nav class="sticky top-0 z-50 bg-[#131313]/95 backdrop-blur-xl border-b border-white/5">
+  <div class="max-w-screen-2xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/academy" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 border-l border-white/5 pl-6">
+        <a href="/academy/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/academy/all_courses.html" class="nav-link">Modules</a>
+        <a href="/academy/path_soc.html" class="nav-link">Paths</a>
+        <a href="/academy/certifications.html" class="nav-link active">Certifications</a>
+        <a href="/academy/ai.html" class="nav-link text-accent-purple">
+          <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>AI Assistant
+        </a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="tag bg-accent-green/10 text-accent-green border border-accent-green/20">🔥 7 Day Streak</span>
+      <div class="w-8 h-8 bg-[#2a2a2a] border border-white/10 rounded-full flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+      </div>
+      <a href="/main/dashboard_pro.html" class="nav-link text-on-surface-variant">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>Main
+      </a>
+    </div>
+  </div>
+</nav>
+<div class="max-w-screen-2xl mx-auto px-6 py-8 space-y-16">
+<!-- ===== CERTIFICATIONS ===== -->
+  <section id="certifications" class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="font-headline text-xl font-bold text-white">Certifications</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Earn industry-recognized credentials powered by Deep Hunt Academy</p>
+      </div>
+      <a href="/academy/certificate.html" class="text-sm text-primary hover:text-white transition-colors font-bold flex items-center gap-1">
+        View All <span class="material-symbols-outlined text-sm">north_east</span>
+      </a>
+    </div>
+
+    <!-- Earned Certificates -->
+    <p class="text-xs text-on-surface-variant uppercase tracking-widest font-mono mb-5">✅ Earned</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+
+      <!-- Cert Card 1 — Earned -->
+      <div class="relative rounded-2xl overflow-hidden" style="background:linear-gradient(135deg,#0f1e12,#162419);border:1px solid rgba(76,175,80,0.25);">
+        <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(45deg,rgba(76,175,80,0.4) 0,rgba(76,175,80,0.4) 1px,transparent 0,transparent 50%);background-size:10px 10px;"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-accent-green/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 p-6">
+          <div class="flex items-start justify-between mb-5">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(76,175,80,0.3),rgba(76,175,80,0.1));border:1px solid rgba(76,175,80,0.3);">
+              <span class="material-symbols-outlined text-accent-green text-3xl" style="font-variation-settings:'FILL' 1;">verified</span>
+            </div>
+            <span class="tag bg-accent-green/15 text-accent-green border border-accent-green/25">Issued</span>
+          </div>
+          <h3 class="font-headline font-bold text-white text-base mb-1">Certified SOC Analyst</h3>
+          <p class="text-on-surface-variant text-xs leading-relaxed mb-4">Demonstrated proficiency in alert triage, SIEM log analysis, threat escalation and incident response fundamentals.</p>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] text-on-surface-variant font-mono">Issued: Mar 2025 · ID: DH-SOC-0041</p>
+            </div>
+            <a href="/academy/certificate.html" class="flex items-center gap-1.5 text-xs font-bold text-accent-green hover:text-white transition-colors">
+              <span class="material-symbols-outlined text-sm">download</span>Download
+            </a>
+          </div>
+        </div>
+        <!-- Shine strip -->
+        <div class="h-1 w-full" style="background:linear-gradient(90deg,transparent,rgba(76,175,80,0.6),transparent);"></div>
+      </div>
+
+      <!-- Cert Card 2 — Earned -->
+      <div class="relative rounded-2xl overflow-hidden" style="background:linear-gradient(135deg,#0f1320,#141a28);border:1px solid rgba(173,199,255,0.2);">
+        <div class="absolute inset-0 opacity-5" style="background-image:repeating-linear-gradient(45deg,rgba(173,199,255,0.4) 0,rgba(173,199,255,0.4) 1px,transparent 0,transparent 50%);background-size:10px 10px;"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 p-6">
+          <div class="flex items-start justify-between mb-5">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(173,199,255,0.25),rgba(173,199,255,0.08));border:1px solid rgba(173,199,255,0.2);">
+              <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
+            </div>
+            <span class="tag bg-primary/10 text-primary border border-primary/20">Issued</span>
+          </div>
+          <h3 class="font-headline font-bold text-white text-base mb-1">Network Defense Specialist</h3>
+          <p class="text-on-surface-variant text-xs leading-relaxed mb-4">Covers IDS/IPS configuration, packet analysis, firewall rule engineering and lateral movement detection techniques.</p>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] text-on-surface-variant font-mono">Issued: Jan 2025 · ID: DH-NET-0019</p>
+            </div>
+            <a href="/academy/certificate.html" class="flex items-center gap-1.5 text-xs font-bold text-primary hover:text-white transition-colors">
+              <span class="material-symbols-outlined text-sm">download</span>Download
+            </a>
+          </div>
+        </div>
+        <div class="h-1 w-full" style="background:linear-gradient(90deg,transparent,rgba(173,199,255,0.5),transparent);"></div>
+      </div>
+
+      <!-- Cert Card 3 — In Progress -->
+      <div class="relative rounded-2xl overflow-hidden" style="background:linear-gradient(135deg,#1a1520,#18141f);border:1px solid rgba(179,136,255,0.2);">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-accent-purple/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 p-6">
+          <div class="flex items-start justify-between mb-5">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center relative" style="background:linear-gradient(135deg,rgba(179,136,255,0.2),rgba(179,136,255,0.05));border:1px solid rgba(179,136,255,0.2);">
+              <span class="material-symbols-outlined text-accent-purple text-3xl">military_tech</span>
+              <!-- Lock overlay -->
+              <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#131313] border border-accent-purple/30 flex items-center justify-center">
+                <span class="material-symbols-outlined text-accent-purple text-[11px]" style="font-variation-settings:'FILL' 1;">hourglass_top</span>
+              </div>
+            </div>
+            <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">In Progress</span>
+          </div>
+          <h3 class="font-headline font-bold text-white text-base mb-1">Digital Forensics Analyst</h3>
+          <p class="text-on-surface-variant text-xs leading-relaxed mb-3">Master memory forensics, disk imaging, artefact recovery and chain-of-custody for professional investigations.</p>
+          <div class="progress-bar mb-1.5"><div class="progress-fill" style="width:45%;background:linear-gradient(90deg,#b388ff,#d1c4e9);"></div></div>
+          <div class="flex items-center justify-between">
+            <p class="text-[10px] text-on-surface-variant font-mono">45% complete · ~18 hrs left</p>
+            <a href="/academy/course.html" class="flex items-center gap-1 text-xs font-bold text-accent-purple hover:text-white transition-colors">
+              Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+        <div class="h-1 w-full" style="background:linear-gradient(90deg,transparent,rgba(179,136,255,0.4),transparent);"></div>
+      </div>
+    </div>
+
+    <!-- Available Certs -->
+    <p class="text-xs text-on-surface-variant uppercase tracking-widest font-mono mb-5">🎯 Available to Pursue</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <div class="glass rounded-xl p-4 flex flex-col gap-3 hover:border-primary/30 transition-colors cursor-pointer group">
+        <div class="w-10 h-10 rounded-lg bg-accent-orange/15 flex items-center justify-center border border-accent-orange/20">
+          <span class="material-symbols-outlined text-accent-orange" style="font-variation-settings:'FILL' 1;">crisis_alert</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-white text-sm mb-1 group-hover:text-primary transition-colors">Incident Response Pro</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Container breach, ransomware recovery, post-incident reporting.</p>
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-[10px] font-mono text-on-surface-variant">9 modules</span>
+          <button class="text-xs font-bold text-primary hover:text-white transition-colors flex items-center gap-1">Start <span class="material-symbols-outlined text-xs">east</span></button>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-5 flex flex-col gap-3 hover:border-primary/30 transition-colors cursor-pointer group">
+        <div class="w-10 h-10 rounded-lg bg-accent/15 flex items-center justify-center border border-accent/20">
+          <span class="material-symbols-outlined text-accent" style="font-variation-settings:'FILL' 1;">travel_explore</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-white text-sm mb-1 group-hover:text-primary transition-colors">Threat Intelligence Analyst</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">OSINT, adversary profiling, TTP mapping and dark web monitoring.</p>
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-[10px] font-mono text-on-surface-variant">8 modules</span>
+          <button class="text-xs font-bold text-primary hover:text-white transition-colors flex items-center gap-1">Start <span class="material-symbols-outlined text-xs">east</span></button>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-4 flex flex-col gap-3 hover:border-primary/30 transition-colors cursor-pointer group">
+        <div class="w-10 h-10 rounded-lg bg-yellow-500/15 flex items-center justify-center border border-yellow-500/20">
+          <span class="material-symbols-outlined text-yellow-400" style="font-variation-settings:'FILL' 1;">bug_report</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-white text-sm mb-1 group-hover:text-primary transition-colors">Malware Reverse Engineer</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Static/dynamic analysis, deobfuscation, sandbox evasion techniques.</p>
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-[10px] font-mono text-on-surface-variant">12 modules</span>
+          <button class="text-xs font-bold text-primary hover:text-white transition-colors flex items-center gap-1">Start <span class="material-symbols-outlined text-xs">east</span></button>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-5 flex flex-col gap-3 hover:border-accent-purple/30 transition-colors cursor-pointer group relative overflow-hidden">
+        <div class="absolute top-2 right-2"><span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">New</span></div>
+        <div class="w-10 h-10 rounded-lg bg-accent-purple/15 flex items-center justify-center border border-accent-purple/20">
+          <span class="material-symbols-outlined text-accent-purple" style="font-variation-settings:'FILL' 1;">smart_toy</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-white text-sm mb-1 group-hover:text-accent-purple transition-colors">AI Security Specialist</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Adversarial ML, prompt injection, model exfiltration and AI red teaming.</p>
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-[10px] font-mono text-on-surface-variant">6 modules</span>
+          <button class="text-xs font-bold text-accent-purple hover:text-white transition-colors flex items-center gap-1">Start <span class="material-symbols-outlined text-xs">east</span></button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+<script>
+  // Auth check
+  const token = localStorage.getItem('cyber_token') || (document.cookie.includes('token=') ? 'cookie_token' : null);
+  if(!token) window.location.href = '/login';
+</script>
+</body>
+</html>

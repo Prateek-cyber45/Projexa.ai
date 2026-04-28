@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOC Analyst Career Path — Deep Hunt</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "on-primary-container": "#00285b",
+            "surface-container-low": "#1b1b1b",
+            "surface": "#131313",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+            "surface-container": "#1f1f1f",
+            "outline-variant": "#414754",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .glass-panel { background: rgba(53, 53, 53, 0.35); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-black noise min-h-screen flex flex-col">
+
+<nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="/academy/dashboard.html" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+      </a>
+      <div class="hidden md:flex gap-6 text-sm font-bold text-on-surface-variant">
+          <a href="/academy/path_soc.html" class="text-primary border-b-2 border-primary pb-1">SOC Analyst</a>
+          <a href="/academy/path_forensics.html" class="hover:text-white transition-colors">Digital Forensics</a>
+          <a href="/academy/path_soc.html" class="hover:text-white transition-colors">All Paths</a>
+      </div>
+      <div>
+        <a href="/dashboard" class="px-4 py-2 border border-white/10 rounded-lg hover:bg-white/5 text-sm font-bold text-white transition-colors">Exit</a>
+      </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<header class="relative pt-24 pb-16 overflow-hidden border-b border-white/5">
+    <!-- Glow effect -->
+    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
+    
+    <div class="max-w-screen-xl mx-auto px-6 relative z-10 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 text-primary rounded text-xs font-mono font-bold mb-6 tracking-widest uppercase">
+            Career Specialization Path
+        </div>
+        <h1 class="text-5xl md:text-6xl font-headline font-extrabold text-white mb-6 tracking-tight">SOC Analyst</h1>
+        <p class="text-on-surface-variant text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+            The frontline of cybersecurity defense. Learn to monitor networks, triage complex incidents, and mitigate active threats using industry-standard tools and SIEM platforms.
+        </p>
+        
+        <div class="flex justify-center gap-8 mb-2 border-t border-white/5 pt-8 max-w-3xl mx-auto">
+            <div class="text-center">
+                <p class="font-headline font-extrabold text-2xl text-white">4</p>
+                <p class="text-xs text-on-surface-variant uppercase tracking-wider">Courses</p>
+            </div>
+            <div class="text-center">
+                <p class="font-headline font-extrabold text-2xl text-white">20+</p>
+                <p class="text-xs text-on-surface-variant uppercase tracking-wider">Lab Scenarios</p>
+            </div>
+            <div class="text-center">
+                <p class="font-headline font-extrabold text-2xl text-white">12h</p>
+                <p class="text-xs text-on-surface-variant uppercase tracking-wider">Est. Duration</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 w-full relative">
+    
+    <!-- Vertical Path Line (Desktop) -->
+    <div class="hidden md:block absolute top-0 bottom-0 left-1/2 w-0.5 bg-gradient-to-b from-primary via-primary/20 to-transparent -translate-x-1/2 z-0"></div>
+
+    <div class="max-w-screen-xl mx-auto px-6 py-20 z-10 relative">
+        <div class="space-y-12 md:space-y-24">
+            
+            <!-- Phase 1 -->
+            <div class="flex flex-col md:flex-row items-center justify-between group">
+                <div class="md:w-5/12 text-center md:text-right mb-6 md:mb-0">
+                    <span class="text-primary font-mono text-sm tracking-widest uppercase font-bold mb-2 block">Phase 01</span>
+                    <h3 class="text-2xl font-headline font-bold text-white mb-3">SOC Fundamentals</h3>
+                    <p class="text-on-surface-variant text-sm border-l-2 md:border-l-0 md:border-r-2 border-primary/50 pl-4 md:pl-0 md:pr-4 py-1">
+                        Master the essential skills of alert triage, OSI model interpretation, and basic incident classification.
+                    </p>
+                </div>
+                
+                <div class="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10 mb-6 md:mb-0">
+                    <div class="absolute inset-0 bg-background rounded-full border border-primary/30 flex items-center justify-center group-hover:scale-110 group-hover:border-primary transition-all shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+                        <span class="material-symbols-outlined text-primary">looks_one</span>
+                    </div>
+                </div>
+                
+                <div class="md:w-5/12">
+                    <a href="/academy/dashboard.html" class="block glass-panel p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-primary text-[#00285b] text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Course</span>
+                            <span class="text-xs text-on-surface-variant font-mono">2h 15m</span>
+                        </div>
+                        <h4 class="text-white font-bold text-lg mb-2">Intro to Security Operations Center</h4>
+                        <p class="text-xs text-on-surface-variant mb-4">12 Modules • Final Assessment Required</p>
+                        <div class="flex gap-2">
+                             <div class="h-1 bg-primary w-full rounded-full"></div>
+                        </div>
+                        <p class="text-[10px] text-primary text-center mt-2 uppercase font-bold">Completed</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="flex flex-col md:flex-row-reverse items-center justify-between group">
+                <div class="md:w-5/12 text-center md:text-left mb-6 md:mb-0">
+                    <span class="text-primary font-mono text-sm tracking-widest uppercase font-bold mb-2 block">Phase 02</span>
+                    <h3 class="text-2xl font-headline font-bold text-white mb-3">SIEM & Log Analysis</h3>
+                    <p class="text-on-surface-variant text-sm border-l-2 border-primary/50 pl-4 py-1">
+                        Learn to query Splunk, construct dashboards, and write KQL queries to hunt for persistent threats.
+                    </p>
+                </div>
+                
+                <div class="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10 mb-6 md:mb-0">
+                    <div class="absolute inset-0 bg-background rounded-full border border-primary/30 flex items-center justify-center group-hover:scale-110 group-hover:border-primary transition-all">
+                        <span class="material-symbols-outlined text-primary">looks_two</span>
+                    </div>
+                </div>
+                
+                <div class="md:w-5/12">
+                    <a href="/academy/dashboard.html" class="block glass-panel p-6 rounded-2xl border border-white/5 hover:border-primary/50 transition-colors">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Course</span>
+                            <span class="text-xs text-on-surface-variant font-mono">4h 30m</span>
+                        </div>
+                        <h4 class="text-white font-bold text-lg mb-2">Advanced Splunk Engineering</h4>
+                        <p class="text-xs text-on-surface-variant mb-4">8 Modules • 1 Practical Lab</p>
+                        <div class="flex gap-2 opacity-50">
+                             <div class="h-1 bg-primary w-1/4 rounded-full"></div>
+                             <div class="h-1 bg-white/10 w-3/4 rounded-full"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="flex flex-col md:flex-row items-center justify-between group opacity-50 hover:opacity-100 transition-opacity">
+                <div class="md:w-5/12 text-center md:text-right mb-6 md:mb-0">
+                    <span class="text-primary font-mono text-sm tracking-widest uppercase font-bold mb-2 block">Phase 03</span>
+                    <h3 class="text-2xl font-headline font-bold text-white mb-3">Incident Response</h3>
+                    <p class="text-on-surface-variant text-sm border-l-2 md:border-l-0 md:border-r-2 border-primary/50 pl-4 md:pl-0 md:pr-4 py-1">
+                        When alerts become breaches, you must act. Learn containment strategies, eradication, and post-incident reporting.
+                    </p>
+                </div>
+                
+                <div class="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10 mb-6 md:mb-0">
+                    <div class="absolute inset-0 bg-background rounded-full border border-white/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white/50">looks_3</span>
+                    </div>
+                </div>
+                
+                <div class="md:w-5/12">
+                    <div class="block glass-panel p-6 rounded-2xl border border-white/5 grayscale">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-white/10 text-white/50 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Locked</span>
+                            <span class="material-symbols-outlined text-sm">lock</span>
+                        </div>
+                        <h4 class="text-white font-bold text-lg mb-2">First Responder Playbooks</h4>
+                        <p class="text-xs text-on-surface-variant">Complete Phase 02 to unlock</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+</body>
+</html>

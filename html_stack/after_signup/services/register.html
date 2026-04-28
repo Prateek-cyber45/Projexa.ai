@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Deep Hunt — Create Account</title>
+  <meta name="description" content="Create your Deep Hunt operator account. Start your cybersecurity training journey with live-fire simulations and AI-driven analytics."/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #131313;
+      background-image:
+        radial-gradient(ellipse at 25% 30%, rgba(74, 142, 255, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 75%, rgba(74, 142, 255, 0.07) 0%, transparent 45%);
+      min-height: 100vh;
+      color: #e2e2e2;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.35;
+    }
+    .glass {
+      background: rgba(25, 25, 35, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .input-field {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
+      border-radius: 12px;
+      width: 100%;
+      padding: 14px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      outline: none !important;
+      transition: all 0.25s ease;
+    }
+    .input-field::placeholder { color: rgba(193, 198, 215, 0.4); }
+    .input-field:focus {
+      border-color: rgba(173, 199, 255, 0.5) !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(74, 142, 255, 0.1) !important;
+      outline: none !important;
+    }
+
+    .input-field:-webkit-autofill,
+    .input-field:-webkit-autofill:hover, 
+    .input-field:-webkit-autofill:focus, 
+    .input-field:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+        -webkit-text-fill-color: white !important;
+        transition: background-color 5000s ease-in-out 0s;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px;
+      color: rgba(173, 199, 255, 0.5);
+      font-size: 18px;
+      pointer-events: none;
+    }
+    .input-wrapper .input-field { padding-left: 42px; }
+    .input-wrapper.has-toggle .input-field { padding-right: 44px; }
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(193, 198, 215, 0.5);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: #adc7ff; }
+    select.input-field {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23adc7ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+    select.input-field option { background: #1a1a2e; color: #e2e2e2; }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #adc7ff, #4a8eff);
+      color: #00285b;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(74, 142, 255, 0.3); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .label-text {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(193, 198, 215, 0.7);
+      margin-bottom: 8px;
+    }
+    .alert-error {
+      background: rgba(255, 100, 100, 0.08);
+      border: 1px solid rgba(255, 100, 100, 0.2);
+      color: #ffc5c5;
+      font-size: 13px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+    .checkbox-custom {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border: 1.5px solid rgba(173, 199, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(0,0,0,0.3);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+    }
+    .checkbox-custom:checked {
+      background: linear-gradient(135deg, #adc7ff, #4a8eff);
+      border-color: transparent;
+    }
+    .checkbox-custom:checked::after {
+      content: '';
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid #00285b;
+      border-bottom: 1.5px solid #00285b;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      animation: pulse-orb 7s ease-in-out infinite;
+    }
+    @keyframes pulse-orb {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 0.5; }
+    }
+    .shimmer-line {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 4s ease infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      60%, 100% { transform: translateX(100%); }
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 font-body">
+
+  <div class="relative w-full max-w-[430px]">
+
+    <div class="glow-orb w-64 h-64 bg-blue-500/20" style="position:absolute; top:-64px; right:-48px;"></div>
+    <div class="glow-orb w-48 h-48 bg-primary/10" style="position:absolute; bottom:-40px; left:-40px; animation-delay:3s;"></div>
+
+    <div class="glass rounded-2xl shadow-2xl p-9 relative overflow-hidden">
+      <div class="shimmer-line"></div>
+
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <a href="/" class="inline-flex items-center justify-center gap-3 mb-5 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_24px_rgba(74,142,255,0.3)] group-hover:shadow-[0_0_36px_rgba(74,142,255,0.5)] transition-shadow duration-300">
+            <span class="material-symbols-outlined text-[#00285b] text-xl" style="font-variation-settings:'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <h1 class="text-2xl font-extrabold text-white font-headline tracking-tight mb-1">Create Operator Profile</h1>
+        <p class="text-on-surface-variant text-sm">Join the elite cyber range. Free to start.</p>
+      </div>
+
+      <!-- Form -->
+      <form id="registerForm" class="space-y-5" novalidate>
+        <div id="errorBox" class="alert-error hidden"></div>
+        <div id="successBox" class="hidden text-center" style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:#9ff6dc;font-size:13px;padding:12px 16px;border-radius:10px;">
+          <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;font-variation-settings:'FILL' 1;">verified</span>
+          Account created! Redirecting to login...
+        </div>
+
+        <!-- Username -->
+        <div>
+          <label class="label-text" for="username">Callsign / Username</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">person</span>
+            <input type="text" id="username" class="input-field" placeholder="Your operator callsign" required minlength="3" autocomplete="username"/>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="label-text" for="regEmail">Email Address</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined input-icon">alternate_email</span>
+            <input type="email" id="regEmail" class="input-field" placeholder="operator@deephunt.io" required autocomplete="email"/>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="label-text" for="regPassword">Password</label>
+          <div class="input-wrapper has-toggle">
+            <span class="material-symbols-outlined input-icon">lock</span>
+            <input type="password" id="regPassword" class="input-field" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password"/>
+            <button type="button" class="toggle-pw" id="togglePw" aria-label="Toggle" tabindex="-1">
+              <span class="material-symbols-outlined" id="eyeIcon" style="font-size:18px;">visibility</span>
+            </button>
+          </div>
+          <div class="strength-bar">
+            <div class="strength-fill" id="strengthFill" style="width:0%;background:#ef4444;"></div>
+          </div>
+          <p class="text-xs mt-1" id="strengthLabel" style="color:rgba(193,198,215,0.6);"></p>
+        </div>
+
+        <!-- Tier defaulted to pro -->
+        <input type="hidden" id="regTier" value="pro" />
+
+        <!-- ToS -->
+        <label class="flex items-start gap-3 cursor-pointer select-none">
+          <input type="checkbox" id="tosCheck" class="checkbox-custom" style="margin-top:2px;"/>
+          <span class="text-xs text-on-surface-variant leading-relaxed">
+            I agree to the Deep Hunt
+            <a href="#" class="text-primary hover:underline underline-offset-2">Terms of Service</a>
+            and
+            <a href="#" class="text-primary hover:underline underline-offset-2">Privacy Policy</a>.
+          </span>
+        </label>
+
+        <button type="submit" id="submitBtn" class="btn-primary">
+          CREATE ACCOUNT
+        </button>
+
+        <p class="text-center text-sm text-on-surface-variant">
+          Already an operator?
+          <a href="/login" class="text-primary font-bold hover:underline underline-offset-2 transition-colors">Sign In</a>
+        </p>
+      </form>
+    </div>
+
+    <p class="text-center text-xs font-mono text-on-surface-variant/30 mt-4 tracking-widest">DEEP HUNT // REGISTRATION PORTAL v2.4</p>
+  </div>
+
+  <script>
+    document.getElementById('togglePw').addEventListener('click', () => {
+      const inp = document.getElementById('regPassword');
+      const icon = document.getElementById('eyeIcon');
+      const hidden = inp.type === 'password';
+      inp.type = hidden ? 'text' : 'password';
+      icon.textContent = hidden ? 'visibility_off' : 'visibility';
+    });
+
+    document.getElementById('regPassword').addEventListener('input', (e) => {
+      const pw = e.target.value;
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/\d/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+      const fill  = document.getElementById('strengthFill');
+      const label = document.getElementById('strengthLabel');
+      const pcts   = ['0%', '25%', '50%', '75%', '100%'];
+      const colors = ['#ef4444', '#ef4444', '#f59e0b', '#10b981', '#10b981'];
+      const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+      fill.style.width = pcts[score];
+      fill.style.background = colors[score];
+      label.textContent = labels[score] ? `Strength: ${labels[score]}` : '';
+      label.style.color = colors[score];
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username   = document.getElementById('username').value.trim();
+      const email      = document.getElementById('regEmail').value.trim();
+      const password   = document.getElementById('regPassword').value;
+      const tier       = document.getElementById('regTier').value;
+      const tos        = document.getElementById('tosCheck').checked;
+      const errorBox   = document.getElementById('errorBox');
+      const successBox = document.getElementById('successBox');
+      const btn        = document.getElementById('submitBtn');
+
+      errorBox.classList.add('hidden');
+      successBox.classList.add('hidden');
+
+      if (username.length < 3) {
+        errorBox.textContent = 'Callsign must be at least 3 characters.';
+        errorBox.classList.remove('hidden'); return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        errorBox.textContent = 'Please enter a valid email address.';
+        errorBox.classList.remove('hidden'); return;
+      }
+      if (password.length < 8) {
+        errorBox.textContent = 'Password must be at least 8 characters.';
+        errorBox.classList.remove('hidden'); return;
+      }
+      if (!tos) {
+        errorBox.textContent = 'You must agree to the Terms of Service to continue.';
+        errorBox.classList.remove('hidden'); return;
+      }
+
+      btn.textContent = 'DEPLOYING PROFILE...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/main/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password, tier })
+        });
+        
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.detail || 'Registration failed');
+        }
+
+        localStorage.setItem('cyber_pending_email', email);
+
+        successBox.classList.remove('hidden');
+        btn.textContent = 'ACCOUNT CREATED ✓';
+        btn.style.background = 'linear-gradient(135deg, #5eead4, #0d9488)';
+        btn.style.color = '#fff';
+
+        setTimeout(() => { window.location.href = '/login'; }, 1800);
+      } catch (err) {
+        errorBox.textContent = err.message || 'Registration failed. Please try again.';
+        errorBox.classList.remove('hidden');
+        btn.textContent = 'CREATE ACCOUNT';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

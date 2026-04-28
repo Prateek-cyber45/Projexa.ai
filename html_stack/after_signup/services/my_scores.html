@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Scores — Deep Hunt</title>
+  <script src="/common_pages/cyber_auth.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "on-primary-container": "#00285b",
+            "surface-container-low": "#1b1b1b",
+            "surface": "#131313",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+            "surface-container": "#1f1f1f",
+            "outline-variant": "#414754",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .glass-panel { background: rgba(53, 53, 53, 0.35); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+    .radar-svg { filter: drop-shadow(0 0 10px rgba(173, 199, 255, 0.4)); }
+    .toast-msg { position: fixed; bottom: 24px; right: 24px; z-index: 10000; background: rgba(30,30,30,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 20px; color: #e2e2e2; font-size: 13px; font-weight: 600; backdrop-filter: blur(12px); transform: translateY(80px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
+    .toast-msg.show { transform: translateY(0); opacity: 1; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-row { animation: fadeInUp 0.3s ease forwards; }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container noise min-h-screen flex flex-col">
+
+<!-- Top NavBar -->
+<nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="/dashboard" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/dashboard" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Dashboard</a>
+        <a href="/main/profile.html" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Profile</a>
+      </div>
+    </div>
+</nav>
+
+<main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    
+    <div class="mb-10 flex justify-between items-end">
+        <div>
+            <h1 class="font-headline text-4xl font-extrabold text-white mb-2">Skill Profile & History</h1>
+            <p class="text-on-surface-variant">Review your AI-assessed skill progression across all domains.</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/main/report_generation.html" class="px-4 py-2 bg-primary-container/20 border border-primary-container/30 hover:bg-primary-container/30 rounded text-sm text-primary flex items-center gap-2 transition-colors font-bold">
+                <span class="material-symbols-outlined text-[18px]">description</span> Generate Report
+            </a>
+            <a href="/main/settings.html" class="px-4 py-2 border border-white/10 hover:bg-white/5 rounded text-sm text-white flex items-center gap-2 transition-colors">
+                <span class="material-symbols-outlined text-[18px]">settings</span> Profile Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats overview (dynamic) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="glass-panel rounded-xl p-5 border border-white/10">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Labs Completed</p>
+        <p id="stat-labs" class="text-2xl font-headline font-extrabold text-white">--</p>
+      </div>
+      <div class="glass-panel rounded-xl p-5 border border-white/10">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Average Score</p>
+        <p id="stat-avg" class="text-2xl font-headline font-extrabold text-white">--</p>
+      </div>
+      <div class="glass-panel rounded-xl p-5 border border-white/10">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Best Score</p>
+        <p id="stat-best" class="text-2xl font-headline font-extrabold text-primary">--</p>
+      </div>
+      <div class="glass-panel rounded-xl p-5 border border-white/10">
+        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Trend</p>
+        <p id="stat-trend" class="text-2xl font-headline font-extrabold text-green-400">--</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Skill Radar Chart -->
+        <div class="lg:col-span-1 glass-panel rounded-2xl p-8 flex flex-col items-center border border-white/10 h-min">
+            <h2 class="font-headline font-bold text-lg text-white mb-8 self-start w-full border-b border-white/5 pb-2">Vector Radar</h2>
+            
+            <div class="relative w-full aspect-square flex items-center justify-center mt-4 mb-4">
+                <svg viewBox="0 0 200 200" class="w-full h-full max-w-[250px] radar-svg" id="radar-svg">
+                    <!-- Grid Lines (Pentagon) -->
+                    <polygon points="100,10 185,72 153,172 47,172 15,72" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,32 164,79 140,154 60,154 36,79" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,55 142,86 126,136 74,136 58,86" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,77 121,92 113,118 87,118 79,92" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    
+                    <!-- Axes -->
+                    <line x1="100" y1="100" x2="100" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="185" y2="72" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="153" y2="172" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="47" y2="172" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="15" y2="72" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    
+                    <!-- Data Polygon (updated dynamically) -->
+                    <polygon id="radar-polygon" points="100,20 160,72 120,160 55,140 25,72" fill="rgba(173, 199, 255, 0.4)" stroke="#adc7ff" stroke-width="2">
+                        <animate attributeName="opacity" from="0" to="1" dur="0.8s" fill="freeze" />
+                    </polygon>
+                    
+                    <!-- Points (updated dynamically) -->
+                    <g id="radar-points">
+                        <circle cx="100" cy="20" r="4" fill="#fff" />
+                        <circle cx="160" cy="72" r="4" fill="#fff" />
+                        <circle cx="120" cy="160" r="4" fill="#fff" />
+                        <circle cx="55" cy="140" r="4" fill="#fff" />
+                        <circle cx="25" cy="72" r="4" fill="#fff" />
+                    </g>
+                    
+                    <!-- Labels -->
+                    <text x="100" y="5" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">SOC Analysis</text>
+                    <text x="195" y="75" fill="#c1c6d7" font-size="8" text-anchor="start" font-family="'JetBrains Mono', monospace">Forensics</text>
+                    <text x="160" y="185" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">Threat Hunt</text>
+                    <text x="40" y="185" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">Net Sec</text>
+                    <text x="5" y="75" fill="#c1c6d7" font-size="8" text-anchor="end" font-family="'JetBrains Mono', monospace">IR</text>
+                </svg>
+            </div>
+            
+            <div class="w-full space-y-4 mt-6" id="radar-legend">
+                <!-- Dynamic legend -->
+            </div>
+        </div>
+
+        <!-- Right: Activity Table -->
+        <div class="lg:col-span-2">
+            <h2 class="font-headline font-bold text-xl text-white mb-6">Execution History</h2>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden border border-white/10">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/5 border-b border-white/10 text-on-surface-variant font-mono text-xs uppercase tracking-wider">
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Scenario / Course</th>
+                            <th class="p-4 hidden md:table-cell">Score</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-tbody" class="divide-y divide-white/5 text-sm">
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-3xl mb-2 block text-on-surface-variant/30">hourglass_empty</span>
+                                Loading scores...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center text-sm text-on-surface-variant">
+                <span id="showing-count">Loading...</span>
+                <button id="load-more-btn" class="text-primary hover:text-white transition-colors hidden">Load More...</button>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div id="toast" class="toast-msg"></div>
+
+<script>
+(function() {
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Radar chart math
+    const cx = 100, cy = 100, maxR = 90;
+    const angles = [
+        -Math.PI/2,                   // top (SOC)
+        -Math.PI/2 + 2*Math.PI/5,     // top-right (Forensics)
+        -Math.PI/2 + 4*Math.PI/5,     // bottom-right (Threat Hunt)
+        -Math.PI/2 + 6*Math.PI/5,     // bottom-left (Net Sec)
+        -Math.PI/2 + 8*Math.PI/5      // top-left (IR)
+    ];
+
+    function radarPoint(angleIdx, value) {
+        const r = maxR * Math.min(value, 1);
+        return {
+            x: cx + r * Math.cos(angles[angleIdx]),
+            y: cy + r * Math.sin(angles[angleIdx])
+        };
+    }
+
+    function updateRadar(vectors) {
+        const keys = ['soc_analysis', 'forensics', 'threat_hunting', 'network_security', 'incident_response'];
+        const labels = ['SOC Analysis', 'Digital Forensics', 'Threat Hunting', 'Network Security', 'Incident Response'];
+        const points = keys.map((k, i) => radarPoint(i, vectors[k] || 0.5));
+        
+        // Update polygon
+        const polygon = document.getElementById('radar-polygon');
+        polygon.setAttribute('points', points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+
+        // Update dots
+        const dotsGroup = document.getElementById('radar-points');
+        dotsGroup.innerHTML = points.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#fff" />`).join('');
+
+        // Update legend
+        const legend = document.getElementById('radar-legend');
+        legend.innerHTML = keys.map((k, i) => `
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-on-surface flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span> ${labels[i]}</span>
+                <span class="text-white font-mono font-bold">${Math.round((vectors[k] || 0.5) * 100)}%</span>
+            </div>
+        `).join('');
+    }
+
+    // Lab name variants for display
+    const labNames = ['SOC-SIM-ALPHA', 'IR-RANSOMWARE', 'BANKING-SIM', 'SCADA-EXPLOIT', 'ADS-B INJECT', 'THREAT-HUNT'];
+    const labSubtitles = ['Credential Stuffing', 'Ransomware Response', 'ATM Jackpotting', 'Industrial SCADA', 'Aviation Spoofing', 'Proactive Hunting'];
+
+    async function loadData() {
+        const headers = {};
+        if (window.cyberAuthToken) {
+            headers['Authorization'] = `Bearer ${window.cyberAuthToken}`;
+        }
+
+        let scores = [];
+        let dashboard = null;
+
+        try {
+            const [scoresRes, dashRes] = await Promise.allSettled([
+                fetch('/api/main/scores', { headers }),
+                fetch('/api/main/dashboard', { headers })
+            ]);
+
+            if (scoresRes.status === 'fulfilled' && scoresRes.value.ok) {
+                scores = await scoresRes.value.json();
+            }
+            if (dashRes.status === 'fulfilled' && dashRes.value.ok) {
+                dashboard = await dashRes.value.json();
+            }
+        } catch(e) {
+            console.error('API fetch failed:', e);
+        }
+
+        // Fallback dashboard data
+        if (!dashboard) {
+            dashboard = { rolling_score: 42.5, skill_vectors: { soc_analysis: 0.72, forensics: 0.55, network_security: 0.68, incident_response: 0.40, threat_hunting: 0.81 } };
+        }
+
+        // Update radar
+        updateRadar(dashboard.skill_vectors || {});
+
+        // Update stats
+        const scoreVals = scores.map(s => s.score || 0);
+        const avg = scoreVals.length > 0 ? (scoreVals.reduce((a,b) => a+b, 0) / scoreVals.length) : (dashboard.rolling_score || 0);
+        const best = scoreVals.length > 0 ? Math.max(...scoreVals) : 0;
+        const trend = scoreVals.length >= 2 ? scoreVals[scoreVals.length-1] - scoreVals[scoreVals.length-2] : 0;
+
+        document.getElementById('stat-labs').textContent = scoreVals.length || '0';
+        document.getElementById('stat-avg').textContent = avg.toFixed(1) + '%';
+        document.getElementById('stat-best').textContent = best > 0 ? best.toFixed(0) + '%' : '--';
+        document.getElementById('stat-trend').textContent = trend >= 0 ? `↑ ${trend.toFixed(0)}` : `↓ ${Math.abs(trend).toFixed(0)}`;
+        document.getElementById('stat-trend').className = `text-2xl font-headline font-extrabold ${trend >= 0 ? 'text-green-400' : 'text-red-400'}`;
+
+        // Populate scores table
+        const tbody = document.getElementById('scores-tbody');
+
+        if (scores.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="p-8 text-center">
+                        <span class="material-symbols-outlined text-4xl mb-3 block text-on-surface-variant/30">science</span>
+                        <p class="text-on-surface-variant font-semibold">No lab scores yet</p>
+                        <p class="text-on-surface-variant/60 text-xs mt-1">Complete a SOC simulation to see your scores here.</p>
+                        <a href="/labs/soc-sim/dashboard.html" class="inline-flex items-center gap-1 text-primary font-bold text-sm mt-4 hover:text-white transition-colors">
+                            Launch SOC Simulator <span class="material-symbols-outlined text-[16px]">north_east</span>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('showing-count').textContent = '0 sessions recorded';
+        } else {
+            let html = '';
+            scores.forEach((s, i) => {
+                const dateObj = new Date(Date.now() - (scores.length - i) * 86400000 * (Math.random() * 3 + 1));
+                const dateStr = dateObj.toISOString().split('T')[0];
+                const labIdx = i % labNames.length;
+                const scoreNum = s.score || 0;
+                const scoreColor = scoreNum >= 70 ? 'text-white' : 'text-red-400';
+                const statusText = scoreNum >= 70 ? 'Completed' : 'Failed Attempt';
+                const statusColor = scoreNum >= 70 ? 'text-green-400' : 'text-red-400';
+
+                html += `
+                <tr class="hover:bg-white/5 transition-colors cursor-pointer animate-row" style="animation-delay: ${i * 0.05}s" onclick="window.location.href='/main/score_summary.html?score=${scoreNum}&lab=${labNames[labIdx]}'">
+                    <td class="p-4 text-on-surface-variant font-mono">${dateStr}</td>
+                    <td class="p-4">
+                        <span class="block text-white font-semibold">${labNames[labIdx]} (Lab)</span>
+                        <span class="block text-xs ${statusColor} mt-0.5">${statusText}</span>
+                    </td>
+                    <td class="p-4 ${scoreColor} font-mono hidden md:table-cell">${scoreNum.toFixed(0)}%</td>
+                    <td class="p-4 text-right">
+                        <span class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer material-symbols-outlined text-[18px]">chevron_right</span>
+                    </td>
+                </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('showing-count').textContent = `Showing ${scores.length} session${scores.length !== 1 ? 's' : ''}`;
+        }
+    }
+
+    loadData();
+})();
+</script>
+</body>
+</html>
