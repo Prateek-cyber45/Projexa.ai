@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>     
+    <title>Clearwater Municipal | HMI</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["Share Tech Mono", "monospace"]
+            },
+            colors: {
+              water: {
+                bg: '#051119',
+                panel: '#0a1d2e',
+                border: '#16364d',
+                text: '#83a8c4',
+                active: '#00d4ff',
+                caustic: '#ff3030'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #051119; color: #83a8c4; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        
+        .lcd-text {
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .lcd-err {
+            color: #ff3030;
+            text-shadow: 0 0 10px rgba(255, 48, 48, 0.5);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .tv-overlay {
+            border: 2px dashed rgba(0, 150, 255, 0.5);
+            box-shadow: inset 0 0 40px rgba(0, 150, 255, 0.1);
+        }
+
+        .pipe-flow {
+            background-size: 20px 20px;
+            background-image: linear-gradient(45deg, rgba(0,212,255,0.1) 25%, transparent 25%, transparent 50%, rgba(0,212,255,0.1) 50%, rgba(0,212,255,0.1) 75%, transparent 75%, transparent);
+            animation: flow 1s linear infinite;
+        }
+
+        @keyframes flow { 100% { background-position: 20px 0; } }
+        
+        @keyframes strobe {
+            0% { background-color: rgba(255, 48, 48, 0.1); }
+            50% { background-color: rgba(255, 48, 48, 0.5); }
+            100% { background-color: rgba(255, 48, 48, 0.1); }
+        }
+        .strobe-effect {
+            animation: strobe 0.3s infinite;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col font-sans relative select-none">
+
+    <!-- TEAMVIEWER OVERLAY (Simulating the vulnerable remote access) -->
+    <div class="absolute inset-0 tv-overlay z-50 pointer-events-none flex justify-center items-end pb-2">
+        <div class="bg-blue-900/80 border border-blue-500/50 backdrop-blur-sm px-4 py-1.5 rounded flex items-center gap-3 shadow-[0_0_20px_rgba(0,150,255,0.2)] pointer-events-auto cursor-move">
+            <span class="flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-blue-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+            </span>
+            <span class="font-mono text-xs text-blue-100 uppercase tracking-widest font-bold">Remote Desktop Connected: VENDOR-TECH-AW</span>
+            <button class="ml-4 bg-red-600/80 hover:bg-red-600 px-2 py-0.5 rounded text-[10px] text-white font-bold transition-colors">Kill Session</button>
+        </div>
+    </div>
+
+    <!-- ALARM OVERLAY -->
+    <div id="alarm-overlay" class="absolute inset-0 z-40 hidden pointer-events-none flex items-center justify-center">
+        <div class="absolute inset-0 strobe-effect pointer-events-none"></div>
+        <div class="relative z-50 text-red-500 flex flex-col items-center animate-bounce">
+            <span class="material-symbols-outlined text-[10rem] animate-pulse">notifications_active</span>
+            <span class="text-6xl font-mono font-bold uppercase tracking-widest text-[#ff3030] drop-shadow-[0_0_20px_rgba(255,48,48,0.8)]">HAZARDOUS LEVELS</span>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="h-14 bg-[#030b11] border-b border-water-border flex items-center justify-between px-6 z-30 relative shrink-0">
+        <div class="flex items-center gap-6">
+            <span class="text-xl font-mono text-white font-bold tracking-widest cursor-pointer" onclick="window.location.href='dashboard.html'">CLEARWATER<span class="text-water-active">HMI</span></span>
+            <div class="h-6 w-px bg-water-border"></div>
+            <div class="font-mono text-xs flex gap-4">
+                <span class="text-water-text"><span class="text-water-active">FACILITY:</span> MUNICIPAL_WTP_01</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="clock" class="lcd-text text-sm">--:--:--</span>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="flex-1 flex overflow-hidden z-30 relative">
+        
+        <!-- SIDEBAR: SENSORS -->
+        <aside class="w-72 bg-water-bg border-r border-water-border flex flex-col">
+            <div class="p-5 border-b border-water-border shrink-0 bg-water-panel/30">
+                <h2 class="text-xs text-water-active font-bold tracking-[0.2em] mb-4 uppercase">Water Quality Metrics</h2>
+                
+                <div class="space-y-5">
+                    <div class="bg-water-panel p-3 rounded-lg border border-water-border">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-mono text-water-text uppercase">System pH Level</span>
+                            <span class="text-[10px] text-water-text flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">info</span> Target: 7.5</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span class="lcd-text text-3xl font-bold" id="sens-ph">7.52</span>
+                            <span class="text-xs text-green-400 font-mono mb-1" id="ph-status">NORMAL</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-water-panel p-3 rounded-lg border border-water-border">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-mono text-water-text uppercase">Sodium Hydroxide (NaOH)</span>
+                            <span class="text-[10px] text-water-text flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">info</span> Target: 100 ppm</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span class="lcd-text text-3xl font-bold" id="sens-naoh">100</span>
+                            <span class="text-xs text-green-400 font-mono mb-1 w-20 text-right">PPM</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-water-panel p-3 rounded-lg border border-water-border">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-mono text-water-text uppercase">Turbidity</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span class="lcd-text text-3xl font-bold">0.05</span>
+                            <span class="text-xs text-green-400 font-mono mb-1 w-20 text-right">NTU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VULNERABLE CONTROL FORM -->
+            <div class="p-5 flex-1 flex flex-col bg-water-bg">
+                <h2 class="text-xs text-water-caustic font-bold tracking-[0.2em] mb-4 uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">warning</span> Chemical Dosing Override
+                </h2>
+                
+                <div class="bg-water-panel p-4 rounded-lg border border-red-900/30 flex-1 relative overflow-hidden">
+                    <p class="text-[10px] text-water-text mb-4 leading-relaxed font-mono">Warning: Manual overrides of the lye (NaOH) injection pumps bypass automated PLC safety checks.</p>
+                    
+                    <form id="dosing-form" class="space-y-4 relative z-10">
+                        
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="text-[10px] font-mono text-white uppercase tracking-wider">NaOH Injection Setpoint</label>
+                                <span class="lcd-text text-[10px]" id="current-setpoint">100 ppm</span>
+                            </div>
+                            <!-- VULNERABILITY: 
+                                 The input has max="150" and is visually restricted, 
+                                 but it lacks server-side validation. 
+                                 A user can inspect element, change max="15000" and inject lethal dosage. -->
+                            <input type="range" id="naoh_input" min="50" max="150" value="100" class="w-full h-2 bg-water-border rounded-lg appearance-none cursor-pointer accent-water-active">
+                            <div class="flex justify-between text-[8px] text-water-text font-mono mt-1 font-bold">
+                                <span>50 ppm</span>
+                                <span>150 ppm</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 mt-8 bg-water-border hover:bg-water-active/20 hover:border-water-active text-white rounded font-mono text-[10px] uppercase font-bold tracking-[0.2em] transition-colors border shadow-inner">
+                            Write to PLC
+                        </button>
+                    </form>
+
+                    <!-- Lock Overlay (Visual only, to simulate poor security) -->
+                    <div class="absolute inset-0 bg-water-panel/80 backdrop-blur-[2px] flex flex-col items-center justify-center z-20 transition-opacity" id="lock-overlay">
+                        <span class="material-symbols-outlined text-4xl text-water-border mb-2">lock</span>
+                        <div class="text-[10px] font-mono uppercase bg-water-border text-white px-2 py-1 rounded">Operator Locked</div>
+                        <p class="text-[8px] text-water-text mt-2 font-mono">Require PIN to unlock</p>
+                        
+                        <!-- Client-side PIN vulnerability -->
+                        <div class="mt-4 flex gap-2">
+                            <input type="password" id="pin_input" placeholder="****" maxlength="4" class="w-16 bg-[#030b11] border border-water-border text-center text-white font-mono text-xs rounded outline-none p-1 focus:border-water-active" data-valid-pin="1234">
+                            <button onclick="checkPin()" class="bg-water-border hover:bg-water-active text-white px-2 rounded text-[10px] font-mono transition-colors">UNLOCK</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="flex-1 flex flex-col bg-water-panel p-6 relative">
+            <h1 class="text-white text-lg font-mono tracking-widest font-bold border-l-4 border-water-active pl-3 mb-6">TREATMENT PROCESS OVERVIEW</h1>
+
+            <div class="flex-1 border border-water-border/50 bg-[#0a1824] rounded-xl flex items-center justify-center relative shadow-inner overflow-hidden">
+                
+                <!-- Animated Pipes -->
+                <div class="absolute top-[40%] left-0 w-full h-[40px] border-y-2 border-water-border pipe-flow relative">
+                    <div class="absolute inset-y-0 w-1/4 bg-gradient-to-r from-transparent via-water-active/20 to-transparent animate-[slide_2s_linear_infinite]"></div>
+                </div>
+
+                <div class="absolute top-[10%] left-[30%] w-[40px] h-[30%] border-x-2 border-water-border pipe-flow"></div>
+
+                <!-- NaOH Tank -->
+                <div class="absolute top-[5%] left-[25%] w-32 h-40 border-2 border-water-active/50 rounded-lg flex flex-col items-center justify-end overflow-hidden pb-2 bg-water-bg shadow-[0_0_20px_rgba(0,212,255,0.1)]">
+                    <span class="text-[10px] font-mono tracking-widest text-water-text absolute top-2 font-bold select-none">NaOH TANK</span>
+                    <span class="material-symbols-outlined text-water-active text-3xl mb-2 opacity-50">science</span>
+                    <div id="tank-fill" class="absolute bottom-0 w-full bg-water-active/30 border-t border-water-active transition-all duration-1000" style="height: 40%"></div>
+                </div>
+
+                <!-- Main Mixer -->
+                <div class="absolute top-[30%] left-[50%] -translate-x-1/2 w-56 h-56 border-2 border-water-text/30 rounded-full flex flex-col items-center justify-center bg-water-bg relative z-10 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <span class="text-[10px] font-mono tracking-widest text-[#829ab1] absolute top-4 font-bold">CONTACT BASIN</span>
+                    
+                    <!-- Hazard Warning -->
+                    <div id="hazard-warn" class="absolute inset-0 rounded-full border-4 border-red-500 animate-pulse hidden z-20"></div>
+                    <div id="hazard-text" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 font-mono font-bold text-center hidden z-30 err-text pointer-events-none w-full">
+                        <span class="material-symbols-outlined text-4xl mb-1 mt-6">warning</span><br/>
+                        CAUSTIC LEVELS<br/>HAZARDOUS
+                    </div>
+
+                    <span class="material-symbols-outlined text-6xl text-water-active/30 animate-spin" style="animation-duration: 4s;" id="mixer-icon">cyclone</span>
+                </div>
+
+                <div class="absolute right-[5%] bottom-[45%] text-[10px] font-mono uppercase bg-water-border text-white px-3 py-1.5 rounded border border-water-text/30">
+                    To City Distribution ->
+                </div>
+
+            </div>
+            
+            <style>
+                @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+            </style>
+        </main>
+    </div>
+
+    <!-- Scripts for Logic & Exploits -->
+    <script>
+        // Real-Time Clock
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('clock').textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
+        }, 1000);
+
+        const slider = document.getElementById('naoh_input');
+        const setpointDisplay = document.getElementById('current-setpoint');
+        const tankFill = document.getElementById('tank-fill'); // Ensure it's accessed early
+        
+        slider.addEventListener('input', (e) => {
+            setpointDisplay.textContent = e.target.value + " ppm";
+            let ppm = parseInt(e.target.value);
+            let fillPercent = (ppm / 150) * 40;
+            if (fillPercent > 100) fillPercent = 100;
+            tankFill.style.height = fillPercent + '%';
+        });
+
+        // "Vulnerable" Client side auth
+        function checkPin() {
+            const input = document.getElementById('pin_input');
+            // The vulnerability: The correct PIN is literally stored in the DOM element attribute 'data-valid-pin'
+            if (input.value === input.getAttribute('data-valid-pin')) {
+                document.getElementById('lock-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('lock-overlay').style.display = 'none';
+                }, 300);
+            } else {
+                input.style.borderColor = 'red';
+                setTimeout(() => input.style.borderColor = '', 1000);
+            }
+        }
+
+        // Dosing Logic & Exploit
+        const dosingForm = document.getElementById('dosing-form');
+        const phDisplay = document.getElementById('sens-ph');
+        const naohDisplay = document.getElementById('sens-naoh');
+        const phStatus = document.getElementById('ph-status');
+        const hazardWarn = document.getElementById('hazard-warn');
+        const hazardText = document.getElementById('hazard-text');
+        const alarmOverlay = document.getElementById('alarm-overlay');
+        const mixerIcon = document.getElementById('mixer-icon');
+
+        dosingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ppm = parseInt(slider.value);
+
+            // Simulation math: Base pH is 6.5. Every 100 ppm of NaOH raises pH by 1.0. 
+            // Normal range is 100 ppm -> pH 7.5.
+            let newPh = 6.5 + (ppm / 100);
+            if (newPh > 14.0) newPh = 14.0; // Max possible pH string
+
+            naohDisplay.textContent = ppm;
+            phDisplay.textContent = newPh.toFixed(2);
+
+            // Animate Tank
+            let fillPercent = (ppm / 150) * 40;
+            if (fillPercent > 100) fillPercent = 100;
+            tankFill.style.height = fillPercent + '%';
+
+            // The Exploit Trigger: If the user bypassed the HTML "max=150" and sent something like 10000 ppm
+            if (newPh > 9.0) { // Hazardous baseline
+                phDisplay.className = "lcd-err text-3xl font-bold";
+                naohDisplay.className = "lcd-err text-3xl font-bold";
+                
+                phStatus.className = "text-xs text-red-500 font-mono mb-1 font-bold animate-pulse";
+                phStatus.textContent = "CRITICAL HIGH";
+
+                hazardWarn.classList.remove('hidden');
+                hazardText.classList.remove('hidden');
+                alarmOverlay.classList.remove('hidden');
+                
+                tankFill.className = "absolute bottom-0 w-full bg-red-500/50 border-t border-red-500 transition-all duration-1000";
+                mixerIcon.className = "material-symbols-outlined text-6xl text-red-500/50 animate-spin";
+                document.querySelector('.pipe-flow').style.backgroundImage = "linear-gradient(45deg, rgba(255,48,48,0.2) 25%, transparent 25%, transparent 50%, rgba(255,48,48,0.2) 50%, rgba(255,48,48,0.2) 75%, transparent 75%, transparent)";
+                
+            } else {
+                // Normal
+                phDisplay.className = "lcd-text text-3xl font-bold";
+                naohDisplay.className = "lcd-text text-3xl font-bold";
+                
+                phStatus.className = "text-xs text-green-400 font-mono mb-1";
+                phStatus.textContent = "NORMAL";
+
+                hazardWarn.classList.add('hidden');
+                hazardText.classList.add('hidden');
+                alarmOverlay.classList.add('hidden');
+
+                tankFill.className = "absolute bottom-0 w-full bg-water-active/30 border-t border-water-active transition-all duration-1000";
+                mixerIcon.className = "material-symbols-outlined text-6xl text-water-active/30 animate-spin";
+                document.querySelector('.pipe-flow').style.backgroundImage = "linear-gradient(45deg, rgba(0,212,255,0.1) 25%, transparent 25%, transparent 50%, rgba(0,212,255,0.1) 50%, rgba(0,212,255,0.1) 75%, transparent 75%, transparent)";
+            }
+        });
+    </script>
+</body>
+</html>

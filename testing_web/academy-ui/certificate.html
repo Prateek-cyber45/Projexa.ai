@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certificate — Deep Hunt Academy</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "on-primary-container": "#00285b",
+            "surface-container-low": "#1b1b1b",
+            "surface": "#131313",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"],
+            "serif": ["Georgia", "serif"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+        background: radial-gradient(circle at top right, #1b2845 0%, #0a0a0a 100%);
+    }
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+    .cert-container {
+        background: #0f1115;
+        border: 4px solid #2a3a5c;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(74, 142, 255, 0.2);
+        position: relative;
+        background-image: 
+            linear-gradient(rgba(20, 30, 60, 0.4) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(20, 30, 60, 0.4) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+    .cert-container::before {
+        content: '';
+        position: absolute;
+        inset: 16px;
+        border: 2px solid rgba(173, 199, 255, 0.1);
+        pointer-events: none;
+    }
+    .cert-container::after {
+        content: '';
+        position: absolute;
+        inset: 24px;
+        border: 1px solid rgba(173, 199, 255, 0.05);
+        pointer-events: none;
+    }
+    .cert-seal {
+        background: radial-gradient(circle, #facc15 0%, #ca8a04 100%);
+        box-shadow: 0 0 40px rgba(250, 204, 21, 0.4), inset 0 0 20px rgba(0,0,0,0.2);
+    }
+    .confetti {
+        position: absolute; width: 6px; height: 6px; background-color: #adc7ff;
+        opacity: 0; animation: fall 5s linear infinite;
+    }
+    @keyframes fall {
+        0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .gold-text {
+        background: linear-gradient(to bottom, #fde047 0%, #eab308 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body noise min-h-screen flex flex-col items-center justify-center p-6 pb-20">
+
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Navigation Area -->
+    <div class="fixed top-0 w-full z-50 p-6 flex justify-between max-w-screen-2xl mx-auto">
+        <a href="/dashboard" class="flex items-center gap-2 text-on-surface-variant hover:text-white transition-colors bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/5">
+            <span class="material-symbols-outlined text-sm">home</span>
+            <span class="text-xs font-bold uppercase tracking-wider">Dashboard</span>
+        </a>
+    </div>
+
+    <!-- The Certificate -->
+    <div class="z-10 w-full max-w-4xl cert-container rounded-sm p-12 md:p-20 text-center mt-12">
+        <div class="mb-10 flex flex-col items-center">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(74,142,255,0.3)]">
+                <span class="material-symbols-outlined text-[#00285b] text-4xl" style="font-variation-settings: 'FILL' 1;">security</span>
+            </div>
+            <span class="text-2xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Academy</span></span>
+        </div>
+
+        <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-2 italic">Certificate of Completion</h2>
+        <p class="text-on-surface-variant text-sm mb-12">This is to certify that</p>
+
+        <p class="font-headline font-extrabold text-3xl md:text-5xl text-primary mb-12 uppercase tracking-wide border-b border-white/10 pb-4 inline-block px-12" id="user-name">OPERATOR_01</p>
+
+        <p class="text-on-surface-variant text-sm mb-2">has successfully completed</p>
+        <p class="font-headline font-bold text-xl md:text-2xl text-white mb-16">SOC Analyst Fundamentals</p>
+
+        <div class="flex flex-col md:flex-row justify-between items-center px-4 md:px-12 mt-4 space-y-8 md:space-y-0">
+            <!-- Signature 1 -->
+            <div class="text-center">
+                <div class="font-serif text-2xl text-gray-300 italic mb-2 select-none border-b border-gray-600/50 pb-2 px-6">AI Kernel</div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Instruction Engine</p>
+            </div>
+            
+            <!-- Seal -->
+            <div class="cert-seal w-28 h-28 rounded-full flex items-center justify-center relative shrink-0">
+                <div class="absolute inset-2 border border-black/10 rounded-full border-dashed"></div>
+                <span class="material-symbols-outlined text-black/80 text-5xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+                <div class="absolute -bottom-4 bg-yellow-400 text-black text-[8px] font-black px-3 py-1 rounded-full shadow-lg brightness-110">DH VERIFIED</div>
+            </div>
+
+            <!-- Validation -->
+            <div class="text-center">
+                <div class="font-mono text-sm text-gray-300 mb-2 border-b border-gray-600/50 pb-2 px-6" id="date-display">APR 2026</div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Date of Issue</p>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-6 left-0 right-0 text-center">
+            <p class="font-mono text-[9px] text-gray-600 tracking-widest">ID: D-HUNT-9481-FE21-C99A • BLOCKCHAIN VERIFIED</p>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="z-20 mt-12 flex flex-col sm:flex-row gap-4">
+        <button class="px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">download</span>
+            Download PDF
+        </button>
+        <button class="px-8 py-3 border border-white/10 hover:bg-white/5 text-white font-headline font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">share</span>
+            Share on LinkedIn
+        </button>
+    </div>
+
+    <script>
+        // ── Date Display ──
+        document.getElementById('date-display').textContent = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        
+        // ── Dynamic User Name ──
+        try {
+            const user = JSON.parse(localStorage.getItem('cyber_user'));
+            if (user && user.username) {
+                document.getElementById('user-name').textContent = user.username.toUpperCase();
+            }
+        } catch(e) {}
+
+        // ── Confetti ──
+        const container = document.getElementById('confetti-container');
+        const colors = ['#adc7ff', '#4a8eff', '#facc15', '#ffffff'];
+        for (let i = 0; i < 80; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDelay = Math.random() * 5 + 's';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.width = (Math.random() * 6 + 4) + 'px';
+            confetti.style.height = confetti.style.width;
+            container.appendChild(confetti);
+        }
+    </script>
+</body>
+</html>

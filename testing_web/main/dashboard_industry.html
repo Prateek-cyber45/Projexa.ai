@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Deep Hunt — Industry Tier</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4a8eff",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: radial-gradient(circle at top right, rgba(74, 142, 255, 0.1), #131313 40%); color: #e2e2e2; }
+    .glass { background: rgba(33, 33, 33, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+    .demo-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 8px; width: 100%; padding: 12px 16px; outline: none; transition: 0.3s; }
+    .demo-input:focus { border-color: #4a8eff; box-shadow: 0 0 10px rgba(74, 142, 255, 0.2); }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-body selection:bg-primary selection:text-[#00285b]">
+  
+  <div class="absolute top-4 right-8">
+      <button onclick="logout()" class="text-sm text-red-300 hover:text-red-400 font-bold border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500/10 transition-colors">LOGOUT / SWITCH TIER</button>
+  </div>
+
+  <div class="glass w-full max-w-lg p-10 rounded-2xl shadow-2xl relative overflow-hidden text-center">
+    <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="flex justify-center mb-6 flex-col items-center gap-4">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+            <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <span class="text-primary font-mono text-sm tracking-widest uppercase font-bold border border-primary/20 bg-primary/10 px-3 py-1 rounded">Industry Tier</span>
+    </div>
+
+    <h1 class="font-headline font-extrabold text-4xl text-white tracking-tight mb-4">Coming Soon</h1>
+    <p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+      We are building the ultimate white-labeled cyber range for universities and large-scale government agencies. Custom infrastructure deployment, dedicated API integration, and on-prem honeypots.
+    </p>
+
+    <form class="space-y-4 text-left">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Join the Waitlist</label>
+        <div class="flex gap-2">
+            <input type="email" class="demo-input flex-1 border-white/10" required placeholder="director@agency.gov" />
+            <button type="submit" class="bg-primary hover:bg-blue-400 text-[#00285b] font-headline font-bold px-6 rounded-lg transition-colors">Notify Me</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function logout() {
+      document.cookie = 'token=; Max-Age=0; path=/; SameSite=Lax';
+      localStorage.removeItem('cyber_token');
+      localStorage.removeItem('cyber_tier');
+      window.location.href = '/login';
+    }
+  </script>
+</body>
+</html>

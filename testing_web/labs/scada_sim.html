@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>     
+    <title>ICS / SCADA HMI | Deep Hunt Labs</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["Share Tech Mono", "monospace"]
+            },
+            colors: {
+              scada: {
+                bg: '#0a0e17',
+                panel: '#121a2f',
+                border: '#1e2b4d',
+                text: '#829ab1',
+                active: '#00f0ff',
+                warn: '#ffb300',
+                err: '#ff3030'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #0a0e17; color: #829ab1; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        .lcd-text {
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .err-text {
+            color: #ff3030;
+            text-shadow: 0 0 10px rgba(255, 48, 48, 0.5);
+        }
+
+        .warn-text {
+            color: #ffb300;
+            text-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
+        }
+
+        .gauge-container { width: 120px; height: 60px; position: relative; overflow: hidden; }
+        .gauge-bg { width: 120px; height: 120px; border-radius: 50%; border: 15px solid #1e2b4d; position: absolute; bottom: 0; }
+        .gauge-fill { width: 120px; height: 120px; border-radius: 50%; border: 15px solid #00f0ff; border-bottom-color: transparent; border-right-color: transparent; position: absolute; bottom: 0; transform: rotate(45deg); transition: transform 0.5s ease-out; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-effect {
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col font-sans relative">
+
+    <!-- OVERLAYS -->
+    <div class="absolute inset-0 scanlines z-50 opacity-30"></div>
+    <div id="alarm-overlay" class="absolute inset-0 bg-red-600/10 z-40 hidden animate-pulse pointer-events-none"></div>
+
+    <!-- HEADER -->
+    <header class="h-14 bg-[#05080f] border-b border-scada-border flex items-center justify-between px-6 z-30 relative shrink-0">
+        <div class="flex items-center gap-6">
+            <span class="text-xl font-mono text-white font-bold tracking-widest cursor-pointer" onclick="window.location.href='dashboard.html'">NEXUS<span class="text-scada-active">SCADA</span> :: HMI</span>
+            <div class="h-6 w-px bg-scada-border"></div>
+            <div class="font-mono text-xs flex gap-4">
+                <span class="text-scada-text"><span class="text-scada-active">PLANT:</span> POWER_GRID_SE</span>
+                <span class="-ml-2 text-scada-text"><span class="text-scada-active">PLC:</span> S7-1500 (192.168.1.10)</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center p-1 bg-green-900/40 rounded border border-green-500/50">
+               <span class="text-[10px] uppercase font-mono text-green-400 px-2 font-bold select-none">System Normal</span>
+            </div>
+            <span id="clock" class="lcd-text text-sm">--:--:--</span>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="flex-1 flex overflow-hidden z-30 relative">
+        
+        <!-- SIDEBAR: SENSORS -->
+        <aside class="w-64 bg-scada-bg border-r border-scada-border flex flex-col overflow-y-auto">
+            <div class="p-4 bg-scada-panel/50 border-b border-scada-border shrink-0">
+                <h2 class="text-[10px] text-scada-active font-bold tracking-[0.2em] mb-4 uppercase">Direct I/O Polling</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-scada-text">Reactor Temp (C)</span>
+                        <span class="lcd-text text-lg" id="sens-temp">142.5</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-scada-text">Coolant Flow (L/s)</span>
+                        <span class="lcd-text text-lg" id="sens-flow">880</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-scada-text">Grid Phase (Hz)</span>
+                        <span class="lcd-text text-lg" id="sens-hz">60.00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-scada-text">RPM (Turbine)</span>
+                        <span class="lcd-text text-lg" id="sens-rpm">3600</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 border border-scada-border bg-[#0a0e17] p-2 rounded">
+                    <h3 class="text-[10px] text-scada-text mb-2 tracking-widest uppercase">RPM History</h3>
+                    <canvas id="rpm-chart" width="200" height="60" class="w-full"></canvas>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1 flex flex-col">
+                <h2 class="text-[10px] text-scada-active font-bold tracking-[0.2em] mb-4 uppercase">Substation Relays</h2>
+                <div class="space-y-2 font-mono text-[10px]">
+                    <div class="flex justify-between items-center p-2 bg-[#0c1221] border border-scada-border rounded cursor-pointer hover:border-scada-active transition-colors">
+                        <span>RELAY_A (138kV)</span>
+                        <div class="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-[#0c1221] border border-scada-border rounded cursor-pointer hover:border-scada-active transition-colors">
+                        <span>RELAY_B (138kV)</span>
+                        <div class="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-[#0c1221] border border-scada-border rounded cursor-pointer hover:border-scada-active transition-colors">
+                        <span>RELAY_C (69kV)</span>
+                        <div class="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="flex-1 flex flex-col bg-scada-panel p-6 relative">
+            <h1 class="text-white text-lg font-mono tracking-widest font-bold border-l-4 border-scada-active pl-3 mb-6">CONTROL DIAGRAM</h1>
+
+            <!-- HMI Diagram Sandbox -->
+            <div class="flex-1 border border-scada-border/50 bg-[#0d1322] rounded-xl flex items-center justify-center relative shadow-inner overflow-hidden">
+                <!-- Pipes -->
+                <div class="absolute top-[30%] left-[20%] w-[30%] h-4 bg-scada-border overflow-hidden">
+                    <div class="h-full w-full bg-scada-active/50 opacity-30 animate-[slide_1s_linear_infinite] pipes-anim"></div>
+                </div>
+                <div class="absolute top-[30%] left-[50%] w-4 h-[30%] bg-scada-border overflow-hidden">
+                    <div class="h-full w-full bg-scada-active/50 opacity-30 animate-[slide_down_1s_linear_infinite] pipes-anim"></div>
+                </div>
+
+                <!-- Tanks / Components -->
+                <div class="absolute top-[20%] left-[10%] w-32 h-32 border-2 border-scada-text rounded flex flex-col items-center justify-end overflow-hidden pb-1 bg-scada-bg">
+                    <span class="text-[10px] font-mono tracking-widest text-[#829ab1] absolute top-2">PUMP A</span>
+                    <div class="w-full bg-scada-active/20 h-1/2 flex items-center justify-center border-t border-scada-active"></div>
+                    <span class="material-symbols-outlined text-white absolute">water_drop</span>
+                </div>
+
+                <div class="absolute top-[50%] left-[45%] w-40 h-40 border-2 border-scada-text rounded-full flex flex-col items-center justify-center bg-scada-bg relative z-10 shadow-[0_0_30px_rgba(0,0,0,0.8)]" id="turbine-core">
+                    <span class="text-[10px] font-mono tracking-widest text-[#829ab1] absolute -top-6">MAIN TURBINE</span>
+                    <span class="material-symbols-outlined text-5xl text-scada-active animate-spin" style="animation-duration: 2s;" id="turbine-icon">settings</span>
+                </div>
+
+                <!-- Overheat Warning Overlay (Hidden default) -->
+                <div id="overheat-warn" class="absolute top-[45%] left-[45%] text-red-500 font-mono font-bold text-lg hidden animate-pulse z-20 err-text">
+                    [ OVERHEAT DETECTED ]
+                </div>
+            </div>
+            
+            <style>
+                @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+                @keyframes slide_down { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+            </style>
+
+            <!-- Bottom Control Panel: VULNERABLE LOGIC HERE -->
+            <div class="h-48 mt-6 bg-[#0a0e17] border border-scada-border rounded-xl p-5 flex gap-8">
+                <!-- Manual Override Controls -->
+                <div class="w-1/3 flex flex-col justify-center gap-4 border-r border-scada-border pr-8">
+                    <div class="text-[10px] text-scada-active font-bold tracking-[0.2em] mb-2 uppercase">Manual Override</div>
+                    
+                    <form id="scada-override-form" class="space-y-4">
+                        <!-- IDOR Vulnerability: Role Check -->
+                        <input type="hidden" id="auth_level" value="0"> <!-- Level 0 = Operator, 1 = Eng, 9 = System -->
+                        
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-mono text-scada-text">Turbine Speed Bias</label>
+                            <input type="number" id="bias_input" class="bg-[#121a2f] border border-scada-border w-24 text-center text-scada-active font-mono outline-none focus:border-scada-active p-1 text-sm rounded shadow-inner" value="0" min="-100" max="100">
+                        </div>
+                        <button type="submit" class="w-full py-2 bg-[#121a2f] border border-scada-border hover:border-scada-active text-scada-text hover:text-white rounded font-mono text-[10px] uppercase font-bold tracking-widest transition-colors">
+                            Apply Write Command
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Modbus Log -->
+                <div class="flex-1 flex flex-col">
+                     <div class="text-[10px] text-scada-active font-bold tracking-[0.2em] mb-2 uppercase">Modbus/TCP Logs</div>
+                     <div class="flex-1 bg-[#05080f] border border-scada-border shadow-inner p-3 font-mono text-[10px] overflow-y-auto custom-scrollbar flex flex-col gap-1 text-emerald-400" id="modbus-logs">
+                        <div>> [TX] FUN:04 ADDR:100 VAL:OK ... ACK</div>
+                        <div>> [TX] FUN:03 ADDR:102 VAL:880 ... ACK</div>
+                        <div>> [TX] FUN:03 ADDR:103 VAL:60 ... ACK</div>
+                        <div class="text-slate-500">> waiting for input...</div>
+                     </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts for Logic & Exploits -->
+    <script>
+        // Real-Time Clock
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('clock').textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
+        }, 1000);
+
+        // HMI Logic & Exploit
+        const overrideForm = document.getElementById('scada-override-form');
+        const logs = document.getElementById('modbus-logs');
+        const rpmDisplay = document.getElementById('sens-rpm');
+        const tempDisplay = document.getElementById('sens-temp');
+        const hzDisplay = document.getElementById('sens-hz');
+        const turbineIcon = document.getElementById('turbine-icon');
+        const overheatWarn = document.getElementById('overheat-warn');
+        const alarmOverlay = document.getElementById('alarm-overlay');
+
+        // Setup Chart
+        const charCanvas = document.getElementById('rpm-chart');
+        const ctx = charCanvas.getContext('2d');
+        const rpmHistory = new Array(50).fill(3600);
+        let screenShakeTriggered = false;
+
+        function drawChart() {
+            ctx.clearRect(0, 0, charCanvas.width, charCanvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 2;
+            const maxRPM = 8000;
+            const minRPM = 0;
+            const step = charCanvas.width / (rpmHistory.length - 1);
+            
+            for (let i = 0; i < rpmHistory.length; i++) {
+                const x = i * step;
+                const normalize = (rpmHistory[i] - minRPM) / (maxRPM - minRPM);
+                const y = charCanvas.height - (normalize * charCanvas.height);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            let currentRPM = parseFloat(rpmDisplay.textContent) || 3600;
+            let jitter = screenShakeTriggered ? (Math.random() * 200 - 100) : (Math.random() * 20 - 10);
+            rpmHistory.push(currentRPM + jitter);
+            rpmHistory.shift();
+            
+            requestAnimationFrame(drawChart);
+        }
+        drawChart();
+
+        overrideForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const authLevel = parseInt(document.getElementById('auth_level').value);
+            const bias = parseInt(document.getElementById('bias_input').value);
+
+            // Base simulation limits. 0 is normal. > 80 is dangerous. 
+            if (authLevel === 0) {
+                // If operator (auth_level 0), they can't change speed past 10%.
+                if (bias > 10 || bias < -10) {
+                    logMsg(`[RX] FUN:06 (Write) DENIED. Auth Level 0 insufficient for >10% bias.`, "text-err");
+                    logMsg(`[SYS] UNAUTHORIZED MODIFICATION ATTEMPT BLOCKED`, "warn-text");
+                    return;
+                }
+            }
+
+            logMsg(`[RX] FUN:06 (Write Multiple) ADDR:400 VAL: ${bias} ... ACK`, "text-scada-active");
+            logMsg(`[DIAG] INITIATING TURBINE SPEED ADJUSTMENT SEQUENCE`, "text-scada-text");
+
+            // Apply simulation changes based on bias:
+            let newRPM = 3600 + (bias * 50);
+            let newTemp = 142.5 + (bias * 4.5);
+            let newHz = 60.00 + (bias * 0.1);
+
+            // Animate turbine
+            if (newRPM > 4000) {
+                turbineIcon.style.animationDuration = '0.5s';
+                turbineIcon.classList.add('err-text');
+                rpmDisplay.classList.add('err-text');
+                rpmDisplay.classList.remove('lcd-text');
+                tempDisplay.classList.add('err-text');
+                hzDisplay.classList.add('err-text');
+                
+                overheatWarn.classList.remove('hidden');
+                alarmOverlay.classList.remove('hidden');
+                document.body.classList.add('shake-effect');
+                screenShakeTriggered = true;
+
+                logMsg(`[SYS] ALARM TRIGGRED: ROTOR RESONANCE > LIMITS`, "err-text font-bold");
+                logMsg(`[DIAG] CRITICAL VIBRATION IN MAIN SHAFT BEARING`, "warn-text");
+                setTimeout(() => logMsg(`[DIAG] LUBRICANT PRESSURE DROP DETECTED: < 2.1 MPa`, "err-text font-bold"), 500);
+                setTimeout(() => logMsg(`[DIAG] THERMAL RUNAWAY WARNING: EXPECTED STRUCTURAL FAILURE IN 120s`, "err-text"), 1000);
+                
+            } else {
+                turbineIcon.style.animationDuration = '2s';
+                turbineIcon.classList.remove('err-text');
+                rpmDisplay.classList.remove('err-text');
+                rpmDisplay.classList.add('lcd-text');
+                tempDisplay.classList.remove('err-text');
+                hzDisplay.classList.remove('err-text');
+                
+                overheatWarn.classList.add('hidden');
+                alarmOverlay.classList.add('hidden');
+                document.body.classList.remove('shake-effect');
+                screenShakeTriggered = false;
+                
+                if(newRPM > 3600) {
+                    logMsg(`[DIAG] PARAMETERS OPERATING WITHIN NOMINAL TOLERANCES.`, "text-scada-text");
+                }
+            }
+
+            rpmDisplay.textContent = newRPM;
+            tempDisplay.textContent = newTemp.toFixed(1);
+            hzDisplay.textContent = newHz.toFixed(2);
+        });
+
+        function logMsg(text, classes="") {
+            const div = document.createElement('div');
+            div.className = classes;
+            div.textContent = "> " + text;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+    </script>
+</body>
+</html>

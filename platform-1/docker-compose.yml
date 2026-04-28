@@ -1,0 +1,439 @@
+services:
+  # Nginx Reverse Proxy (Entry Point)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - frontend-net
+      - data-net
+    depends_on:
+      - main-frontend
+      - main-api
+
+  # Main API (FastAPI)
+  main-api:
+    build: ./services/main-api
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    secrets:
+      - db_password
+      - jwt_private_key
+    networks:
+      - frontend-net
+      - data-net
+    depends_on:
+      - postgres
+      - redis
+
+  # Academy API (certificates, course data)
+  academy-api:
+    build: ./services/academy-api
+    networks:
+      - frontend-net
+      - data-net
+    depends_on:
+      - postgres
+      - redis
+
+  # Main Frontend (main.com)
+  main-frontend:
+    build: ./services/main-frontend
+    networks:
+      - frontend-net
+    # Nginx routes traffic here for the landing page and dashboard
+
+  # Shared Infrastructure
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=cyberplatform
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - data-net
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - data-net
+
+  # ELK stack for honeypot logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # Disable for initial local dev phase
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    networks:
+      - data-net
+    ports:
+      - "9200:9200" # Expose only for local testing, remove for production
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - data-net
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601" # Direct access for testing
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.10.2
+    user: root # Required to read the mounted log files
+    command: sh -c "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat -e"
+    volumes:
+      # mount entire cowrie volume so we can access both /cowrie/log and /cowrie/var/log
+      - cowrie_var:/cowrie:ro
+      - ./infrastructure/elk-stack/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - data-net
+    depends_on:
+      - elasticsearch
+      - honeypot-cowrie
+
+  # Academy Frontend (academy.main.com)
+  academy-frontend:
+    build: ./services/academy-frontend
+    networks:
+      - frontend-net
+    # Nginx routes traffic here for the LMS UI and video lessons
+  # Labs Frontend (labs.main.com)
+  labs-frontend:
+    build: ./services/labs/frontend
+    networks:
+      - frontend-net
+    # Nginx routes traffic here for the real-time SOC dashboard
+  # Cowrie honeypot engine (isolated)
+  honeypot-cowrie:
+    image: cowrie/cowrie:latest
+    networks:
+      - honeypot-net
+    volumes:
+      - cowrie_var:/cowrie/cowrie-git/var
+    # no host port exposure; backend handles access
+
+  # Labs backend service (Python)
+  labs-backend:
+    build: ./services/labs/backend
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - data-net      # To write to Redis Streams [cite: 15]
+      - honeypot-net  # To proxy xterm.js sessions into Cowrie
+    depends_on:
+      - redis
+      - honeypot-cowrie
+
+  # AI Scoring Engine (Internal Only)
+  ai-scoring-engine:
+    build: ./services/ai-engine
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://admin:${POSTGRES_PASSWORD}@postgres:5432/cyberplatform
+      - MLFLOW_TRACKING_URI=http://mlflow:5050
+    networks:
+      - data-net # Internal access to DB and Redis [cite: 24, 27]
+    depends_on:
+      - redis
+      - postgres
+      - mlflow
+
+  # Stream processor worker (consumes labs_event_stream)
+  ai-stream:
+    build: ./services/ai-engine
+    command: python stream_processor.py
+    networks:
+      - data-net
+    depends_on:
+      - redis
+      - ai-scoring-engine
+    # no ports exposed; this container runs internally and pushes results to the scoring API
+
+  # Monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - data-net
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - data-net
+
+  # ML Ops / Model Tracking
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.7.1
+    command: mlflow server --host 0.0.0.0 --port 5050 --backend-store-uri sqlite:///mlflow.db
+    volumes:
+      - mlflow_data:/mlflow
+    networks:
+      - data-net
+    # Port 5050 exposed via Nginx admin proxy in production
+
+networks:
+  frontend-net:
+  data-net:
+  honeypot-net:
+    internal: true # completely isolates the network from external access
+
+# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem
+# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem# secrets:
+#   db_password:
+#     file: ./production_secrets/db_password.txt
+#   jwt_private_key:
+#     file: ./production_secrets/jwt_private_key.pem
+volumes:
+  postgres_data:
+  elastic_data:
+  cowrie_var:
+  mlflow_data:
+  prometheus_data:
+  grafana_data:
+

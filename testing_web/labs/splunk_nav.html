@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lab: Navigating Splunk — Deep Hunt Labs</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode:"class",
+      theme:{extend:{colors:{
+        "primary":"#adc7ff","primary-container":"#4a8eff",
+        "background":"#131313","surface":"#1f1f1f","surface-high":"#2a2a2a",
+        "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+        "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+        "accent-orange":"#ffb4ab",
+      },fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]}}}
+    }
+  </script>
+  <style>
+    body{background:#131313;color:#e2e2e2;}
+    .lab-box{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+    .terminal-header{background:#2a2a2a;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .mac-btn{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;}
+    .close-btn{background:#ff5f56;}
+    .min-btn{background:#ffbd2e;}
+    .max-btn{background:#27c93f;}
+  </style>
+</head>
+<body class="font-body h-screen flex flex-col overflow-hidden">
+
+<nav class="bg-[#131313] border-b border-white/5 flex-shrink-0">
+  <div class="px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/academy/course.html" class="flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 transition-colors text-on-surface-variant hover:text-white">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+      </a>
+      <div>
+        <h1 class="text-white font-headline font-bold text-sm">Interactive Lab: Navigating Splunk</h1>
+        <p class="text-xs text-on-surface-variant">SOC Analyst Path • Module 2</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-accent font-mono bg-accent/10 border border-accent/20 px-2 py-1 rounded">Time Remaining: 59:59</span>
+      <button class="bg-primary text-[#00285b] text-xs font-bold px-4 py-1.5 rounded hover:bg-primary/90 transition-colors">End Lab</button>
+    </div>
+  </div>
+</nav>
+
+<div class="flex-1 flex w-full h-full min-h-0">
+  <div class="w-80 bg-surface border-r border-white/5 flex flex-col">
+    <div class="p-4 border-b border-white/5">
+      <h2 class="text-sm font-bold text-white mb-1">Scenario</h2>
+      <p class="text-xs text-on-surface-variant leading-relaxed">
+        You are a junior analyst. In this interactive lab, we simulate a Splunk Enterprise environment. Navigate through the simulated UI, locate the provided index, and identify the source IP associated with multiple failed login attempts.
+      </p>
+    </div>
+    <div class="p-4 flex-1 overflow-y-auto">
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-xs font-bold text-accent mb-2">Task 1: Search the index</h3>
+          <p class="text-xs text-on-surface-variant mb-2">Use the search bar in the Splunk interface to find logs in the `auth_logs` index.</p>
+          <div class="bg-black border border-white/10 rounded p-2 font-mono text-[10px] text-accent-green selection:bg-accent/30 selection:text-white">
+            index="auth_logs" sourcetype="linux_secure"
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xs font-bold text-accent mb-2">Task 2: Find the attacker IP</h3>
+          <p class="text-xs text-on-surface-variant mb-2">Identify the source IP that attempted to brute force the 'root' account more than 10 times.</p>
+          <input type="text" placeholder="Enter IP Address" class="w-full bg-[#131313] border border-white/10 rounded px-3 py-2 text-xs text-white focus:border-primary/50 focus:outline-none">
+        </div>
+        <button class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-bold text-white transition-colors mt-2">Submit Answer</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Splunk Mock Interface Area -->
+  <div class="flex-1 bg-[#131313] p-6 relative flex flex-col">
+    <div class="lab-box flex-1 rounded-xl overflow-hidden flex flex-col relative w-full h-full max-h-full">
+      <div class="terminal-header px-4 py-3 flex items-center">
+        <div class="flex-shrink-0">
+          <span class="mac-btn close-btn"></span>
+          <span class="mac-btn min-btn"></span>
+          <span class="mac-btn max-btn"></span>
+        </div>
+        <div class="flex-1 text-center font-mono text-[10px] text-on-surface-variant">Splunk Enterprise - Deep Hunt Lab</div>
+      </div>
+      
+      <!-- Fake Splunk GUI -->
+      <div class="flex-1 bg-white filter invert hue-rotate-180 flex flex-col relative">
+        <div class="h-12 bg-gray-900 border-b border-gray-800 flex items-center px-4 justify-between text-gray-300">
+            <div class="flex items-center gap-4">
+                <span class="font-bold text-green-500 tracking-wider">SPLUNK&gt;</span>
+                <span class="text-xs font-semibold px-2">Apps</span>
+                <span class="text-xs font-semibold px-2">Search & Reporting</span>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-semibold">
+                <span>Administrator</span>
+                <span>Messages</span>
+                <span>Settings</span>
+            </div>
+        </div>
+        <div class="p-4 bg-gray-800">
+             <div class="flex border border-green-500 rounded bg-gray-900 overflow-hidden">
+                 <input type="text" class="flex-1 bg-transparent text-green-400 font-mono text-sm px-4 py-3 outline-none" value='index="auth_logs" sourcetype="linux_secure" action="failure"'>
+                 <div class="bg-green-600 text-white px-6 py-3 font-bold cursor-pointer hover:bg-green-500 flex items-center justify-center">
+                     <span class="material-symbols-outlined text-lg">search</span>
+                 </div>
+             </div>
+             <div class="flex gap-4 mt-2 text-xs text-gray-400 font-mono">
+                 <span>Last 24 hours</span>
+                 <span>| 562 Events</span>
+             </div>
+        </div>
+        <div class="flex-1 bg-gray-900 flex overflow-hidden">
+            <!-- Sidebar -->
+            <div class="w-64 border-r border-gray-800 overflow-y-auto p-4 custom-scroll">
+                 <h4 class="text-xs font-bold text-gray-300 uppercase mb-3">Selected Fields</h4>
+                 <ul class="text-xs text-green-400 font-mono space-y-2 mb-6">
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>host</span> <span class="text-gray-500">1</span></li>
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>source</span> <span class="text-gray-500">1</span></li>
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>sourcetype</span> <span class="text-gray-500">1</span></li>
+                 </ul>
+                 <h4 class="text-xs font-bold text-gray-300 uppercase mb-3">Interesting Fields</h4>
+                 <ul class="text-xs text-green-400 font-mono space-y-2">
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>src_ip</span> <span class="text-gray-500">42</span></li>
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>user</span> <span class="text-gray-500">12</span></li>
+                     <li class="flex justify-between hover:text-green-300 cursor-pointer"><span>action</span> <span class="text-gray-500">2</span></li>
+                 </ul>
+            </div>
+            <!-- Results -->
+            <div class="flex-1 p-4 overflow-y-auto custom-scroll font-mono text-sm leading-relaxed text-gray-300 space-y-4">
+                <div class="border-b border-gray-800 pb-4 hover:bg-gray-800/50 p-2 cursor-pointer transition-colors rounded">
+                    <span class="text-gray-500 w-16 inline-block">10:45:01</span>
+                    <span class="text-green-400">Apr 10 10:45:01 server sshd[1234]: Failed password for root from <span class="bg-green-900/50 px-1 rounded font-bold text-green-300">192.168.100.45</span> port 54322 ssh2</span>
+                </div>
+                <div class="border-b border-gray-800 pb-4 hover:bg-gray-800/50 p-2 cursor-pointer transition-colors rounded">
+                    <span class="text-gray-500 w-16 inline-block">10:44:59</span>
+                    <span class="text-green-400">Apr 10 10:44:59 server sshd[1231]: Failed password for root from <span class="bg-green-900/50 px-1 rounded font-bold text-green-300">192.168.100.45</span> port 54310 ssh2</span>
+                </div>
+                <div class="border-b border-gray-800 pb-4 hover:bg-gray-800/50 p-2 cursor-pointer transition-colors rounded">
+                    <span class="text-gray-500 w-16 inline-block">10:44:57</span>
+                    <span class="text-green-400">Apr 10 10:44:57 server sshd[1228]: Failed password for root from <span class="bg-green-900/50 px-1 rounded font-bold text-green-300">192.168.100.45</span> port 54298 ssh2</span>
+                </div>
+            </div>
+        </div>
+      </div>
+      <!-- Mock Overlay overlay -->
+      <div class="absolute inset-0 bg-[#131313]/90 backdrop-blur-[2px] flex items-center justify-center flex-col p-8 text-center" id="start-overlay">
+          <div class="w-16 h-16 rounded-2xl bg-accent-green/20 flex flex-shrink-0 items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-accent-green text-3xl">play_arrow</span>
+          </div>
+          <h2 class="text-xl font-bold text-white mb-2 font-headline">Splunk Engine Ready</h2>
+          <p class="text-sm text-on-surface-variant max-w-sm mb-6">The simulated environment has been provisioned. Click below to connect.</p>
+          <button class="bg-accent-green text-black font-bold px-8 py-3 rounded-lg hover:bg-[#3da342] transition-colors shadow-[0_0_20px_rgba(76,175,80,0.2)]" onclick="document.getElementById('start-overlay').style.display='none'">Connect to Instance</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

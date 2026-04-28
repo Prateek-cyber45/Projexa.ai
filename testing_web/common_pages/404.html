@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — 404</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "error": "#ffb4ab",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #131313; color: #e2e2e2; overflow: hidden; }
+  .grid-bg {
+      background-image:
+        linear-gradient(rgba(255, 180, 171, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 180, 171, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+  }
+  .glitch {
+    position: relative;
+    color: white;
+    font-size: 6rem;
+    font-weight: 800;
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .glitch::before {
+    left: 4px;
+    text-shadow: -2px 0 red;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+  }
+  .glitch::after {
+    left: -4px;
+    text-shadow: -2px 0 blue;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 5s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-anim {
+    0% { clip: rect(21px, 9999px, 86px, 0); }
+    5% { clip: rect(72px, 9999px, 5px, 0); }
+    10% { clip: rect(82px, 9999px, 87px, 0); }
+    15% { clip: rect(8px, 9999px, 88px, 0); }
+    20% { clip: rect(42px, 9999px, 93px, 0); }
+    25% { clip: rect(29px, 9999px, 49px, 0); }
+    30% { clip: rect(98px, 9999px, 53px, 0); }
+    35% { clip: rect(10px, 9999px, 89px, 0); }
+    40% { clip: rect(61px, 9999px, 48px, 0); }
+    45% { clip: rect(32px, 9999px, 3px, 0); }
+    50% { clip: rect(29px, 9999px, 80px, 0); }
+    55% { clip: rect(11px, 9999px, 7px, 0); }
+    60% { clip: rect(26px, 9999px, 73px, 0); }
+    65% { clip: rect(18px, 9999px, 4px, 0); }
+    70% { clip: rect(84px, 9999px, 20px, 0); }
+    75% { clip: rect(6px, 9999px, 33px, 0); }
+    80% { clip: rect(82px, 9999px, 46px, 0); }
+    85% { clip: rect(17px, 9999px, 12px, 0); }
+    90% { clip: rect(29px, 9999px, 83px, 0); }
+    95% { clip: rect(19px, 9999px, 8px, 0); }
+    100% { clip: rect(90px, 9999px, 53px, 0); }
+  }
+
+  @keyframes glitch-anim2 {
+    0% { clip: rect(65px, 9999px, 100px, 0); }
+    5% { clip: rect(5px, 9999px, 70px, 0); }
+    10% { clip: rect(1px, 9999px, 89px, 0); }
+    15% { clip: rect(18px, 9999px, 63px, 0); }
+    20% { clip: rect(96px, 9999px, 5px, 0); }
+    25% { clip: rect(86px, 9999px, 86px, 0); }
+    30% { clip: rect(74px, 9999px, 98px, 0); }
+    35% { clip: rect(19px, 9999px, 51px, 0); }
+    40% { clip: rect(22px, 9999px, 12px, 0); }
+    45% { clip: rect(24px, 9999px, 20px, 0); }
+    50% { clip: rect(51px, 9999px, 5px, 0); }
+    55% { clip: rect(98px, 9999px, 54px, 0); }
+    60% { clip: rect(54px, 9999px, 16px, 0); }
+    65% { clip: rect(8px, 9999px, 26px, 0); }
+    70% { clip: rect(57px, 9999px, 60px, 0); }
+    75% { clip: rect(31px, 9999px, 24px, 0); }
+    80% { clip: rect(79px, 9999px, 34px, 0); }
+    85% { clip: rect(78px, 9999px, 1px, 0); }
+    90% { clip: rect(69px, 9999px, 4px, 0); }
+    95% { clip: rect(14px, 9999px, 65px, 0); }
+    100% { clip: rect(13px, 9999px, 48px, 0); }
+  }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-body selection:bg-error selection:text-[#00285b]">
+  
+  <div class="absolute inset-0 grid-bg opacity-30 z-0 pointer-events-none"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-error/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <div class="relative z-10text-center max-w-xl mx-auto px-6 text-center">
+    <div class="glitch font-headline font-extrabold max-w-max mx-auto text-white tracking-widest" data-text="404">404</div>
+    <div class="inline-block px-3 py-1 bg-error/10 border border-error/20 text-error font-mono text-xs uppercase tracking-widest rounded mb-6 mt-2">
+      DATA CORRUPTION DETECTED
+    </div>
+    
+    <h1 class="font-headline text-3xl font-bold text-white mb-4">Signal Lost in Transit.</h1>
+    <p class="text-on-surface-variant mb-8 leading-relaxed font-light text-sm max-w-md mx-auto">
+      The specified coordinate could not be resolved by our orbital relays. The endpoint may have been extracted, classified, or simply does not exist.
+    </p>
+
+    <div class="flex items-center justify-center gap-4">
+      <button onclick="window.history.back()" class="px-6 py-3 border border-white/20 text-white font-headline text-sm font-bold rounded-lg hover:bg-white/10 transition-all">
+        RETREAT
+      </button>
+      <a href="/login" class="px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-[#00285b] font-headline text-sm font-bold rounded-lg hover:shadow-[0_0_20px_rgba(74,142,255,0.3)] transition-all">
+        HOME CONSOLE
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

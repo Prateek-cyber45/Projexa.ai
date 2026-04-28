@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deep Hunt — Contact Us</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+  tailwind.config = {
+    darkMode:"class",
+    theme:{
+      extend:{
+        colors:{
+          "primary":"#adc7ff","primary-container":"#4a8eff",
+          "background":"#0a0a0a","surface":"#171717","surface-high":"#262626",
+          "on-surface":"#e2e2e2","on-surface-variant":"#a1a8c2",
+          "accent":"#4a8eff","accent-green":"#4ade80","accent-purple":"#c084fc",
+          "accent-orange":"#ffb4ab",
+        },
+        fontFamily:{
+          "headline":["Manrope", "sans-serif"],
+          "body":["Inter", "sans-serif"],
+          "mono":["JetBrains Mono", "monospace"]
+        },
+        animation: {
+          'text-gradient': 'text-gradient 6s linear infinite',
+          'float': 'float 6s ease-in-out infinite',
+        },
+        keyframes: {
+          'text-gradient': {
+            '0%, 100%': { 'background-position': '0% center' },
+            '50%': { 'background-position': '100% center' },
+          },
+          'float': {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-10px)' },
+          }
+        }
+      }
+    }
+  }
+  </script>
+  <style>
+    body { background: #050505; color: #e2e2e2; overflow-x: hidden; }
+    
+    .bg-grid { 
+      background-size: 40px 40px; 
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+    }
+    
+    .glass {
+      background: rgba(23, 23, 23, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 4px 20px -2px rgba(0,0,0,0.5);
+    }
+
+    .form-input {
+      background: rgba(10, 10, 10, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .form-input:focus {
+      border-color: rgba(173, 199, 255, 0.5);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 0 1px rgba(173, 199, 255, 0.5);
+      outline: none;
+    }
+  </style>
+</head>
+<body class="font-body min-h-screen flex flex-col relative">
+  <div class="fixed inset-0 bg-grid -z-20 pointer-events-none"></div>
+
+  <div class="fixed top-[-10%] left-[20%] w-[600px] h-[500px] bg-primary/10 rounded-full blur-[140px] pointer-events-none -z-10 mix-blend-screen animate-float"></div>
+  <div class="fixed bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-accent-purple/10 rounded-full blur-[150px] pointer-events-none -z-10 mix-blend-screen animate-float" style="animation-delay: -3s;"></div>
+
+  <nav class="sticky top-0 z-50 bg-[#050505]/70 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white font-headline">Deep Hunt</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-screen-xl mx-auto px-6 py-20 w-full relative z-10">
+    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      
+      <div class="flex flex-col">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/20 text-primary rounded-full text-[10px] font-mono font-bold mb-6 tracking-widest uppercase w-fit">
+          Get in Touch
+        </div>
+        <h1 class="font-headline text-5xl md:text-6xl font-extrabold text-white mb-6 tracking-tighter leading-tight">
+          How can we <span class="bg-clip-text text-transparent bg-[linear-gradient(to_right,#4a8eff,#c084fc,#4a8eff)] bg-[length:200%_auto] animate-text-gradient">help you?</span>
+        </h1>
+        <p class="text-on-surface-variant text-lg leading-relaxed font-light mb-12 max-w-md">
+          Whether you have a question about our research, need help navigating the academy, or just want to report a bug, our team is ready to listen.
+        </p>
+
+        <div class="space-y-8">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-full border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-primary">mail</span>
+            </div>
+            <div>
+              <h3 class="text-white font-bold mb-1">Email Support</h3>
+              <p class="text-sm text-on-surface-variant mb-1">Our team typically responds within 24 hours.</p>
+              <a href="mailto:support@deephunt.com" class="text-sm text-primary hover:text-white transition-colors font-mono">support@deephunt.com</a>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-full border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-accent-purple">forum</span>
+            </div>
+            <div>
+              <h3 class="text-white font-bold mb-1">Community Discord</h3>
+              <p class="text-sm text-on-surface-variant mb-1">Join 10k+ researchers in our community server.</p>
+              <a href="#" class="text-sm text-accent-purple hover:text-white transition-colors font-mono">Join the server →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-3xl p-8 md:p-10 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent-purple"></div>
+        <form id="contact-form" class="space-y-6" onsubmit="handleFormSubmit(event, 'contact-btn')">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label for="firstName" class="text-sm font-semibold text-white/80 ml-1">First Name</label>
+              <input type="text" id="firstName" name="firstName" autocomplete="given-name" class="w-full form-input rounded-xl px-4 py-3 text-white placeholder:text-white/30 transition-all focus:ring-primary/50" placeholder="John" required>
+            </div>
+            <div class="space-y-2">
+              <label for="lastName" class="text-sm font-semibold text-white/80 ml-1">Last Name</label>
+              <input type="text" id="lastName" name="lastName" autocomplete="family-name" class="w-full form-input rounded-xl px-4 py-3 text-white placeholder:text-white/30 transition-all focus:ring-primary/50" placeholder="Doe" required>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="email" class="text-sm font-semibold text-white/80 ml-1">Email Address</label>
+            <input type="email" id="email" name="email" autocomplete="email" class="w-full form-input rounded-xl px-4 py-3 text-white placeholder:text-white/30 transition-all focus:ring-primary/50" placeholder="john@example.com" required>
+          </div>
+
+          <div class="space-y-2">
+            <label for="subject" class="text-sm font-semibold text-white/80 ml-1">Subject</label>
+            <select id="subject" name="subject" class="w-full form-input rounded-xl px-4 py-3 text-white appearance-none transition-all focus:ring-primary/50 cursor-pointer" required>
+              <option value="" disabled selected class="text-black">Select a topic...</option>
+              <option value="support" class="text-black">Academy Support</option>
+              <option value="feedback" class="text-black">Blog Feedback</option>
+              <option value="bug" class="text-black">Report a Bug</option>
+              <option value="other" class="text-black">Other</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label for="message" class="text-sm font-semibold text-white/80 ml-1">Message</label>
+            <textarea id="message" name="message" rows="4" class="w-full form-input rounded-xl px-4 py-3 text-white placeholder:text-white/30 transition-all resize-none focus:ring-primary/50" placeholder="How can we help?" required></textarea>
+          </div>
+
+          <button type="submit" id="contact-btn" class="w-full bg-white hover:bg-gray-200 text-black font-extrabold px-8 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] mt-4 flex justify-center items-center gap-2">
+            Send Message
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function handleFormSubmit(event, buttonId) {
+      event.preventDefault(); // Prevents the page from refreshing
+      
+      const btn = document.getElementById(buttonId);
+      const originalText = btn.innerHTML;
+      
+      //       function handleFormSubmit(event, buttonId) {
+      // event.preventDefault(); // Prevents the page from refreshing
+      
+      // const btn = document.getElementById(buttonId);
+      // const originalText = btn.innerHTML;
+      
+
+
+
+
+
+
+      // Visual feedback for submission
+      btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Sending...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+
+      // Simulate network request
+      setTimeout(() => {
+        btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Message Sent!';
+        btn.classList.replace('bg-white', 'bg-accent-green');
+        btn.classList.replace('text-black', 'text-white');
+        
+        event.target.reset();
+
+        // Revert button after 3 seconds
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.classList.replace('bg-accent-green', 'bg-white');
+          btn.classList.replace('text-white', 'text-black');
+        }, 3000);
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
+

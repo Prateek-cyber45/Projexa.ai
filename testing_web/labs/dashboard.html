@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deep Hunt Labs — Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode:"class",
+  theme:{extend:{colors:{
+    "primary":"#adc7ff","primary-container":"#4a8eff",
+    "background":"#131313","surface":"#1f1f1f","surface-high":"#2a2a2a",
+    "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+    "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+    "accent-orange":"#ffb4ab",
+    "err": "#ff5c5c", "warn": "#fbbf24", "ok": "#4ade80"
+  },fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]}}}
+}
+</script>
+<style>
+  body{background:#131313;color:#e2e2e2;}
+  section{padding-top:0;}
+  .glass{background:rgba(53,53,53,0.35);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.05);}
+  .lab-card{background:#1f1f1f;border:1px solid rgba(255,255,255,0.05);transition:all 0.3s ease;}
+  .lab-card:hover{border-color:rgba(173,199,255,0.25);transform:translateY(-3px);box-shadow:0 8px 30px rgba(173,199,255,0.08);}
+  
+  .filter-btn{background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);color:#c1c6d7;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;transition:all 0.2s;}
+  .filter-btn:hover{background:#2a2a2a;color:white;}
+  .filter-btn.active{background:rgba(173,199,255,0.1);border-color:rgba(173,199,255,0.3);color:#adc7ff;}
+  
+  .tag{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.05em;}
+  .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;color:#c1c6d7;transition:all 0.2s;}
+  .nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.05);}
+  .progress-bar{height:4px;background:#2a2a2a;border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#4a8eff,#adc7ff);border-radius:2px;}
+</style>
+</head>
+<body class="font-body min-h-screen">
+
+<!-- TOP NAV -->
+<nav class="sticky top-0 z-50 bg-[#131313]/95 backdrop-blur-xl border-b border-white/5">
+  <div class="max-w-screen-2xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+      <a href="/labs/dashboard.html" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-err to-[rgba(255,92,92,0.4)] flex items-center justify-center">
+          <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">terminal</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt <span class="font-normal text-on-surface-variant">Labs</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 border-l border-white/5 pl-6">
+        <a href="/labs/dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="/labs/simulator.html" class="nav-link">Simulator</a>
+        <a href="/labs/score_summary.html" class="nav-link">Score Summary</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="tag bg-err/10 text-err border border-err/20">📡 Honeypot Online</span>
+      <a href="/main/dashboard_normal.html" class="nav-link text-on-surface-variant" title="Back to Main Platform">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>Platform
+      </a>
+      <a href="/academy/" class="nav-link text-on-surface-variant" title="Academy">
+        <span class="material-symbols-outlined text-sm">school</span>Academy
+      </a>
+      <div class="w-8 h-8 bg-[#2a2a2a] border border-white/10 rounded-full flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<div class="max-w-screen-2xl mx-auto px-6 py-8 space-y-10">
+
+  <!-- HERO: Welcome + Profile Sidebar -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Welcome + Stats -->
+    <div class="lg:col-span-2 space-y-4">
+      <h1 class="font-headline text-3xl font-extrabold text-white">Lab Operations, <span class="text-err">Operator</span> 📍</h1>
+      
+      <!-- Feature Card -->
+      <div class="rounded-xl overflow-hidden relative min-h-[180px] flex items-center" style="background:linear-gradient(135deg,#1f1313 0%,#2a0d0d 50%,#1f1313 100%);border:1px solid rgba(255,92,92,0.15);">
+        <div class="absolute inset-0" style="background:radial-gradient(ellipse at 70% 50%,rgba(255,92,92,0.12),transparent 60%);"></div>
+        <div class="absolute inset-0 opacity-5" style="background-image:linear-gradient(rgba(255,92,92,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,92,92,0.5) 1px,transparent 1px);background-size:40px 40px;"></div>
+        <div class="relative z-10 p-8 flex items-center gap-8 w-full">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="material-symbols-outlined text-err text-lg" style="font-variation-settings:'FILL' 1;">warning</span>
+              <span class="tag bg-err/10 text-err border border-err/20">Active Campaign</span>
+            </div>
+            <h2 class="font-headline text-2xl font-extrabold text-white mb-2">Ransomware Containment Phase II</h2>
+            <p class="text-on-surface-variant text-sm leading-relaxed mb-5 max-w-md">Our Honeypot network has detected anomalous activity in the AD environment. We need immediate incident response. Ready to jump in?</p>
+            <div class="flex gap-3">
+              <a href="/labs/simulator.html" class="bg-err text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:brightness-110 transition-all shadow-[0_0_15px_rgba(255,92,92,0.3)] flex items-center gap-2">
+                <span class="material-symbols-outlined py-1 text-sm">play_circle</span> Deploy to Range
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Strip -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-white">24</p>
+          <p class="text-xs text-on-surface-variant mt-1">Labs Completed</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-ok">8.5h</p>
+          <p class="text-xs text-on-surface-variant mt-1">Time in Range</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-warn">T1059</p>
+          <p class="text-xs text-on-surface-variant mt-1">Top TTP Found</p>
+        </div>
+        <div class="glass rounded-lg p-4 text-center">
+          <p class="text-2xl font-headline font-extrabold text-err">Novice</p>
+          <p class="text-xs text-on-surface-variant mt-1">Overall Skill Label</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live AI Score Widget Sidebar -->
+    <div class="glass rounded-xl p-5 space-y-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">psychology</span>
+          <span class="font-bold text-white text-sm">Target Skill Profile</span>
+        </div>
+        <span class="tag bg-primary/10 text-primary border border-primary/20">AI Scored</span>
+      </div>
+      
+      <!-- Circular Overall Score -->
+      <div class="flex items-center justify-center p-4">
+        <div class="relative w-32 h-32 flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+            <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="none" />
+            <circle cx="64" cy="64" r="56" stroke="#4a8eff" stroke-width="8" fill="none" stroke-dasharray="351" stroke-dashoffset="120" stroke-linecap="round" />
+          </svg>
+          <div class="text-center">
+            <span class="font-headline text-3xl font-bold text-white">650</span>
+            <span class="block text-[10px] text-on-surface-variant uppercase tracking-wider">/ 1000 Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domain Breakdown -->
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-white">SOC Response (<span class="text-primary font-mono">B_Score</span>)</span><span class="text-primary font-mono">82%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-white">Incident Handling</span><span class="text-primary font-mono">60%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-white">Forensics Accuracy</span><span class="text-primary font-mono">45%</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:45%; background:linear-gradient(90deg,#fbbf24,#ffb4ab);"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB CATALOGUE -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-headline text-2xl font-bold text-white">Lab Catalogue</h2>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-2">
+        <button class="filter-btn active">All Labs</button>
+        <button class="filter-btn">SOC</button>
+        <button class="filter-btn">Incident Response</button>
+        <button class="filter-btn">Forensics</button>
+        <button class="filter-btn">Threat Hunting</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <select class="bg-[#1f1f1f] border border-white/10 text-on-surface-variant text-sm rounded-lg focus:ring-primary focus:border-primary block p-2">
+          <option>All Difficulties</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+        <select class="bg-[#1f1f1f] border border-white/10 text-on-surface-variant text-sm rounded-lg focus:ring-primary focus:border-primary block p-2">
+          <option>Any Status</option>
+          <option>Not Started</option>
+          <option>Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Labs Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      
+      <!-- Lab Card 1 -->
+      <div class="lab-card rounded-xl overflow-hidden flex flex-col group">
+        <div class="h-32 bg-gradient-to-br from-[#1a2a4a] to-[#0d1535] relative p-4 flex flex-col justify-between border-b border-white/5">
+          <div class="flex justify-between items-start">
+            <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">SOC Simulator</span>
+            <span class="tag bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Intermediate</span>
+          </div>
+          <span class="material-symbols-outlined text-[50px] text-primary/20 absolute right-4 bottom-[-10px] group-hover:scale-110 transition-transform">monitor_heart</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-bold text-white mb-2">SOC: Credential Stuffing</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">Investigate multiple failed login attempts across the network and isolate compromised user accounts before lateral movement occurs.</p>
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-on-surface-variant mb-3">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 45m</span>
+              <span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[14px]">psychology</span> Last Score: 850</span>
+            </div>
+            <a href="/labs/simulator.html" class="block w-full py-2 bg-primary/10 text-primary text-center text-sm font-bold rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">Play Simulation</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab Card 2 -->
+      <div class="lab-card rounded-xl overflow-hidden flex flex-col group">
+        <div class="h-32 bg-gradient-to-br from-[#2a1313] to-[#1a0a0a] relative p-4 flex flex-col justify-between border-b border-white/5">
+          <div class="flex justify-between items-start">
+            <span class="tag bg-err/10 text-err border border-err/20">Incident Response</span>
+            <span class="tag bg-err/10 text-err border border-err/20">Advanced</span>
+          </div>
+          <span class="material-symbols-outlined text-[50px] text-err/20 absolute right-4 bottom-[-10px] group-hover:scale-110 transition-transform">local_fire_department</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-bold text-white mb-2">IR: Ransomware Containment</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">Live Ransomware breakout. Use defensive tools to stop the spread, analyze memory artifacts, and recover data.</p>
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-on-surface-variant mb-3">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 1h 30m</span>
+              <span class="flex items-center gap-1 text-txt-2">Not Attempted</span>
+            </div>
+            <a href="/labs/simulator.html" class="block w-full py-2 bg-white/5 text-white text-center text-sm font-bold rounded-lg hover:bg-white/10 transition-colors border border-white/10">Start Lab</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab Card 3 -->
+      <div class="lab-card rounded-xl overflow-hidden flex flex-col group">
+        <div class="h-32 bg-gradient-to-br from-[#132a1a] to-[#0a1a0f] relative p-4 flex flex-col justify-between border-b border-white/5">
+          <div class="flex justify-between items-start">
+            <span class="tag bg-ok/10 text-ok border border-ok/20">Forensics</span>
+            <span class="tag bg-ok/10 text-ok border border-ok/20">Beginner</span>
+          </div>
+          <span class="material-symbols-outlined text-[50px] text-ok/20 absolute right-4 bottom-[-10px] group-hover:scale-110 transition-transform">search_insights</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-bold text-white mb-2">Forensics: PCAP Analysis</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">Analyze packet captures to find traces of data exfiltration and identify the attacker's C2 infrastructure.</p>
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-on-surface-variant mb-3">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 2h 00m</span>
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-ok">check_circle</span> Completed</span>
+            </div>
+            <a href="/labs/simulator.html" class="block w-full py-2 bg-white/5 text-white text-center text-sm font-bold rounded-lg hover:bg-white/10 transition-colors border border-white/10">Review Session</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab Card 4 -->
+      <div class="lab-card rounded-xl overflow-hidden flex flex-col group">
+        <div class="h-32 bg-gradient-to-br from-[#2a1f13] to-[#1a130a] relative p-4 flex flex-col justify-between border-b border-white/5">
+          <div class="flex justify-between items-start">
+            <span class="tag bg-warn/10 text-warn border border-warn/20">Threat Hunting</span>
+            <span class="tag bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Intermediate</span>
+          </div>
+          <span class="material-symbols-outlined text-[50px] text-warn/20 absolute right-4 bottom-[-10px] group-hover:scale-110 transition-transform">target</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-bold text-white mb-2">Hunt: AV Evasion Tactics</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2 mb-4">Track down fileless malware hiding in memory using sysmon logs and process tree analysis.</p>
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-on-surface-variant mb-3">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 1h 15m</span>
+              <span class="flex items-center gap-1 text-txt-2">Not Attempted</span>
+            </div>
+            <a href="/labs/simulator.html" class="block w-full py-2 bg-white/5 text-white text-center text-sm font-bold rounded-lg hover:bg-white/10 transition-colors border border-white/10">Start Lab</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HONEYPOT SYSTEM STATUS -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="font-headline text-2xl font-bold text-white">Honeypot System</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Live monitoring of deployed deception infrastructure and active connections</p>
+      </div>
+      <a href="/labs/honeypot.html" class="text-sm text-err hover:text-white transition-colors font-bold flex items-center gap-1">Manage Nodes <span class="material-symbols-outlined text-sm">settings</span></a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Node 1 -->
+      <div class="glass rounded-xl p-5 border border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-ok/10 blur-2xl rounded-full"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-ok">router</span>
+            <h3 class="font-bold text-white">Edge Node Alpha</h3>
+          </div>
+          <span class="tag bg-ok/10 text-ok border border-ok/20 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-ok animate-pulse"></span> Online</span>
+        </div>
+        <div class="space-y-3 font-mono text-xs text-on-surface-variant">
+          <div class="flex justify-between"><span>Protocol</span><span class="text-white">SSH (Cowrie)</span></div>
+          <div class="flex justify-between"><span>IP Offset</span><span class="text-white">10.0.99.12</span></div>
+          <div class="flex justify-between"><span>Hits (24h)</span><span class="text-white">1,402</span></div>
+        </div>
+      </div>
+      
+      <!-- Node 2 -->
+      <div class="glass rounded-xl p-5 border border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-err/10 blur-2xl rounded-full"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-white">storage</span>
+            <h3 class="font-bold text-white">Internal Decoy</h3>
+          </div>
+          <span class="tag bg-err/10 text-err border border-err/20 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-err"></span> Attacked</span>
+        </div>
+        <div class="space-y-3 font-mono text-xs text-on-surface-variant">
+          <div class="flex justify-between"><span>Protocol</span><span class="text-white">SMB/FTP (Dionaea)</span></div>
+          <div class="flex justify-between"><span>IP Offset</span><span class="text-white">10.0.1.55</span></div>
+          <div class="flex justify-between border-t border-white/10 pt-2"><span class="text-err">Active Payload</span><span class="text-err animate-pulse text-[10px]">WannaCry.exe</span></div>
+        </div>
+      </div>
+
+      <!-- Node 3 -->
+      <div class="glass rounded-xl p-5 border border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-warn/10 blur-2xl rounded-full"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-warn">dns</span>
+            <h3 class="font-bold text-white">Web Honeypot</h3>
+          </div>
+          <span class="tag bg-warn/10 text-warn border border-warn/20 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-warn animate-pulse"></span> Maintenance</span>
+        </div>
+        <div class="space-y-3 font-mono text-xs text-on-surface-variant">
+          <div class="flex justify-between"><span>Protocol</span><span class="text-white">HTTP/HTTPS</span></div>
+          <div class="flex justify-between"><span>IP Offset</span><span class="text-white">10.0.2.14</span></div>
+          <div class="progress-bar mt-2"><div class="progress-fill" style="width: 45%; background: #fbbf24;"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH: CRITICAL INFRASTRUCTURE -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="font-headline text-2xl font-bold text-white">Research: Critical Infrastructure Security</h2>
+        <p class="text-on-surface-variant text-sm mt-1">Intelligence briefings, threat actor profiles, and ICS/SCADA scenarios</p>
+      </div>
+      <a href="#" class="text-sm text-primary hover:text-white transition-colors font-bold flex items-center gap-1">View Library <span class="material-symbols-outlined text-sm">library_books</span></a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Article 1 -->
+      <a href="#" class="glass rounded-xl p-0 flex border border-white/5 hover:border-primary/30 transition-colors group">
+        <div class="w-1/3 bg-gradient-to-br from-[#1a2a4a] to-[#0d1535] hidden sm:flex items-center justify-center rounded-l-xl">
+           <span class="material-symbols-outlined text-[40px] text-primary/40 group-hover:scale-110 transition-transform" style="font-variation-settings:'FILL' 1;">precision_manufacturing</span>
+        </div>
+        <div class="p-5 flex-1">
+          <div class="flex gap-2 mb-2">
+            <span class="tag bg-white/5 text-on-surface-variant">Intelligence Brief</span>
+            <span class="tag bg-err/10 text-err border border-err/20">Critical</span>
+          </div>
+          <h3 class="font-bold text-white mb-2 group-hover:text-primary transition-colors">Stuxnet & Beyond: Modern ICS Threats</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2">An analysis of programmable logic controller (PLC) vulnerabilities and how state-sponsored actors compromise power grids.</p>
+          <div class="mt-4 flex items-center gap-3 text-[10px] text-on-surface-variant uppercase font-mono">
+            <span>20 Min Read</span>
+            <span>•</span>
+            <span>By Lab Intelligence Ops</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article 2 -->
+      <a href="#" class="glass rounded-xl p-0 flex border border-white/5 hover:border-warn/30 transition-colors group">
+        <div class="w-1/3 bg-gradient-to-br from-[#2a1f13] to-[#1a130a] hidden sm:flex items-center justify-center rounded-l-xl">
+           <span class="material-symbols-outlined text-[40px] text-warn/40 group-hover:scale-110 transition-transform" style="font-variation-settings:'FILL' 1;">water_drop</span>
+        </div>
+        <div class="p-5 flex-1">
+          <div class="flex gap-2 mb-2">
+            <span class="tag bg-white/5 text-on-surface-variant">Case Study</span>
+            <span class="tag bg-warn/10 text-warn border border-warn/20">High</span>
+          </div>
+          <h3 class="font-bold text-white mb-2 group-hover:text-warn transition-colors">Water Treatment Plant Intrusions</h3>
+          <p class="text-xs text-on-surface-variant line-clamp-2">Reviewing the TTPs behind remote access breaches in municipal water treatment facilities via vulnerable TeamViewer deployments.</p>
+          <div class="mt-4 flex items-center gap-3 text-[10px] text-on-surface-variant uppercase font-mono">
+            <span>15 Min Read</span>
+            <span>•</span>
+            <span>OSINT Feed</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<!-- COMPACT FOOTER -->
+<footer class="w-full border-t border-white/5 bg-[#0a0a0a] py-4 mt-6">
+  <div class="max-w-screen-2xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded bg-gradient-to-br from-err to-[rgba(255,92,92,0.5)] flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">terminal</span>
+      </div>
+      <span class="text-white font-headline font-bold text-sm">Deep Hunt <span class="font-normal text-on-surface-variant">Labs</span></span>
+    </div>
+    <div class="flex items-center gap-4 text-xs text-on-surface-variant/60 font-mono">
+      <a href="/" class="hover:text-primary transition-colors">Main</a>
+      <a href="/labs/dashboard.html" class="hover:text-primary transition-colors">Labs Dashboard</a>
+      <a href="/labs/simulator.html" class="hover:text-primary transition-colors">Simulator</a>
+      <a href="/academy/" class="hover:text-primary transition-colors">Academy</a>
+      <a href="/main/my_scores.html" class="hover:text-primary transition-colors">My Scores</a>
+    </div>
+    <p class="text-[10px] text-on-surface-variant/30 font-mono">&copy; 2026 Deep Hunt Labs. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // Auth check
+  const token = localStorage.getItem('cyber_token') || (document.cookie.includes('token=') ? 'cookie_token' : null);
+  if(!token) window.location.href = '/main/login.html';
+</script>
+</body>
+</html>

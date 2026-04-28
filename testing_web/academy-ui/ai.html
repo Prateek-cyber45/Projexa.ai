@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deep Hunt — AI Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="/common_pages/cyber_auth.js"></script>
+<!-- Markdown library to parse Gemini's output -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode:"class",
+  theme:{extend:{
+    colors:{
+      "primary":"#adc7ff","primary-container":"#4a8eff",
+      "background":"#050505","surface":"#1f1f1f","surface-high":"#2a2a2a",
+      "on-surface":"#e2e2e2","on-surface-variant":"#c1c6d7",
+      "accent":"#4a8eff","accent-green":"#4caf50","accent-purple":"#b388ff",
+      "accent-orange":"#ffb4ab",
+    },
+    fontFamily:{"headline":["Manrope"],"body":["Inter"],"mono":["JetBrains Mono"]},
+    typography: {
+      DEFAULT: {
+        css: {
+          color: '#e2e2e2',
+          a: { color: '#adc7ff', '&:hover': { color: '#4a8eff' } },
+          h1: { color: '#ffffff' }, h2: { color: '#ffffff' }, h3: { color: '#ffffff' }, h4: { color: '#ffffff' },
+          strong: { color: '#ffffff' },
+          code: { color: '#b388ff', backgroundColor: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: '4px', fontWeight: '400' },
+          pre: { backgroundColor: '#131313', color: '#e2e2e2', padding: '12px', borderRadius: '8px' },
+          hr: { borderColor: 'rgba(255,255,255,0.1)' },
+          blockquote: { color: '#c1c6d7', borderLeftColor: '#4a8eff' },
+          ul: { li: { '&::marker': { color: '#4a8eff' } } },
+          ol: { li: { '&::marker': { color: '#4a8eff' } } },
+        }
+      }
+    }
+  }}
+}
+</script>
+<style>
+  body { background: #050505; color: #e2e2e2; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+  
+  /* Technical Grid Pattern */
+  .bg-grid { 
+    background-size: 40px 40px; 
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 20%, rgba(0,0,0,0.5) 80%, transparent 100%);
+  }
+
+  .glass { background: rgba(31,31,31,0.5); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.05); }
+  
+  /* Chat styles */
+  .msg-container { display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(173,199,255,0.2) transparent; padding: 1.5rem 0; flex-grow: 1; }
+  .msg-container::-webkit-scrollbar { width: 6px; }
+  .msg-container::-webkit-scrollbar-thumb { background: rgba(173,199,255,0.2); border-radius: 3px; }
+  
+  .ai-msg-user { align-self: flex-end; background: rgba(74,142,255,0.15); border: 1px solid rgba(173,199,255,0.2); border-radius: 16px 16px 4px 16px; max-width: 80%; padding: 1rem 1.25rem; font-size: 0.95rem; line-height: 1.5; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .ai-msg-bot { align-self: flex-start; background: rgba(31,31,31,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px 16px 16px 4px; max-width: 85%; padding: 1rem 1.25rem; font-size: 0.95rem; line-height: 1.5; color: #e2e2e2; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(10px); }
+  
+  .ai-input { background: rgba(31,31,31,0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 8px 30px rgba(0,0,0,0.3); }
+  .ai-input:focus { border-color: #b388ff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(179,136,255,0.15); }
+  
+  .send-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .send-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 15px rgba(179,136,255,0.4); }
+  .send-btn:active:not(:disabled) { transform: scale(0.95); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+  
+  .typing-dot { animation: blink 1.4s infinite both; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+  
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.05em; }
+  .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600;color:#c1c6d7;transition:all 0.2s;}
+  .nav-link:hover,.nav-link.active{color:white;background:rgba(255,255,255,0.05);}
+  
+  .suggestion-pill { background: rgba(173,199,255,0.05); border: 1px solid rgba(173,199,255,0.2); color: #adc7ff; border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .suggestion-pill:hover { background: rgba(173,199,255,0.15); border-color: #adc7ff; transform: translateY(-1px); }
+
+  /* Gradient text */
+  .text-gradient { background: linear-gradient(to right, #b388ff, #4a8eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  /* Markdown formatting inside chat */
+  .markdown-body pre { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+  .markdown-body p:last-child { margin-bottom: 0; }
+  .markdown-body p:first-child { margin-top: 0; }
+</style>
+</head>
+<body class="font-body relative">
+  <div class="fixed inset-0 bg-grid -z-20 pointer-events-none"></div>
+
+  <!-- Ambient Glow -->
+  <div class="fixed top-[-10%] right-[10%] w-[600px] h-[500px] bg-accent-purple/10 rounded-full blur-[140px] pointer-events-none -z-10 mix-blend-screen"></div>
+  <div class="fixed bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] pointer-events-none -z-10 mix-blend-screen"></div>
+
+  <!-- TOP NAV -->
+  <nav class="shrink-0 bg-[#050505]/80 backdrop-blur-xl border-b border-white/10 z-50">
+    <div class="max-w-screen-xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/academy/dashboard.html" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-purple to-[#8c52ff] flex items-center justify-center shadow-[0_0_15px_rgba(179,136,255,0.3)]">
+            <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">DeepHunt <span class="text-gradient">AI</span></span>
+        </a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a id="back-btn" href="/academy/dashboard.html" class="nav-link text-on-surface-variant group">
+          <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CHAT AREA -->
+  <main class="flex-1 flex max-w-screen-2xl mx-auto w-full px-6 overflow-hidden relative gap-6 py-4 pb-0">
+    
+    <!-- LEFT SIDEBAR: History -->
+    <aside class="hidden lg:flex w-72 flex-col gap-4">
+      <div class="glass flex-1 rounded-2xl p-4 flex flex-col overflow-hidden relative">
+        <h3 class="font-headline font-bold text-white mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined text-accent-purple text-lg">history</span>
+          History Log
+        </h3>
+        <div id="history-sidebar" class="flex-1 overflow-y-auto pr-2 space-y-2 msg-container" style="padding:0">
+            <!-- Sidebar Items -->
+            <div class="text-xs text-on-surface-variant text-center my-4">Initializing securely...</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="flex flex-col h-full max-w-4xl flex-1 mx-auto w-full">
+      <!-- Chat history wrapper -->
+      <div class="flex-1 overflow-hidden relative glass rounded-t-2xl flex flex-col border-b-0">
+        
+        <div id="welcome-state" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center transition-opacity duration-500 z-10 bg-[#050505]/50 backdrop-blur-sm rounded-t-2xl">
+          <div class="w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-accent-purple to-primary flex items-center justify-center shadow-[0_0_40px_rgba(179,136,255,0.3)]">
+            <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+          </div>
+          <h1 class="text-3xl font-headline font-extrabold text-white mb-3">How can I help you today?</h1>
+          <p class="text-on-surface-variant max-w-md mb-8">I am your expert cybersecurity AI assistant. I can help analyze PCAPs, explain vulnerabilities, or guide you through your academy modules.</p>
+          
+          <div class="flex flex-wrap justify-center gap-3 max-w-2xl">
+            <button class="suggestion-pill" onclick="fillInput('Explain the difference between SAST and DAST')">Explain SAST vs DAST</button>
+            <button class="suggestion-pill" onclick="fillInput('How do I analyze a suspicious PCAP file?')">Analyze suspicious PCAP</button>
+            <button class="suggestion-pill" onclick="fillInput('Write a Suricata rule to detect an Nmap scan')">Write Suricata rule for Nmap</button>
+            <button class="suggestion-pill" onclick="fillInput('Explain how buffer overflow works')">Explain Buffer Overflow</button>
+          </div>
+        </div>
+
+        <div id="chat-messages" class="msg-container px-6 pb-6 relative z-0">
+          <!-- Messages will be injected here -->
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="shrink-0 glass border border-white/10 rounded-b-2xl p-4 bg-[#111111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20">
+        <div class="flex gap-3 max-w-4xl mx-auto">
+          <button class="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center text-on-surface-variant hover:text-white hover:bg-white/5 transition-colors shrink-0" title="Upload files (Coming soon)">
+            <span class="material-symbols-outlined text-[20px]">attach_file</span>
+          </button>
+          <div class="flex-1 relative">
+            <textarea id="ai-input" placeholder="Message Deep Hunt AI... (Press Enter to send)" class="ai-input w-full rounded-xl px-4 py-3 text-sm text-white placeholder-on-surface-variant resize-none" rows="1" style="min-height: 48px; max-height: 200px;"></textarea>
+          </div>
+          <button id="ai-send" class="send-btn w-12 h-12 bg-gradient-to-br from-accent-purple to-primary hover:brightness-110 text-white font-bold rounded-xl flex items-center justify-center shrink-0 shadow-lg" onclick="sendMessage()">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">arrow_upward</span>
+          </button>
+        </div>
+        <p class="text-center text-[10px] text-on-surface-variant/50 mt-3 flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[10px]">info</span>
+          AI responses are generated by Deep Hunt AI and may contain inaccuracies. Please verify critical information.
+        </p>
+      </div>
+    </div>
+  </main>
+
+<script>
+  // Setup API and History Check
+  const API_KEY = "AIzaSyAGyi0hS0K5zAnyqW2T-aREeqRmXtfIxZ0";
+  // using gemini-2.5-flash if available, or gemini-pro
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+  
+  let chatHistory = [];
+  const systemInstruction = "You are a highly advanced AI Cybersecurity Assistant for the Deep Hunt platform (Academy & Labs). You provide expert cybersecurity guidance, explain complex vulnerabilities, analyze simulated threats, and assist users with their SOC & IR training. Use markdown for code and formatting. Keep responses concise, professional, and engaging.";
+
+  const chatContainer = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('ai-input');
+  const sendBtn = document.getElementById('ai-send');
+  const welcomeState = document.getElementById('welcome-state');
+
+  // Set back button intelligence
+  if (document.referrer.includes('lab') || window.location.search.includes('source=lab')) {
+    document.getElementById('back-btn').href = '/labs/dashboard.html';
+  } else {
+    document.getElementById('back-btn').href = '/academy/dashboard.html';
+  }
+
+  // Adjust textarea height automatically
+  chatInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+    if(this.value.trim() === '') {
+      this.style.height = '48px';
+    }
+  });
+
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function fillInput(text) {
+    chatInput.value = text;
+    sendMessage();
+  }
+
+  function appendUserMessage(text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'ai-msg-user';
+    msgDiv.textContent = text;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function appendBotMessage(html) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'ai-msg-bot markdown-body prose prose-invert max-w-none';
+    msgDiv.innerHTML = html;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+    return msgDiv;
+  }
+
+  function appendTypingIndicator() {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'ai-msg-bot flex items-center gap-1 py-4';
+    msgDiv.id = 'typing-indicator';
+    msgDiv.innerHTML = `
+      <div class="w-2 h-2 bg-accent-purple rounded-full typing-dot"></div>
+      <div class="w-2 h-2 bg-accent-purple rounded-full typing-dot"></div>
+      <div class="w-2 h-2 bg-accent-purple rounded-full typing-dot"></div>
+    `;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+  }
+
+  function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Load Backend History
+  async function loadBackendHistory() {
+    if(!window.cyberAuthToken) return;
+    try {
+      const res = await fetch('/api/main/chats', { headers: { 'Authorization': `Bearer ${window.cyberAuthToken}` }});
+      if(res.ok) {
+        const saved = await res.json();
+        if(saved && saved.length > 0) {
+          if (welcomeState && welcomeState.style.display !== 'none') {
+            welcomeState.style.display = 'none';
+          }
+          const sidebar = document.getElementById('history-sidebar');
+          sidebar.innerHTML = '';
+          
+          saved.forEach(msg => {
+            chatHistory.push({ role: msg.role === 'model' ? 'model' : 'user', parts: [{ text: msg.message }] });
+            if (msg.role === 'model') {
+              appendBotMessage(marked.parse(msg.message));
+            } else {
+               appendUserMessage(msg.message);
+               // Add snippet to sidebar
+               const snippet = document.createElement('div');
+               snippet.className = "p-3 rounded-xl bg-[#111] border border-white/5 text-xs text-on-surface-variant hover:text-white hover:border-accent-purple/30 transition-colors cursor-pointer truncate";
+               snippet.innerText = msg.message;
+               sidebar.appendChild(snippet);
+            }
+          });
+        } else {
+           document.getElementById('history-sidebar').innerHTML = '<div class="text-xs text-on-surface-variant text-center my-4">No recent sessions found.</div>';
+        }
+      }
+    } catch(e) { console.error("Failed loading chat history:", e); }
+  }
+
+  // Save to DB
+  async function saveToDB(role, message) {
+    if(!window.cyberAuthToken) return;
+    try {
+      await fetch('/api/main/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.cyberAuthToken}` },
+        body: JSON.stringify({ role, message })
+      });
+      if (role === 'user') {
+          const sidebar = document.getElementById('history-sidebar');
+          if(sidebar.innerHTML.includes('No recent')) sidebar.innerHTML = '';
+          const snippet = document.createElement('div');
+          snippet.className = "p-3 rounded-xl bg-[#111] border border-white/5 text-xs text-on-surface-variant hover:text-white hover:border-accent-purple/30 transition-colors cursor-pointer truncate";
+          snippet.innerText = message;
+          sidebar.appendChild(snippet);
+      }
+    } catch(e) { console.error("History sync failed", e); }
+  }
+
+  // Initialize
+  loadBackendHistory();
+
+  async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    if (welcomeState && welcomeState.style.display !== 'none') {
+      welcomeState.style.opacity = '0';
+      setTimeout(() => { welcomeState.style.display = 'none'; }, 500);
+    }
+
+    chatInput.value = '';
+    chatInput.style.height = '48px';
+    sendBtn.disabled = true;
+    appendUserMessage(text);
+    appendTypingIndicator();
+    chatHistory.push({ role: 'user', parts: [{ text: text }] });
+
+    // Sync to DB
+    await saveToDB('user', text);
+    
+    let urlToUse = API_URL;
+    const requestBody = {
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      contents: chatHistory,
+      generationConfig: { temperature: 0.7 }
+    };
+
+    try {
+      let response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+      if (!response.ok) {
+        urlToUse = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        response = await fetch(urlToUse, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+      }
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+      const data = await response.json();
+      removeTypingIndicator();
+
+      if (data.candidates && data.candidates.length > 0) {
+        const botText = data.candidates[0].content.parts[0].text;
+        chatHistory.push({ role: 'model', parts: [{ text: botText }] });
+        const htmlContent = marked.parse(botText);
+        appendBotMessage(htmlContent);
+        // Sync response to DB
+        await saveToDB('model', botText);
+      } else {
+        appendBotMessage("I'm sorry, I couldn't generate a response. Please try again.");
+      }
+
+    } catch (error) {
+      console.error(error);
+      removeTypingIndicator();
+      appendBotMessage(`<div class="text-err flex items-center gap-2"><span class="material-symbols-outlined">error</span> Connection error to AI core. Please check your network and try again.</div>`);
+      chatHistory.pop();
+    } finally {
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+  }
+</script>
+</body>
+</html>

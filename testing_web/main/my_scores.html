@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Scores — Deep Hunt</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#adc7ff",
+            "primary-container": "#4a8eff",
+            "on-primary-container": "#00285b",
+            "surface-container-low": "#1b1b1b",
+            "surface": "#131313",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "on-surface-variant": "#c1c6d7",
+            "surface-container": "#1f1f1f",
+            "outline-variant": "#414754",
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .glass-panel { background: rgba(53, 53, 53, 0.35); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+    .radar-svg { filter: drop-shadow(0 0 10px rgba(173, 199, 255, 0.4)); }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container noise min-h-screen flex flex-col">
+
+<!-- Top NavBar -->
+<nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <a href="/dashboard" class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+        </div>
+        <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/academy/" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Academy</a>
+        <a href="/labs/" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Labs</a>
+        <a href="/dashboard" class="text-sm font-bold text-on-surface-variant hover:text-white transition-colors">Dashboard</a>
+      </div>
+    </div>
+</nav>
+
+<main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    
+    <div class="mb-10 flex justify-between items-end">
+        <div>
+            <h1 class="font-headline text-4xl font-extrabold text-white mb-2">Skill Profile & History</h1>
+            <p class="text-on-surface-variant">Review your AI-assessed skill progression across all domains.</p>
+        </div>
+        <a href="/settings" class="px-4 py-2 border border-white/10 hover:bg-white/5 rounded text-sm text-white flex items-center gap-2 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">settings</span> Profile Settings
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Skill Radar Chart -->
+        <div class="lg:col-span-1 glass-panel rounded-2xl p-8 flex flex-col items-center border border-white/10 h-min">
+            <h2 class="font-headline font-bold text-lg text-white mb-8 self-start w-full border-b border-white/5 pb-2">Vector Radar</h2>
+            
+            <div class="relative w-full aspect-square flex items-center justify-center mt-4 mb-4">
+                <svg viewBox="0 0 200 200" class="w-full h-full max-w-[250px] radar-svg">
+                    <!-- Grid Lines (Pentagon) -->
+                    <polygon points="100,10 185,72 153,172 47,172 15,72" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,32 164,79 140,154 60,154 36,79" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,55 142,86 126,136 74,136 58,86" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <polygon points="100,77 121,92 113,118 87,118 79,92" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    
+                    <!-- Axes -->
+                    <line x1="100" y1="100" x2="100" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="185" y2="72" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="153" y2="172" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="47" y2="172" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    <line x1="100" y1="100" x2="15" y2="72" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    
+                    <!-- Data Polygon -->
+                    <polygon points="100,20 160,72 120,160 55,140 25,72" fill="rgba(173, 199, 255, 0.4)" stroke="#adc7ff" stroke-width="2" />
+                    
+                    <!-- Points -->
+                    <circle cx="100" cy="20" r="4" fill="#fff" />
+                    <circle cx="160" cy="72" r="4" fill="#fff" />
+                    <circle cx="120" cy="160" r="4" fill="#fff" />
+                    <circle cx="55" cy="140" r="4" fill="#fff" />
+                    <circle cx="25" cy="72" r="4" fill="#fff" />
+                    
+                    <!-- Labels -->
+                    <text x="100" y="5" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">SOC Analysis</text>
+                    <text x="195" y="75" fill="#c1c6d7" font-size="8" text-anchor="start" font-family="'JetBrains Mono', monospace">Forensics</text>
+                    <text x="160" y="185" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">Threat Hunt</text>
+                    <text x="40" y="185" fill="#c1c6d7" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">Net Sec</text>
+                    <text x="5" y="75" fill="#c1c6d7" font-size="8" text-anchor="end" font-family="'JetBrains Mono', monospace">Malware</text>
+                </svg>
+            </div>
+            
+            <div class="w-full space-y-4 mt-6">
+                <!-- Data listing -->
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-on-surface flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span> SOC Analysis</span>
+                    <span class="text-white font-mono font-bold">92%</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-on-surface flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span> Digital Forensics</span>
+                    <span class="text-white font-mono font-bold">75%</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-on-surface flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary inline-block"></span> Threat Hunting</span>
+                    <span class="text-white font-mono font-bold">40%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Activity Table -->
+        <div class="lg:col-span-2">
+            <h2 class="font-headline font-bold text-xl text-white mb-6">Execution History</h2>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden border border-white/10">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/5 border-b border-white/10 text-on-surface-variant font-mono text-xs uppercase tracking-wider">
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Scenario / Course</th>
+                            <th class="p-4 hidden md:table-cell">R_Score</th>
+                            <th class="p-4 hidden md:table-cell">B_Score</th>
+                            <th class="p-4 text-right">Final Score</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 text-sm">
+                        
+                        <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="window.location.href='/labs/score_summary.html'">
+                            <td class="p-4 text-on-surface-variant font-mono">2026-04-06</td>
+                            <td class="p-4">
+                                <span class="block text-white font-semibold">SOC-SIM-ALPHA (Lab)</span>
+                                <span class="block text-xs text-primary mt-0.5">Credential Stuffing</span>
+                            </td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">82%</td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">46%</td>
+                            <td class="p-4 text-right font-headline font-bold text-lg text-white">64%</td>
+                        </tr>
+                        
+                        <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="window.location.href='/academy/certificate.html'">
+                            <td class="p-4 text-on-surface-variant font-mono">2026-04-05</td>
+                            <td class="p-4">
+                                <span class="block text-white font-semibold">SOC Fundamentals (Course)</span>
+                                <span class="block text-xs text-green-400 mt-0.5">Completed</span>
+                            </td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">95%</td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">--</td>
+                            <td class="p-4 text-right font-headline font-bold text-lg text-white">95%</td>
+                        </tr>
+                        
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-on-surface-variant font-mono">2026-04-02</td>
+                            <td class="p-4">
+                                <span class="block text-white font-semibold">IR-RANSOMWARE (Lab)</span>
+                                <span class="block text-xs text-red-400 mt-0.5">Failed Attempt</span>
+                            </td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">40%</td>
+                            <td class="p-4 text-white font-mono hidden md:table-cell">21%</td>
+                            <td class="p-4 text-right font-headline font-bold text-lg text-red-400">30%</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center text-sm text-on-surface-variant">
+                <span>Showing last 3 sessions</span>
+                <button class="text-primary hover:text-white transition-colors">Load More...</button>
+            </div>
+        </div>
+
+    </div>
+</main>
+</body>
+</html>

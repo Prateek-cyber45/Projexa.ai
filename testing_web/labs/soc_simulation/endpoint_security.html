@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENTINEL SOC | ENDPOINT SECURITY & EDR</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#232323",
+              "surface-container-lowest": "#0a0a0a",
+              "surface-container-low": "#171717",
+              "surface-container": "#1c1c1c",
+              "background": "#0f0f0f",
+              "surface": "#0f0f0f",
+              "on-surface": "#d1d5db",
+              "outline-variant": "#2d3739",
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "body": ["Geist", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .glow-cyan { text-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        
+        /* Custom Scrollbar Styling */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f4a4d; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-x-hidden selection:bg-[#00f2ff]/30 min-h-screen flex flex-col">
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 bg-background/90 backdrop-blur-md h-16 border-b border-outline-variant/40">
+    <div class="flex items-center gap-10">
+        <div class="flex flex-col">
+            <span class="text-xl font-bold text-[#00f2ff] font-headline uppercase leading-none glow-cyan tracking-wide">Sentinel SOC</span>
+            <span class="text-xs font-mono text-on-surface/50 uppercase mt-1">Command Center</span>
+        </div>
+        <div class="flex gap-8 items-center">
+            <div class="flex items-center gap-2.5 bg-[#00ffa3]/10 px-3 py-1 rounded-full border border-[#00ffa3]/20">
+                <span class="w-2 h-2 bg-[#00ffa3] rounded-full animate-pulse shadow-[0_0_8px_#00ffa3]"></span>
+                <span class="text-[#00ffa3] font-bold font-mono text-xs uppercase">System Active</span>
+            </div>
+            <span class="text-on-surface/60 font-mono text-xs uppercase hidden md:inline">Session Time: <span class="text-[#00f2ff] font-bold ml-2" id="session-clock">00:45:12</span></span>
+        </div>
+    </div>
+    <div class="flex items-center gap-6">
+        <button class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all duration-300 active:scale-95 flex items-center gap-2 shadow-lg shadow-red-900/20">
+            <span class="material-symbols-outlined text-base">lock</span>
+            Lockdown
+        </button>
+        <div class="flex items-center gap-5 border-l border-outline-variant/50 pl-6">
+            <button id="theme-toggle" class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">light_mode</button><span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">notifications</span>
+            <span class="material-symbols-outlined text-on-surface/50 hover:text-[#00f2ff] cursor-pointer transition-colors text-2xl">account_circle</span>
+        </div>
+    </div>
+</header>
+
+<nav class="fixed left-0 top-16 h-[calc(100vh-4rem)] flex flex-col z-40 bg-surface-container-low/80 backdrop-blur-md w-20 hover:w-64 transition-all duration-300 ease-in-out border-r border-outline-variant/30 group overflow-x-hidden overflow-y-auto custom-scrollbar shadow-2xl">
+    <div class="flex flex-col flex-1 py-6 gap-2">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="terminal_command_center.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">code</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Terminal</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="alerts_management.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">warning</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Alerts</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="threat_intelligence.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">security</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Threat Intel</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="incident_investigation.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">error</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Incidents</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg border-l-[3px] border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10 transition-all duration-200" href="endpoint_security.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">computer</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Endpoints</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="siem_logs.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">terminal</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">SIEM Logs</span>
+        </a>
+    </div>
+    <div class="mt-auto border-t border-outline-variant/30 py-6 gap-2 flex flex-col">
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="terminal_command_center.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">code</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Terminal</span>
+        </a>
+        <a class="flex items-center h-14 px-6 mx-2 rounded-lg text-on-surface/60 hover:text-white hover:bg-surface-container transition-all duration-200" href="settings.html">
+            <span class="material-symbols-outlined text-2xl flex-shrink-0">settings</span>
+            <span class="ml-4 opacity-0 group-hover:opacity-100 whitespace-nowrap text-sm uppercase font-bold transition-all duration-300">Settings</span>
+        </a>
+    </div>
+</nav>
+
+<main class="ml-20 mt-16 p-8 flex flex-col flex-1">
+    
+    <div class="max-w-[1600px] mx-auto w-full space-y-8">
+        
+        <!-- Fleet Overview Section -->
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-outline-variant/40 pb-6">
+            <div>
+                <h2 class="font-headline text-3xl font-black text-white tracking-tighter uppercase transition-colors hover:text-[#00f2ff] cursor-default">Endpoint Fleet Security</h2>
+                <div class="flex items-center gap-3 mt-1">
+                    <p class="text-[#00f2ff] font-mono text-xs tracking-widest font-bold uppercase">EDR Environment: Production-Alpha</p>
+                    <span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+                    <span class="text-xs font-mono text-on-surface/40 uppercase">Agents Online: <span class="text-white font-bold">1,402 / 1,410</span></span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <div class="bg-surface-container px-6 py-3 border border-outline-variant/40 rounded-xl flex items-center gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase font-bold text-on-surface/40 tracking-widest leading-none mb-1">Global Health</span>
+                        <span class="text-xl font-black text-[#00ffa3] font-mono leading-none">98.2%</span>
+                    </div>
+                    <div class="w-[1px] h-8 bg-outline-variant/30"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase font-bold text-on-surface/40 tracking-widest leading-none mb-1">Isolated</span>
+                        <span class="text-xl font-black text-red-500 font-mono leading-none">04</span>
+                    </div>
+                </div>
+                <button class="bg-[#00f2ff] text-black px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] transition-all active:scale-95">Deploy Fleet Update</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            
+            <!-- Main Grid: Endpoint Status -->
+            <section class="xl:col-span-2 space-y-6">
+                <div class="bg-surface-container-low border border-outline-variant/40 rounded-xl overflow-hidden shadow-2xl">
+                    <div class="px-6 py-4 border-b border-outline-variant/40 bg-surface/50 flex justify-between items-center">
+                        <h3 class="text-sm font-bold tracking-widest uppercase text-white">Managed Endpoints</h3>
+                        <div class="flex gap-3">
+                            <input class="bg-background border-outline-variant/40 text-xs text-on-surface rounded-lg px-3 py-1 w-64 focus:ring-[#00f2ff] focus:border-[#00f2ff]" placeholder="Search by Hostname, IP, or OS..." type="text"/>
+                            <button class="material-symbols-outlined text-on-surface/40 hover:text-white transition-colors">filter_list</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left font-mono text-xs">
+                            <thead class="text-on-surface/40 uppercase border-b border-outline-variant/40 bg-surface-container-lowest/50">
+                                <tr>
+                                    <th class="py-4 px-6 font-bold">Hostname</th>
+                                    <th class="py-4 px-6 font-bold">OS Version</th>
+                                    <th class="py-4 px-6 font-bold">Status</th>
+                                    <th class="py-4 px-6 font-bold">Risk Score</th>
+                                    <th class="py-4 px-6 font-bold"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/20">
+                                <tr class="hover:bg-white/[0.03] transition-all group cursor-pointer">
+                                    <td class="py-5 px-6">
+                                        <div class="flex flex-col">
+                                            <span class="text-white font-bold text-sm tracking-tight group-hover:text-[#00f2ff] transition-colors">CORE-SRV-04</span>
+                                            <span class="text-[10px] text-on-surface/40 mt-0.5">10.0.4.12 • AS-US-WEST</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-on-surface/70 italic uppercase">Windows Server 2022</td>
+                                    <td class="py-5 px-6">
+                                        <span class="flex items-center gap-2 text-red-500 font-bold uppercase tracking-widest text-[10px] bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded">
+                                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_red]"></span>
+                                            Isolated
+                                        </span>
+                                    </td>
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 h-1.5 bg-surface-container-lowest rounded-full overflow-hidden w-24">
+                                                <div class="h-full bg-red-600" style="width: 94%"></div>
+                                            </div>
+                                            <span class="text-red-500 font-bold">94</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-right">
+                                        <button class="material-symbols-outlined text-on-surface/30 hover:text-[#00f2ff] transition-colors">open_in_new</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.03] transition-all group cursor-pointer">
+                                    <td class="py-5 px-6">
+                                        <div class="flex flex-col">
+                                            <span class="text-white font-bold text-sm tracking-tight group-hover:text-[#00f2ff] transition-colors">DB-PROD-CLUSTER</span>
+                                            <span class="text-[10px] text-on-surface/40 mt-0.5">10.0.1.55 • EU-WEST-1</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-on-surface/70 italic uppercase">Linux RHEL 9.1</td>
+                                    <td class="py-5 px-6">
+                                        <span class="flex items-center gap-2 text-yellow-500 font-bold uppercase tracking-widest text-[10px] bg-yellow-500/10 border border-yellow-500/30 px-2 py-0.5 rounded">
+                                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse shadow-[0_0_5px_yellow]"></span>
+                                            Suspicious
+                                        </span>
+                                    </td>
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 h-1.5 bg-surface-container-lowest rounded-full overflow-hidden w-24">
+                                                <div class="h-full bg-yellow-500" style="width: 42%"></div>
+                                            </div>
+                                            <span class="text-yellow-500 font-bold">42</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-right">
+                                        <button class="material-symbols-outlined text-on-surface/30 hover:text-[#00f2ff] transition-colors">open_in_new</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-white/[0.03] transition-all group cursor-pointer">
+                                    <td class="py-5 px-6">
+                                        <div class="flex flex-col">
+                                            <span class="text-white font-bold text-sm tracking-tight group-hover:text-[#00f2ff] transition-colors">WRK-HR-04</span>
+                                            <span class="text-[10px] text-on-surface/40 mt-0.5">192.168.22.4 • BYOD-VLAN</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-on-surface/70 italic uppercase">macOS Ventura 13.4</td>
+                                    <td class="py-5 px-6">
+                                        <span class="flex items-center gap-2 text-[#00ffa3] font-bold uppercase tracking-widest text-[10px] bg-[#00ffa3]/10 border border-[#00ffa3]/30 px-2 py-0.5 rounded">
+                                            <span class="w-1.5 h-1.5 bg-[#00ffa3] rounded-full shadow-[0_0_5px_#00ffa3]"></span>
+                                            Secured
+                                        </span>
+                                    </td>
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 h-1.5 bg-surface-container-lowest rounded-full overflow-hidden w-24">
+                                                <div class="h-full bg-[#00ffa3]" style="width: 12%"></div>
+                                            </div>
+                                            <span class="text-[#00ffa3] font-bold">12</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 text-right">
+                                        <button class="material-symbols-outlined text-on-surface/30 hover:text-[#00f2ff] transition-colors">open_in_new</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar: Persistence Scanning & AI -->
+            <section class="space-y-8">
+                
+                <!-- Specified Persistence Scanning Section -->
+                <div class="bg-surface-container-low border border-outline-variant/40 rounded-xl p-6 shadow-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 scanlines opacity-5 pointer-events-none"></div>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-sm font-bold tracking-widest uppercase text-white flex items-center gap-2">
+                             <span class="material-symbols-outlined text-[#00f2ff] text-xl">sync_problem</span>
+                             Persistence Scanning
+                        </h3>
+                        <span class="text-[10px] font-mono text-[#00f2ff] bg-[#00f2ff]/10 px-2 py-1 rounded border border-[#00f2ff]/20 animate-pulse">Scanning...</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-surface-container p-4 rounded-lg border-l-[3px] border-[#00f2ff] hover:bg-surface-container-high transition-all">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-mono text-on-surface/50 uppercase font-bold">Target: GPO_Policy_Root</span>
+                                <span class="text-[10px] font-mono text-[#00ffa3] uppercase font-bold">0 Hits</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface/80 font-mono italic">Scanning for persistence mechanisms in GPO... 0 hits found.</p>
+                        </div>
+                        <div class="bg-surface-container p-4 rounded-lg border-l-[3px] border-red-500 hover:bg-surface-container-high transition-all">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-mono text-on-surface/50 uppercase font-bold">Registry Hive: HKLM_RUN</span>
+                                <span class="text-[10px] font-mono text-red-500 uppercase font-bold">1 Hit</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface/80 font-mono italic">Suspicious entry found in `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`. Unrecognized binary point.</p>
+                        </div>
+                        <div class="bg-surface-container p-4 rounded-lg border-l-[3px] border-outline-variant hover:bg-surface-container-high transition-all opacity-50">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-mono text-on-surface/50 uppercase font-bold">Task Scheduler</span>
+                                <span class="text-[10px] font-mono text-on-surface/30 uppercase">Pending</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface/60 font-mono italic">Awaiting telemetry from secondary agent...</p>
+                        </div>
+                    </div>
+                    <button class="mt-6 w-full py-3 bg-[#00f2ff]/10 hover:bg-[#00f2ff] text-[#00f2ff] hover:text-black border border-[#00f2ff]/40 rounded-lg text-xs font-bold uppercase tracking-widest transition-all">Execute Fleet Scour</button>
+                </div>
+
+                <!-- AI Insight Card -->
+                <div class="bg-purple-950/10 border border-purple-500/30 p-6 rounded-xl shadow-xl relative overflow-hidden">
+                    <div class="absolute top-[-20px] right-[-20px] opacity-10">
+                        <span class="material-symbols-outlined text-purple-400 text-8xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-purple-400 tracking-widest uppercase mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">psychology</span>
+                        Behavioral Analyst AI
+                    </h4>
+                    <p class="text-sm text-on-surface leading-relaxed relative z-10 italic">
+                        "Correlation between WRK-HR-04 and CORE-SRV-04 identified. Lateral movement via <span class="text-[#00f2ff] font-bold underline decoration-dotted">pass-the-ticket</span> attack suspected. Recommend flushing Kerberos tickets across VLAN-22 immediately."
+                    </p>
+                    <div class="mt-6 bg-surface-container/50 p-4 rounded-lg border border-outline-variant/30 relative z-10">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] uppercase font-bold text-on-surface/40 tracking-widest">Confidence Level</span>
+                            <span class="text-xs font-mono font-bold text-purple-400">88%</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-surface-lowest rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Terminal Overlay -->
+        <div class="fixed bottom-4 left-24 right-8 bg-surface-container-lowest/80 backdrop-blur-xl border border-[#00f2ff]/20 p-4 flex items-center gap-6 z-20 rounded-xl shadow-2xl">
+            <div class="text-[#00f2ff] font-mono text-sm font-bold animate-pulse uppercase tracking-[0.2em] shrink-0 border-r border-[#00f2ff]/30 pr-6">Fleet_EDR&gt;</div>
+            <div class="font-mono text-[11px] text-[#00f2ff]/80 flex-1 overflow-hidden whitespace-nowrap" id="terminal-text">Initializing deep-packet inspection on cluster-alpha...</div>
+            <div class="flex items-center gap-8 shrink-0">
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-bold text-on-surface/30 uppercase tracking-widest">CPU Load</span>
+                    <span class="text-xs font-mono font-bold text-on-surface/60">24%</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-bold text-on-surface/30 uppercase tracking-widest">RAM Util</span>
+                    <span class="text-xs font-mono font-bold text-on-surface/60">6.8GB</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Live Clock
+    function updateSystems() {
+        const now = new Date();
+        const sessionClock = document.getElementById('session-clock');
+        if (sessionClock) {
+            let seconds = 2712 + Math.floor((now.getTime() % 3600000) / 1000); 
+            const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            sessionClock.innerText = `${h}:${m}:${s}`;
+        }
+    }
+    setInterval(updateSystems, 1000);
+    updateSystems();
+
+    // Terminal Sim
+    const terminalText = document.getElementById('terminal-text');
+    const logs = [
+        "Initializing deep-packet inspection on cluster-alpha...",
+        "Scanning for persistence mechanisms in GPO... 0 hits found.",
+        "Parsing kernel-level event logs for unauthorized syscalls...",
+        "Tracing potential beaconing activity on WRK-HR-04... Correlation: LOW.",
+        "Updating fleet definitions to version 4.2.1-Sentinel...",
+        "Memory injection detected in SVCHOST.EXE on CORE-SRV-04. Analysis required.",
+        "Persistence scavenge complete. Summary: 1 Registry entry identified."
+    ];
+    let logIndex = 0;
+    setInterval(() => {
+        terminalText.innerText = logs[logIndex];
+        logIndex = (logIndex + 1) % logs.length;
+    }, 4500);
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        if (themeToggle) {
+            if (localStorage.theme === 'light') {
+                html.classList.remove('dark');
+                themeToggle.innerHTML = 'dark_mode';
+            } else {
+                html.classList.add('dark');
+                themeToggle.innerHTML = 'light_mode';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.theme = 'light';
+                    themeToggle.innerHTML = 'dark_mode';
+                } else {
+                    html.classList.add('dark');
+                    localStorage.theme = 'dark';
+                    themeToggle.innerHTML = 'light_mode';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
+

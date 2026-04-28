@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "surface-container": "#1f1f1f",
+          "surface-container-high": "#2a2a2a",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "mono": ["JetBrains Mono"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #131313; color: #e2e2e2; }
+</style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-[#00285b] min-h-screen flex flex-col">
+
+  <!-- Nav -->
+  <nav class="w-full z-50 bg-[#131313]/90 backdrop-blur-2xl border-b border-white/5">
+    <div class="max-w-screen-xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+            <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+        </a>
+        <div class="hidden md:flex items-center gap-6 border-l border-white/10 pl-6 space-x-2">
+          <a href="/main/dashboard_normal.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">home</span> Home
+          </a>
+          <a href="/main/profile.html" class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-base">person</span> Profile
+          </a>
+          <a href="/main/settings.html" class="flex items-center gap-2 text-sm font-bold text-white transition-colors">
+            <span class="material-symbols-outlined text-base">settings</span> Settings
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">help</span>
+        <span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">apps</span>
+        <button onclick="logout()" class="text-sm border border-red-500/50 text-red-400 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors font-bold ml-2">LOGOUT</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-screen-xl mx-auto w-full px-6 py-12">
+    <!-- Tabs -->
+    <div class="flex gap-8 mb-10 border-b border-white/5">
+      <div class="pb-3 border-b-2 border-primary text-white font-bold text-sm cursor-pointer">User Settings</div>
+      <div class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-colors cursor-pointer">Security Settings</div>
+    </div>
+
+    <!-- Basic Information Section -->
+    <div class="max-w-4xl">
+      <h2 class="font-headline font-bold text-white text-xl mb-2">Basic Information</h2>
+      <p class="text-on-surface-variant text-sm mb-8">Basic details that will be a representation of yourself across the Deep Hunt ecosystem.</p>
+
+      <!-- Avatar Upload Component -->
+      <div class="bg-[#1f2023] border border-white/5 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between mb-8">
+        <div class="flex items-center gap-6">
+          <div class="w-32 h-32 bg-[#131416] border-2 border-primary rounded-xl flex items-center justify-center relative shadow-inner">
+            <span class="material-symbols-outlined text-primary text-[80px]">view_in_ar</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-bold text-white mb-2">Upload your avatar</h3>
+            <p class="text-on-surface-variant text-sm">Avatar should be at least 300x300 pixels.</p>
+            <p class="text-on-surface-variant text-sm">We support .png .jpg .jpeg.</p>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6 md:mt-0">
+          <button class="bg-[#2a2b30] hover:bg-[#35363c] text-white font-bold text-sm px-6 py-2.5 rounded transition-colors border border-white/5">
+            Upload avatar
+          </button>
+          <button class="bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold px-3 py-2.5 rounded transition-colors border border-red-500/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Grid -->
+      <form class="bg-[#1f2023] border border-white/5 rounded-xl p-8" onsubmit="event.preventDefault();">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          
+          <!-- Username -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="username">Username</label>
+            <input type="text" id="username" value="Operator_01" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+          </div>
+
+          <!-- Full name -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="fullname">Full name</label>
+            <input type="text" id="fullname" value="Operator User" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+          </div>
+
+          <!-- Country -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="country">Country</label>
+            <div class="relative">
+              <select id="country" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white appearance-none focus:outline-none focus:border-primary transition-colors">
+                <option>Global</option>
+                <option selected>United States</option>
+                <option>India</option>
+                <option>United Kingdom</option>
+                <option>Australia</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-4 top-3.5 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+            </div>
+          </div>
+
+          <!-- Timezone (Error State Reference) -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="timezone">Timezone</label>
+            <div class="relative">
+              <select id="timezone" class="w-full bg-[#131416] border border-red-500/50 rounded-lg px-4 py-3 text-white appearance-none focus:outline-none focus:border-red-500 transition-colors">
+                <option value="">Select Timezone...</option>
+                <option value="PST">Pacific Standard Time</option>
+                <option value="EST">Eastern Standard Time</option>
+                <option value="GMT">Greenwich Mean Time</option>
+                <option value="IST">Indian Standard Time</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-4 top-3.5 text-red-400 pointer-events-none">arrow_drop_down</span>
+            </div>
+            <p class="text-red-400 text-xs mt-2">Timezone is required</p>
+          </div>
+
+          <!-- Calling Code -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="callingcode">Calling code</label>
+            <div class="relative">
+              <select id="callingcode" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white appearance-none focus:outline-none focus:border-primary transition-colors">
+                <option selected>+1 (United States)</option>
+                <option>+91 (India)</option>
+                <option>+44 (United Kingdom)</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-4 top-3.5 text-on-surface-variant pointer-events-none">arrow_drop_down</span>
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div>
+            <label class="block text-on-surface-variant text-sm mb-2" for="phone">Phone number</label>
+            <input type="text" id="phone" placeholder="" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+          </div>
+
+          <!-- Website -->
+          <div class="md:col-span-2">
+            <label class="block text-on-surface-variant text-sm mb-2" for="website">Website</label>
+            <input type="text" id="website" placeholder="" class="w-full bg-[#131416] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+          </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end">
+           <button type="submit" class="bg-primary hover:bg-primary-container text-[#00285b] font-bold px-8 py-3 rounded transition-colors text-sm shadow-[0_0_15px_rgba(173,199,255,0.2)]">
+             Save Changes
+           </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    function logout() {
+      document.cookie = 'token=; Max-Age=0; path=/; SameSite=Lax';
+      localStorage.removeItem('cyber_token');
+      window.location.href = '/login';
+    }
+    
+    // Auth Check
+    const token = localStorage.getItem('cyber_token') || (document.cookie.includes('token=') ? 'cookie_token' : null);
+    if (!token) window.location.href = '/login';
+  </script>
+</body>
+</html>

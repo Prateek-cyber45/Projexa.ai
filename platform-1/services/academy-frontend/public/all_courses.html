@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academy — Deep Hunt</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-fixed-variant": "#26467c",
+            "primary": "#adc7ff",
+            "outline": "#8b90a0",
+            "on-primary-fixed-variant": "#004493",
+            "on-error": "#690005",
+            "surface-container-low": "#1b1b1b",
+            "on-tertiary": "#571e00",
+            "on-primary": "#002e68",
+            "secondary-container": "#29487f",
+            "on-secondary-fixed": "#001a41",
+            "outline-variant": "#414754",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "primary-container": "#4a8eff",
+            "on-tertiary-container": "#4c1a00",
+            "on-tertiary-fixed-variant": "#7c2e00",
+            "tertiary-fixed": "#ffdbcc",
+            "on-tertiary-fixed": "#351000",
+            "tertiary-fixed-dim": "#ffb695",
+            "inverse-surface": "#e2e2e2",
+            "inverse-on-surface": "#303030",
+            "on-primary-container": "#00285b",
+            "primary-fixed": "#d8e2ff",
+            "tertiary": "#ffb695",
+            "surface-container-lowest": "#0e0e0e",
+            "on-background": "#e2e2e2",
+            "secondary-fixed": "#d8e2ff",
+            "secondary-fixed-dim": "#adc7ff",
+            "tertiary-container": "#ef6719",
+            "on-primary-fixed": "#001a41",
+            "primary-fixed-dim": "#adc7ff",
+            "on-error-container": "#ffdad6",
+            "surface-container-high": "#2a2a2a",
+            "surface-bright": "#393939",
+            "on-secondary-container": "#9bb8f6",
+            "surface-dim": "#131313",
+            "surface": "#131313",
+            "surface-container": "#1f1f1f",
+            "error": "#ffb4ab",
+            "surface-variant": "#353535",
+            "surface-tint": "#adc7ff",
+            "surface-container-highest": "#353535",
+            "on-surface-variant": "#c1c6d7",
+            "on-secondary": "#072f64",
+            "secondary": "#adc7ff",
+            "inverse-primary": "#005bc0",
+            "error-container": "#93000a"
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          keyframes: {
+            'float': {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-20px) rotate(1deg)' },
+            },
+            'gradient-shift': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'gradient-shift': 'gradient-shift 6s ease infinite',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { scroll-behavior: smooth; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-panel {
+      background: rgba(53, 53, 53, 0.35);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #ADC7FF 0%, #4A8EFF 50%, #ADC7FF 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 6s ease infinite;
+    }
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 2px;
+      background: linear-gradient(90deg, #ADC7FF, #4A8EFF);
+      z-index: 9999; transition: width 0.1s linear;
+    }
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .card-glow {
+      position: relative; overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    }
+    .card-glow::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(173, 199, 255, 0.06), transparent 40%);
+      opacity: 0; transition: opacity 0.4s ease; z-index: 1; pointer-events: none;
+    }
+    .card-glow:hover::before { opacity: 1; }
+    .card-glow:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px -15px rgba(74, 142, 255, 0.15);
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(173, 199, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(173, 199, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #131313; }
+    ::-webkit-scrollbar-thumb { background: #353535; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #414754; }
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+    .filter-badge {
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(41, 41, 41, 0.6);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .filter-badge:hover {
+      border-color: rgba(173, 199, 255, 0.3);
+      background: rgba(41, 41, 41, 0.9);
+    }
+    .filter-badge.active {
+      border-color: #adc7ff;
+      background: linear-gradient(135deg, #ADC7FF, #4A8EFF);
+      color: #00285b;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container noise">
+
+<div id="scroll-progress" style="width: 0%"></div>
+
+<!-- TopNavBar -->
+<nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500">
+  <div class="flex justify-between items-center px-6 md:px-10 py-5 max-w-screen-2xl mx-auto">
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary-container text-lg" style="font-variation-settings: 'FILL' 1;">security</span>
+      </div>
+      <span class="text-xl font-extrabold tracking-tighter text-white font-headline group-hover:text-primary transition-colors duration-300">Deep Hunt Academy</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-1">
+      <a class="font-headline font-medium text-sm tracking-tight text-primary bg-primary/10 px-4 py-2 rounded-lg transition-all duration-300" href="/">Main</a>
+      <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300" href="/academy/">Academy Home</a>
+      <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300" href="/labs/">Labs</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="hidden md:inline-flex bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-6 py-2.5 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] hover:translate-y-[-2px] transition-all duration-300 active:scale-95">
+        Contact
+      </button>
+      <button id="menu-toggle" class="lg:hidden flex flex-col gap-1.5 p-2 group" aria-label="Menu">
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:rotate-45 group-[.active]:translate-y-2"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 group-[.active]:opacity-0"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:-rotate-45 group-[.active]:-translate-y-2"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 lg:hidden">
+  <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/">Main</a>
+  <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/academy/">Academy Home</a>
+  <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="/labs/">Labs</a>
+  <button class="mt-4 bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-10 py-4 font-headline font-bold rounded-lg">Contact</button>
+</div>
+
+<main class="pt-32">
+
+  <!-- HERO SECTION -->
+  <section class="py-20 px-6 md:px-10 max-w-screen-2xl mx-auto">
+    <div class="reveal mb-12">
+      <h1 class="font-headline text-5xl md:text-6xl font-extrabold tracking-tighter text-white mb-6">
+        Structured Learning Paths for <span class="text-gradient">Next-Gen Defenders</span>
+      </h1>
+      <p class="text-on-surface-variant max-w-3xl text-lg leading-relaxed">
+        From foundational security concepts to advanced threat analysis. Choose your journey and master the skills demanded by modern cybersecurity roles.
+      </p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="reveal reveal-delay-1 mb-16">
+      <div class="flex flex-wrap gap-3">
+        <button class="filter-badge active" onclick="filterCourses('all')">
+          <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">widgets</span>All Courses</span>
+        </button>
+        <button class="filter-badge" onclick="filterCourses('beginner')">
+          <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">school</span>Beginner</span>
+        </button>
+        <button class="filter-badge" onclick="filterCourses('intermediate')">
+          <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">trending_up</span>Intermediate</span>
+        </button>
+        <button class="filter-badge" onclick="filterCourses('advanced')">
+          <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">code</span>Advanced</span>
+        </button>
+        <button class="filter-badge" onclick="filterCourses('expert')">
+          <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">military_tech</span>Expert</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSES GRID -->
+  <section class="py-20 px-6 md:px-10 max-w-screen-2xl mx-auto" id="courses-section">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Course Card 1 -->
+      <div class="reveal reveal-delay-1 course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="beginner">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20">
+              <span class="material-symbols-outlined text-2xl text-primary">school</span>
+            </div>
+            <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Beginner</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">SOC Analyst Fundamentals</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Master the essential skills of a Security Operations Center analyst. Learn alert triage, SIEM platforms, and incident detection fundamentals.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              2h 15m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              12 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">0%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-0 bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/soc-101" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Start Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Card 2 -->
+      <div class="reveal reveal-delay-2 course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="intermediate">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-error/10 border border-error/20">
+              <span class="material-symbols-outlined text-2xl text-error">emergency</span>
+            </div>
+            <span class="px-3 py-1 bg-error/10 text-error text-[10px] font-mono rounded-md uppercase">Intermediate</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">Ransomware Incident Response</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Execute containment protocols against ransomware attacks. Learn forensic analysis, recovery strategies, and post-incident reporting.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              5h 00m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              24 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">45%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-[45%] bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/ir-202" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Continue Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Card 3 -->
+      <div class="reveal reveal-delay-3 course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="advanced">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-container/10 border border-primary-container/20">
+              <span class="material-symbols-outlined text-2xl text-primary-container">radar</span>
+            </div>
+            <span class="px-3 py-1 bg-primary-container/10 text-primary-container text-[10px] font-mono rounded-md uppercase">Advanced</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">Network Forensics & Packet Analysis</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Deep dive into network traffic analysis using Wireshark and tcpdump. Detect anomalies, trace attack vectors, and reconstruct incidents.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              4h 30m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              18 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">0%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-0 bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/net-401" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Start Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Card 4 -->
+      <div class="reveal reveal-delay-4 course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="expert">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-tertiary/10 border border-tertiary/20">
+              <span class="material-symbols-outlined text-2xl text-tertiary">bug_report</span>
+            </div>
+            <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-mono rounded-md uppercase">Expert</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">Advanced Malware Reverse Engineering</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Master static and dynamic malware analysis. Use IDA Pro, Ghidra, and x64dbg to dissect sophisticated threats and identify TTPs.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              8h 00m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              32 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">0%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-0 bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/mal-501" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Start Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Card 5 -->
+      <div class="reveal course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="beginner">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-secondary-container/10 border border-secondary-container/20">
+              <span class="material-symbols-outlined text-2xl text-secondary-container">lock</span>
+            </div>
+            <span class="px-3 py-1 bg-secondary-container/10 text-secondary-container text-[10px] font-mono rounded-md uppercase">Beginner</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">Cryptography Essentials</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Understand symmetric/asymmetric encryption, hashing, digital signatures, and practical cryptographic implementation in security systems.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              3h 30m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              14 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">0%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-0 bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/crypto-103" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Start Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Card 6 -->
+      <div class="reveal course-card-academy bg-surface-container-low border border-white/5 rounded-2xl p-8 group" data-level="advanced">
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20">
+              <span class="material-symbols-outlined text-2xl text-primary">cloud</span>
+            </div>
+            <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Advanced</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold text-white mb-3">Cloud Security & AWS Defense</h3>
+          <p class="text-on-surface-variant text-sm leading-relaxed mb-6">Secure AWS environments using IAM, networking, compliance frameworks, and cloud-native threat detection techniques.</p>
+          
+          <div class="flex items-center justify-between text-on-surface-variant text-xs mb-6">
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              6h 00m
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">play_circle</span>
+              20 Lessons
+            </span>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-on-surface-variant">Progress</span>
+              <span class="text-primary font-semibold">0%</span>
+            </div>
+            <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full w-0 bg-gradient-to-r from-primary to-primary-container rounded-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <a href="/academy/course/cloud-302" class="inline-flex items-center gap-2 text-primary font-bold text-sm tracking-wider uppercase hover:gap-3 transition-all duration-300 group-hover:translate-x-1">
+            Start Course <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS SECTION -->
+  <section class="py-20 px-6 md:px-10 max-w-screen-2xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="reveal reveal-delay-1 bg-surface-container-low border border-white/5 rounded-2xl p-8 text-center">
+        <p class="text-white font-headline font-extrabold text-4xl mb-2">6</p>
+        <p class="text-on-surface-variant text-sm">Available Courses</p>
+      </div>
+      <div class="reveal reveal-delay-2 bg-surface-container-low border border-white/5 rounded-2xl p-8 text-center">
+        <p class="text-white font-headline font-extrabold text-4xl mb-2">27h</p>
+        <p class="text-on-surface-variant text-sm">Total Content</p>
+      </div>
+      <div class="reveal reveal-delay-3 bg-surface-container-low border border-white/5 rounded-2xl p-8 text-center">
+        <p class="text-white font-headline font-extrabold text-4xl mb-2">120+</p>
+        <p class="text-on-surface-variant text-sm">Total Lessons</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-[#0a0a0a] w-full pt-20 pb-10 px-6 md:px-10 mt-20">
+  <div class="max-w-screen-2xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary-container text-lg" style="font-variation-settings: 'FILL' 1;">security</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt Academy</span>
+        </div>
+        <p class="text-on-surface-variant/60 text-sm leading-relaxed">Professional cybersecurity training for the modern defender.</p>
+      </div>
+      <div>
+        <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Platform</h4>
+        <ul class="space-y-3">
+          <li><a href="/" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors">Main Site</a></li>
+          <li><a href="/academy/" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors">Academy</a></li>
+          <li><a href="/labs/" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors">Labs</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Support</h4>
+        <ul class="space-y-3">
+          <li><a href="#" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors">Contact</a></li>
+          <li><a href="#" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors">Documentation</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="bg-gradient-to-r from-transparent via-white/10 to-transparent h-px mb-8"></div>
+    <p class="text-on-surface-variant/40 text-xs font-mono text-center">© 2024 Deep Hunt Academy. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-surface-container border border-white/10 flex items-center justify-center shadow-2xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none" aria-label="Back to top">
+  <span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+</button>
+
+<!-- SCRIPTS -->
+<script>
+  // Scroll Progress
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('scroll-progress').style.width = ((scrollTop / docHeight) * 100) + '%';
+  });
+
+  // Navbar Background on Scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+    } else {
+      navbar.classList.remove('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+    }
+  });
+
+  // Mobile Menu Toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  menuToggle.addEventListener('click', () => {
+    menuToggle.classList.toggle('active');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+
+  // Scroll Reveal
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('active');
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // Card Glow Effect
+  document.querySelectorAll('.card-glow').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      card.style.setProperty('--mouse-y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  });
+
+  // Filter Courses
+  function filterCourses(level) {
+    const cards = document.querySelectorAll('.course-card-academy');
+    const buttons = document.querySelectorAll('.filter-badge');
+
+    buttons.forEach(btn => btn.classList.remove('active'));
+    const currentEvent = typeof event !== 'undefined' ? event : null;
+    const activeBadge = currentEvent?.target?.closest('.filter-badge');
+    if (activeBadge) {
+      activeBadge.classList.add('active');
+    } else if (buttons.length > 0) {
+      buttons[0].classList.add('active');
+    }
+
+    cards.forEach(card => {
+      if (level === 'all' || card.dataset.level === level) {
+        card.style.display = 'block';
+        setTimeout(() => card.style.opacity = '1', 10);
+      } else {
+        card.style.opacity = '0';
+        setTimeout(() => card.style.display = 'none', 300);
+      }
+    });
+  }
+
+  // Back to Top
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) {
+      backToTop.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      backToTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    } else {
+      backToTop.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      backToTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }
+  });
+  backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deep Hunt — Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#adc7ff",
+          "primary-container": "#4a8eff",
+          "background": "#131313",
+          "on-surface": "#e2e2e2",
+          "on-surface-variant": "#c1c6d7",
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: radial-gradient(circle at top right, rgba(74, 142, 255, 0.1), #131313 40%); color: #e2e2e2; }
+  .glass { background: rgba(33, 33, 33, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+  .demo-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 8px; width: 100%; padding: 12px 16px; outline: none; transition: 0.3s; }
+  .demo-input:focus { border-color: #adc7ff; box-shadow: 0 0 10px rgba(173, 199, 255, 0.2); }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-body selection:bg-primary-container selection:text-[#00285b]">
+
+  <div class="glass w-full max-w-md p-10 rounded-2xl shadow-2xl relative overflow-hidden">
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="text-center mb-8">
+    <a href="/dashboard" class="flex items-center justify-center gap-3 mb-6">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-[0_0_20px_rgba(74,142,255,0.2)]">
+        <span class="material-symbols-outlined text-[#00285b]" style="font-variation-settings: 'FILL' 1;">security</span>
+      </div>
+      <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt</span>
+    </a>
+    <p class="text-on-surface-variant text-sm">Sign in to your tactical portal.</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5">
+      <div id="errorBox" class="hidden bg-red-500/10 border border-red-500/20 text-red-200 text-sm p-3 rounded-lg text-center"></div>
+      
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Username</label>
+        <input type="text" id="username" class="demo-input" required placeholder="Enter username" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Password</label>
+        <input type="password" id="password" class="demo-input" required placeholder="••••••••" />
+      </div>
+
+      <!-- Demo Only: Tier Selector -->
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Simulate Tier</label>
+        <select id="userTier" class="demo-input appearance-none">
+            <option value="normal">Normal (Free) User</option>
+            <option value="pro">Pro ($29/mo) Individual</option>
+            <option value="business">Business ($149/mo) Team</option>
+            <option value="industry">Industry (Coming Soon)</option>
+        </select>
+        <p class="text-[10px] text-primary/70 mt-1 pl-1 font-mono">For local dev UI testing only.</p>
+      </div>
+
+      <button type="submit" class="w-full bg-gradient-to-r from-primary to-primary-container text-[#00285b] font-headline font-bold py-3 rounded-lg hover:shadow-[0_0_20px_rgba(74,142,255,0.25)] transition-all">
+        AUTHENTICATE
+      </button>
+
+      <p class="text-xs text-center text-on-surface-variant mt-6">
+        Don't have an operator badge? <a href="/register" class="text-primary hover:underline font-bold">Sign Up</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- AUTH SCRIPT -->
+  <script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    window.addEventListener('load', () => {
+        const cookieToken = getCookie('token');
+        const localToken = localStorage.getItem('cyber_token');
+        const userTier = localStorage.getItem('cyber_tier') || 'normal';
+        
+        if (cookieToken || localToken) {
+            // Auto-redirect if somehow landed on login page while already authenticated
+            if (userTier === 'normal') window.location.replace('/dashboard_normal.html');
+            else if (userTier === 'pro') window.location.replace('/dashboard_pro.html');
+            else if (userTier === 'business') window.location.replace('/team_dashboard.html');
+            else if (userTier === 'industry') window.location.replace('/dashboard_industry.html');
+            else window.location.replace('/dashboard_normal.html');
+        }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const tier = document.getElementById('userTier').value;
+      const errorBox = document.getElementById('errorBox');
+      errorBox.classList.add('hidden');
+
+      // Basic front-end mock authentication for Testing Web
+      if (username.length > 2 && password.length > 2) {
+          // Simulate network delay
+          await new Promise(r => setTimeout(r, 500));
+          
+          // Set JWT as cross-domain cookie and localStorage for quick local testing
+          const mockToken = "mock_jwt_token_" + Math.random().toString(36).substring(7);
+          document.cookie = `token=${mockToken}; path=/; max-age=86400; SameSite=Lax`;
+          localStorage.setItem('cyber_token', mockToken);
+          localStorage.setItem('cyber_tier', tier);
+          
+          if (tier === 'normal') {
+              window.location.href = '/main/dashboard_normal.html';
+          } else if (tier === 'pro') {
+              window.location.href = '/main/dashboard_pro.html';
+          } else if (tier === 'business') {
+              window.location.href = '/main/team_dashboard.html';
+          } else if (tier === 'industry') {
+              window.location.href = '/main/dashboard_industry.html';
+          }
+      } else {
+          errorBox.textContent = 'Invalid credentials. Use any username/password > 2 chars.';
+          errorBox.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

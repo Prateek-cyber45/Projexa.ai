@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deep Hunt — Live Security News</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <!-- Three.js and Globe.gl for 3D Globe -->
+  <script src="https://unpkg.com/three"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <!-- Lenis for smooth scrolling -->
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+  <script>
+  tailwind.config = {
+    darkMode:"class",
+    theme:{
+      extend:{
+        colors:{
+          "primary":"#adc7ff","primary-container":"#4a8eff",
+          "background":"#0a0a0a","surface":"#171717",
+          "on-surface":"#e2e2e2","on-surface-variant":"#a1a8c2",
+          "accent":"#4a8eff","accent-green":"#4ade80","accent-purple":"#c084fc",
+          "accent-orange":"#ffb4ab",
+          "accent-red":"#ff5449",
+        },
+        fontFamily:{
+          "headline":["Manrope", "sans-serif"],
+          "body":["Inter", "sans-serif"],
+          "mono":["JetBrains Mono", "monospace"]
+        },
+        animation: {
+          'text-gradient': 'text-gradient 6s linear infinite',
+          'float': 'float 6s ease-in-out infinite',
+          'ticker': 'ticker 30s linear infinite',
+        },
+        keyframes: {
+          'text-gradient': {
+            '0%, 100%': { 'background-position': '0% center' },
+            '50%': { 'background-position': '100% center' },
+          },
+          'float': {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-10px)' },
+          },
+          'ticker': {
+            '0%': { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(-100%)' },
+          }
+        }
+      }
+    }
+  }
+  </script>
+  <style>
+    body { background: #050505; color: #e2e2e2; overflow-x: hidden; }
+    
+    .bg-grid { 
+      background-size: 40px 40px; 
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px), 
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      mask-image: linear-gradient(to bottom, black 10%, rgba(0,0,0,0.3) 70%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 10%, rgba(0,0,0,0.3) 70%, transparent 100%);
+    }
+    
+    .glass {
+      background: rgba(15, 15, 15, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+    
+    .news-card {
+      background: rgba(20, 20, 20, 0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 20px 40px -20px rgba(255, 255, 255, 0.05), 0 4px 20px -2px rgba(0,0,0,0.5);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+      position: relative;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .news-card:hover {
+      border-color: rgba(255, 84, 73, 0.3);
+      transform: translateY(-4px);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 15px 30px -10px rgba(255, 84, 73, 0.15);
+      background: rgba(30, 30, 30, 0.7);
+    }
+    .news-card > .content { transform: translateZ(25px); }
+
+    .feed-item {
+      border-left: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .feed-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+      border-left-color: #ff5449;
+      transform: translateX(4px);
+    }
+
+    .live-indicator {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background-color: #ff5449;
+      box-shadow: 0 0 10px #ff5449;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 84, 73, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(255, 84, 73, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 84, 73, 0); }
+    }
+
+    .ticker-wrap {
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(10, 10, 10, 0.8);
+    }
+    .ticker-inner {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      min-width: max-content;
+      animation: ticker 60s linear infinite;
+    }
+    .ticker-inner:hover, .ticker-wrap:hover .ticker-inner {
+      animation-play-state: paused;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .tag {
+      font-size: 10px; padding: 3px 10px; border-radius: 6px; 
+      font-family: 'JetBrains Mono', monospace; font-weight: 700; 
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .delay-100 { animation-delay: 150ms; }
+    .delay-200 { animation-delay: 300ms; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ff5449; }
+    
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  </style>
+</head>
+<body class="font-body min-h-screen flex flex-col relative">
+  <div class="fixed inset-0 bg-grid -z-20 pointer-events-none"></div>
+  
+  <div class="absolute top-[-10%] left-[20%] w-[600px] h-[500px] bg-accent-red/5 rounded-full blur-[140px] pointer-events-none -z-10 animate-float"></div>
+  <div class="absolute top-[30%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] pointer-events-none -z-10 animate-float" style="animation-delay: -3s;"></div>
+
+  <nav class="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 shadow-xl">
+    <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="/main/index.html" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center group-hover:border-accent-red/50 transition-colors">
+            <span class="material-symbols-outlined text-white group-hover:text-accent-red transition-colors" style="font-variation-settings: 'FILL' 1;">crisis_alert</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white font-headline">Deep Hunt</span>
+        </a>
+        <div class="hidden lg:flex items-center gap-2 border-l border-white/10 pl-8 text-sm font-semibold text-on-surface-variant">
+          <a href="/main/index.html" class="px-4 py-2 hover:text-white transition-colors rounded-lg hover:bg-white/5">Home</a>
+          <a href="/other_services/blog.html" class="px-4 py-2 hover:text-white transition-colors rounded-lg hover:bg-white/5">Blog</a>
+          <a href="/academy/index.html" class="px-4 py-2 hover:text-white transition-colors rounded-lg hover:bg-white/5">Academy</a>
+          <a href="/other_services/news.html" class="px-4 py-2 text-white bg-white/5 transition-colors rounded-lg flex items-center gap-2 border border-white/5"><span class="live-indicator w-1.5 h-1.5"></span> Live News</a>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/main/login.html" class="px-5 py-2 text-sm font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg transition-all">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Live Ticker -->
+  <div class="ticker-wrap py-2 cursor-pointer" id="ticker-wrap">
+    <div class="ticker-inner gap-10 px-5 text-xs font-mono text-on-surface-variant tracking-wider" id="ticker-1">
+      <span class="text-white/50 animate-pulse">Loading live intelligence...</span>
+    </div>
+    <div class="ticker-inner gap-10 px-5 text-xs font-mono text-on-surface-variant tracking-wider" id="ticker-2" aria-hidden="true">
+      <span class="text-white/50 animate-pulse">Loading live intelligence...</span>
+    </div>
+  </div>
+
+  <!-- 3D Globe Hero Header -->
+  <header class="relative w-full h-[500px] md:h-[600px] border-b border-white/5 overflow-hidden flex items-center bg-gradient-to-b from-transparent to-[#0a0a0a]">
+    <!-- The Globe Container -->
+    <div id="globeViz" class="absolute inset-0 right-0 md:left-1/3 flex justify-center lg:justify-end items-center outline-none"></div>
+    
+    <div class="relative z-10 max-w-screen-2xl mx-auto px-6 w-full pointer-events-none flex flex-col justify-center h-full">
+      <div class="max-w-lg pointer-events-auto backdrop-blur-sm bg-black/20 p-8 rounded-3xl border border-white/5">
+        <div class="w-12 h-12 rounded-xl bg-accent-red/10 border border-accent-red/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(255,84,73,0.15)]">
+          <span class="material-symbols-outlined text-accent-red text-2xl animate-pulse">language</span>
+        </div>
+        <h1 class="font-headline text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4 drop-shadow-lg">Global Threat Map</h1>
+        <p class="text-on-surface-variant font-body font-light text-base md:text-lg leading-relaxed mb-6">Real-time visualization of active zero-days, infrastructure breaches, and APT campaigns monitored across the globe.</p>
+        <div class="flex items-center gap-4 text-xs font-mono">
+          <span class="flex items-center gap-2 text-white"><span class="w-2 h-2 bg-accent-red rounded-full animate-pulse shadow-[0_0_8px_#ff5449]"></span> Critical</span>
+          <span class="flex items-center gap-2 text-white"><span class="w-2 h-2 bg-accent-orange rounded-full shadow-[0_0_8px_#ffb4ab]"></span> Elevated</span>
+          <span class="flex items-center gap-2 text-white"><span class="w-2 h-2 bg-accent-purple rounded-full shadow-[0_0_8px_#c084fc]"></span> Intel</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-screen-2xl mx-auto px-6 py-12 md:py-20 w-full relative z-10 flex flex-col xl:flex-row gap-10 xl:gap-16">
+    
+    <!-- Left Column: Featured/Breaking News -->
+    <div class="xl:w-2/3 animate-in" style="opacity:0;" id="hero-news-container">
+      <!-- Main Breaking News Card -->
+      <article class="news-card rounded-3xl overflow-hidden cursor-pointer mb-10 group">
+        <div class="h-[300px] md:h-[400px] relative overflow-hidden bg-black">
+          <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80" alt="Financial Attack" class="w-full h-full object-cover opacity-50 group-hover:scale-105 group-hover:opacity-70 transition-all duration-700" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/60 to-transparent"></div>
+        </div>
+        <div class="content p-8 md:p-10 absolute bottom-0 left-0 w-full">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="tag bg-accent-red/20 text-accent-red border border-accent-red/30 flex items-center gap-1.5 backdrop-blur-md">
+              <span class="live-indicator w-1.5 h-1.5"></span> BREAKING
+            </span>
+            <span class="text-xs font-mono text-white/70">Updated 10 mins ago</span>
+          </div>
+          <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight group-hover:text-accent-red transition-colors drop-shadow-md">Global Financial Sync Platform Compromised by Novel Supply Chain Attack</h2>
+          <p class="text-on-surface-variant text-base line-clamp-2 md:line-clamp-3 mb-6 max-w-3xl">Unauthenticated access confirmed across multiple banking systems via an update deployment mechanism. Critical mitigation steps inside.</p>
+          <div class="flex items-center justify-between border-t border-white/10 pt-6">
+            <div class="flex items-center gap-3">
+              <img src="https://i.pravatar.cc/100?img=15" alt="Avatar" class="w-8 h-8 rounded-full border border-white/30">
+              <div>
+                <p class="text-sm font-bold text-white leading-none">Security Response Team</p>
+                <p class="text-[10px] text-accent-red font-mono mt-1 uppercase tracking-wider">Severity: Critical</p>
+              </div>
+            </div>
+            <button class="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors">Read Briefing</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Smaller Featured Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <article class="news-card p-6 rounded-2xl cursor-pointer group">
+          <div class="content">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="tag bg-accent-orange/10 text-accent-orange border border-accent-orange/20">Vulnerability</span>
+              <span class="text-xs font-mono text-on-surface-variant ml-auto">2 hours ago</span>
+            </div>
+            <h3 class="font-headline text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-snug">Zero-Day in Enterprise VPN Client (CVE-2026-1184)</h3>
+            <p class="text-sm text-on-surface-variant flex-1 line-clamp-3 font-light mb-4">A critical vulnerability enabling remote code execution is actively being exploited. Affected software versions include v12.0 and below.</p>
+            <div class="text-xs font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read more <span class="material-symbols-outlined text-[14px]">arrow_forward</span></div>
+          </div>
+        </article>
+        <article class="news-card p-6 rounded-2xl cursor-pointer group">
+          <div class="content">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="tag bg-accent-purple/10 text-accent-purple border border-accent-purple/20">Threat Intel</span>
+              <span class="text-xs font-mono text-on-surface-variant ml-auto">5 hours ago</span>
+            </div>
+            <h3 class="font-headline text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-snug">New Ransomware Strain "CrypticLocker" Discovered</h3>
+            <p class="text-sm text-on-surface-variant flex-1 line-clamp-3 font-light mb-4">Researchers dissect a heavily obfuscated Rust-based ransomware variant encrypting ESXi datastores at an unprecedented speed.</p>
+            <div class="text-xs font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read more <span class="material-symbols-outlined text-[14px]">arrow_forward</span></div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Additional News Rows for Fullness -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <article class="news-card p-6 rounded-2xl cursor-pointer group">
+          <div class="content">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="tag bg-primary/10 text-primary border border-primary/20">Policy</span>
+              <span class="text-xs font-mono text-on-surface-variant ml-auto">8 hours ago</span>
+            </div>
+            <h3 class="font-headline text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-snug">New SEC Regulations mandate 4-day disclosure</h3>
+            <p class="text-sm md:text-base text-on-surface-variant flex-1 line-clamp-3 font-light mb-4">Public companies now face strict timeline constraints for reporting material cybersecurity incidents, reshaping risk management.</p>
+            <div class="text-sm font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read more <span class="material-symbols-outlined text-[16px]">arrow_forward</span></div>
+          </div>
+        </article>
+        <article class="news-card p-6 rounded-2xl cursor-pointer group border border-accent-red/20 shadow-[0_0_15px_rgba(239,68,68,0.05)]">
+          <div class="content">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="tag bg-accent-red/10 text-accent-red border border-accent-red/20 animate-pulse flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-accent-red rounded-full"></span> Critical</span>
+              <span class="text-xs font-mono text-on-surface-variant ml-auto">12 hours ago</span>
+            </div>
+            <h3 class="font-headline text-xl font-bold text-white mb-3 group-hover:text-accent-red transition-colors leading-snug">Supply Chain Attack Hits NPM Packages</h3>
+            <p class="text-sm md:text-base text-on-surface-variant flex-1 line-clamp-3 font-light mb-4">Dependencies for popular framework compromised. Attackers injected crypto-mining payloads into widely used version 3.4.1.</p>
+            <div class="text-sm font-bold text-accent-red flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read more <span class="material-symbols-outlined text-[16px]">arrow_forward</span></div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Newsletter block -->
+      <div class="mt-12 mb-10 p-8 rounded-3xl bg-gradient-to-br from-primary/10 to-[#111] border border-white/5 relative overflow-hidden group hover:border-primary/30 transition-all duration-500">
+        <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 20px 20px;"></div>
+        <div class="relative z-10 flex flex-col xl:flex-row items-start xl:items-center gap-8 justify-between">
+          <div class="flex-1">
+            <h3 class="font-headline text-2xl font-bold text-white mb-2 flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-3xl">mail</span> Daily Threat Briefing
+            </h3>
+            <p class="text-on-surface-variant font-light text-base md:text-lg max-w-xl">Get the top 5 cybersecurity news items delivered to your inbox every morning. No spam, only actionable intel.</p>
+          </div>
+          <div class="w-full xl:w-auto flex flex-col sm:flex-row gap-3">
+            <input type="email" placeholder="email@enterprise.com" class="bg-black/50 border border-white/20 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary/50 flex-1 sm:w-[280px]" />
+            <button class="bg-primary hover:bg-white text-black font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(182,255,25,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]">Subscribe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Live Feed Scroll -->
+    <aside class="xl:w-1/3 animate-in delay-100 flex flex-col" style="opacity:0;">
+      <!-- Removed h-full to let it sit naturally, added sticky position so it scrolls with you nicely -->
+      <div class="glass rounded-3xl p-6 md:p-8 sticky top-6 flex flex-col relative overflow-hidden flex-1 shadow-2xl">
+        <div class="absolute top-0 right-0 w-[200px] h-[200px] bg-primary/10 rounded-full blur-[80px] pointer-events-none z-0"></div>
+        
+        <div class="flex items-center justify-between mb-8 relative z-10 border-b border-white/10 pb-4">
+          <h3 class="font-headline text-2xl font-extrabold text-white flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-3xl">terminal</span> Live Feed
+          </h3>
+          <div class="flex items-center gap-2 text-sm font-mono text-on-surface-variant bg-black/40 px-3 py-1.5 rounded-lg border border-white/5">
+            <span class="w-2.5 h-2.5 rounded-full bg-accent-green animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]"></span> Syncing
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-4 -mr-4 space-y-6 relative z-10 custom-scrollbar max-h-[800px]" id="live-feed-container">
+          
+          <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-primary mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 14 mins ago 
+              <span class="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ml-auto">Alert</span>
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-primary transition-colors cursor-pointer">CISA adds 3 new vulnerabilities to Known Exploited list.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">Agencies are required to patch Jenkins and Apache active vulnerabilities by April 17th. Immediate patching recommended for all exposed endpoints.</p>
+          </div>
+
+          <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-accent-red mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 42 mins ago 
+              <span class="bg-accent-red/20 text-accent-red border border-accent-red/30 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ml-auto">Breach</span>
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-accent-red transition-colors cursor-pointer">Healthcare provider confirms ransomware incident affecting 200 clinics.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">Patient portals have been taken offline to contain the spread of the BlackCat affiliate attack. Emergency response teams activated globally.</p>
+          </div>
+
+          <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-on-surface-variant mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 1 hr ago
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-white transition-colors cursor-pointer">NIST releases updated guidelines for post-quantum cryptography.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">New standardization frameworks provide timelines for enterprise migration to quantum-resistant algorithms across all secure comms.</p>
+          </div>
+
+          <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-accent-purple mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 2 hrs ago 
+              <span class="bg-accent-purple/20 text-accent-purple border border-accent-purple/30 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ml-auto">Intel</span>
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-accent-purple transition-colors cursor-pointer">Lazarus Group observed utilizing novel AI-generated spear-phishing.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">Researchers identify highly personalized lures leveraging deepfake audio and auto-generated profiles on LinkedIn connection requests.</p>
+          </div>
+
+          <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-on-surface-variant mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 3 hrs ago
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-white transition-colors cursor-pointer">GitHub rolls out mandatory 2FA for all active developers.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">Platform-wide enforcement completes roll-out successfully with millions of accounts secured against automated attacks.</p>
+          </div>
+          
+           <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group">
+            <p class="text-sm font-mono text-accent-orange mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">schedule</span> 5 hrs ago 
+              <span class="bg-accent-orange/20 text-accent-orange border border-accent-orange/30 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ml-auto">0-Day</span>
+            </p>
+            <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 group-hover:text-accent-orange transition-colors cursor-pointer">PoC released for unpatched smart home hub vulnerability.</h4>
+            <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed">Security researchers urge users to disable remote access until IoT vendor issues firmware update to prevent botnet conscription.</p>
+          </div>
+
+        </div>
+        <button class="w-full py-4 mt-6 text-base font-mono font-bold text-white border-2 border-white/10 hover:bg-white/10 rounded-2xl transition-all shadow-inner relative z-10 flex items-center justify-center gap-2 group">
+          Load Older Intel <span class="material-symbols-outlined transition-transform group-hover:translate-y-1">expand_more</span>
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+  <script>
+    // Lenis Smooth Scroll
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // Initialize 3D Globe Map
+    const globeContainer = document.getElementById('globeViz');
+    if (globeContainer) {
+      // Real-world mock data for news nodes with respective agencies and real URLs
+      const gData = [
+        {
+          lat: 38.8951, lng: -77.0364, size: 20, color: '#ff5449', 
+          title: 'Critical Jenkins RCE Actively Exploited', 
+          location: 'US-East (CISA)',
+          link: 'https://www.cisa.gov/news-events/alerts'
+        },
+        {
+          lat: 51.5074, lng: -0.1278, size: 15, color: '#ffb4ab', 
+          title: 'New Malware Dropper Targeting EU Banks', 
+          location: 'London (The Hacker News)',
+          link: 'https://thehackernews.com/'
+        },
+        {
+          lat: 35.6762, lng: 139.6503, size: 18, color: '#c084fc', 
+          title: 'Lazarus Group Deploys Novel Rootkit', 
+          location: 'Tokyo (BleepingComputer)',
+          link: 'https://www.bleepingcomputer.com/'
+        },
+        {
+          lat: 50.1109, lng: 8.6821, size: 12, color: '#adc7ff', 
+          title: 'Frankfurt Datacenter DDoS Attack Thwarted', 
+          location: 'Frankfurt (Dark Reading)',
+          link: 'https://www.darkreading.com/'
+        },
+        {
+          lat: 1.3521, lng: 103.8198, size: 16, color: '#ff5449', 
+          title: 'Zero-day in IoT Hub Allows Remote Takeover', 
+          location: 'Singapore (KrebsOnSecurity)',
+          link: 'https://krebsonsecurity.com/'
+        },
+        {
+          lat: -23.5505, lng: -46.6333, size: 14, color: '#ffb4ab', 
+          title: 'Ransomware Gang Extorts Brazilian Tech Firm', 
+          location: 'Sao Paulo (CyberScoop)',
+          link: 'https://www.cyberscoop.com/'
+        }
+      ];
+
+      const myGlobe = Globe()(globeContainer)
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+        .backgroundColor('rgba(0,0,0,0)')
+        .htmlElementsData(gData)
+        .htmlElement(d => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="flex items-center gap-2 group cursor-pointer">
+              <span class="w-3 h-3 rounded-full relative">
+                <span class="absolute inset-0 rounded-full animate-ping opacity-75" style="background: ${d.color}"></span>
+                <span class="relative block w-3 h-3 rounded-full" style="background: ${d.color}; box-shadow: 0 0 10px ${d.color}"></span>
+              </span>
+              <a href="${d.link}" class="hidden group-hover:block bg-black/80 border border-white/10 backdrop-blur-md px-3 py-2 rounded-xl ml-2 whitespace-nowrap min-w-max transition-all pointer-events-auto shadow-2xl hover:border-white/30 z-50 relative">
+                <p class="text-xs font-bold text-white mb-1 leading-none">${d.title}</p>
+                <p class="text-[10px] font-mono text-on-surface-variant leading-none">${d.location} <span class="text-primary ml-1">View &rarr;</span></p>
+              </a>
+            </div>
+          `;
+          el.style.pointerEvents = 'auto';
+          return el;
+        });
+
+      // Adjust camera and rotation
+      myGlobe.controls().autoRotate = true;
+      myGlobe.controls().autoRotateSpeed = 1.0;
+      myGlobe.controls().enableZoom = false;
+      myGlobe.pointOfView({ lat: 20, lng: -40, altitude: 2.2 });
+      
+      // Dynamic Data Polling
+      function timeSince(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        let interval = seconds / 3600;
+        if (interval >= 1) return Math.floor(interval) + " hrs ago";
+        interval = seconds / 60;
+        if (interval >= 1) return Math.floor(interval) + " mins ago";
+        return Math.floor(seconds) + " secs ago";
+      }
+
+      async function pollThreatIntel() {
+        try {
+          const res = await fetch('/api/threat-intel');
+          if (!res.ok) throw new Error('API down');
+          const data = await res.json();
+          if (!data || data.length === 0) return;
+
+          // Update Ticker
+          let tickerHtml = '';
+          data.slice(0, 10).forEach(item => {
+            tickerHtml += `
+              <a href="${item.link}" target="_blank" class="flex items-center gap-2 hover:text-white transition-colors"><span style="color:${item.color}" class="font-bold">[${item.agency}]</span> ${item.title}</a>
+              <span class="w-1 h-1 bg-white/20 rounded-full"></span>
+            `;
+          });
+          document.getElementById('ticker-1').innerHTML = tickerHtml;
+          document.getElementById('ticker-2').innerHTML = tickerHtml;
+
+          // Update Globe
+          myGlobe.htmlElementsData(data.slice(0, 20));
+
+          // Update Hero Cards (Extract first 5 items for the left column)
+          const heroContainer = document.getElementById('hero-news-container');
+          if (heroContainer) {
+              const topItem = data[0];
+              const gridItems = data.slice(1, 5);
+              
+              let heroHtml = `
+              <!-- Main Breaking News Card -->
+              <article class="news-card rounded-3xl overflow-hidden cursor-pointer mb-10 group" onclick="window.open('${topItem.link}', '_blank')">
+                <div class="h-[300px] md:h-[400px] relative overflow-hidden bg-black">
+                  <!-- Fallback abstract cyber image -->
+                  <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80" alt="Cyber Attack" class="w-full h-full object-cover opacity-50 group-hover:scale-105 group-hover:opacity-70 transition-all duration-700" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/80 to-transparent"></div>
+                </div>
+                <div class="content p-8 md:p-10 absolute bottom-0 left-0 w-full">
+                  <div class="flex items-center gap-3 mb-4">
+                    <span class="tag border flex items-center gap-1.5 backdrop-blur-md" style="background:${topItem.color}20; color:${topItem.color}; border-color:${topItem.color}40">
+                      <span class="live-indicator w-1.5 h-1.5" style="background-color:${topItem.color}; box-shadow: 0 0 10px ${topItem.color}"></span> ${topItem.severityLabel}
+                    </span>
+                    <span class="text-xs font-mono text-white/70">${timeSince(topItem.pubDate)}</span>
+                  </div>
+                  <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight transition-colors drop-shadow-md" onmouseover="this.style.color='${topItem.color}'" onmouseout="this.style.color=''"> ${topItem.title}</h2>
+                  <p class="text-on-surface-variant text-base line-clamp-2 md:line-clamp-3 mb-6 max-w-3xl">${topItem.description}</p>
+                  <div class="flex items-center justify-between border-t border-white/10 pt-6">
+                    <div class="flex items-center gap-3">
+                      <div>
+                        <p class="text-sm font-bold text-white leading-none">${topItem.agency}</p>
+                        <p class="text-[10px] font-mono mt-1 uppercase tracking-wider" style="color:${topItem.color}">${topItem.locationName}</p>
+                      </div>
+                    </div>
+                    <button class="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-colors">Read Briefing</button>
+                  </div>
+                </div>
+              </article>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
+              
+              gridItems.forEach(item => {
+                  heroHtml += `
+                  <article class="news-card p-6 rounded-2xl cursor-pointer group" onclick="window.open('${item.link}', '_blank')">
+                    <div class="content">
+                      <div class="flex items-center gap-2 mb-4">
+                        <span class="tag border" style="background:${item.color}10; color:${item.color}; border-color:${item.color}20">${item.severityLabel}</span>
+                        <span class="text-xs font-mono text-on-surface-variant ml-auto">${timeSince(item.pubDate)}</span>
+                      </div>
+                      <h3 class="font-headline text-xl font-bold text-white mb-3 transition-colors leading-snug" onmouseover="this.style.color='${item.color}'" onmouseout="this.style.color=''"> ${item.title}</h3>
+                      <p class="text-sm text-on-surface-variant flex-1 line-clamp-3 font-light mb-4">${item.description}</p>
+                      <div class="text-xs font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform" style="color:${item.color}">Read more <span class="material-symbols-outlined text-[14px]">arrow_forward</span></div>
+                    </div>
+                  </article>`;
+              });
+              
+              heroHtml += `</div>
+              
+              <!-- Newsletter block -->
+              <div class="mt-12 mb-10 p-8 rounded-3xl bg-gradient-to-br from-primary/10 to-[#111] border border-white/5 relative overflow-hidden group hover:border-primary/30 transition-all duration-500">
+                <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="relative z-10 flex flex-col xl:flex-row items-start xl:items-center gap-8 justify-between">
+                  <div class="flex-1">
+                    <h3 class="font-headline text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                      <span class="material-symbols-outlined text-primary text-3xl">mail</span> Daily Threat Briefing
+                    </h3>
+                    <p class="text-on-surface-variant font-light text-base md:text-lg max-w-xl">Get the top 5 cybersecurity news items delivered to your inbox every morning. No spam, only actionable intel.</p>
+                  </div>
+                  <div class="w-full xl:w-auto flex flex-col sm:flex-row gap-3">
+                    <input type="email" placeholder="email@enterprise.com" class="bg-black/50 border border-white/20 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-primary/50 flex-1 sm:w-[280px]" />
+                    <button class="bg-primary hover:bg-white text-black font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(182,255,25,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]">Subscribe</button>
+                  </div>
+                </div>
+              </div>`;
+              
+              heroContainer.innerHTML = heroHtml;
+          }
+
+          // Update Right Feed
+          const feedContainer = document.getElementById('live-feed-container');
+          if (feedContainer) {
+              let feedHtml = '';
+              data.slice(0, 15).forEach(item => {
+                  feedHtml += `
+                  <div class="feed-item p-5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all rounded-2xl cursor-default group" onclick="window.open('${item.link}', '_blank')">
+                    <p class="text-sm font-mono text-on-surface-variant mb-3 flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[16px]">schedule</span> ${timeSince(item.pubDate)}
+                      <span style="color:${item.color}; border-color:${item.color}40; background:${item.color}20" class="border px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ml-auto">${item.agency}</span>
+                    </p>
+                    <h4 class="text-base md:text-lg font-bold text-white leading-relaxed mb-3 transition-colors cursor-pointer" style="text-shadow: 0 0 10px ${item.color}00;" onmouseover="this.style.color='${item.color}'" onmouseout="this.style.color=''"> ${item.title}</h4>
+                    <p class="text-sm md:text-base text-on-surface-variant font-light leading-relaxed line-clamp-2">${item.description}</p>
+                  </div>`;
+              });
+              feedContainer.innerHTML = feedHtml;
+          }
+
+        } catch(e) {
+          console.error("Failed to fetch threat intel", e);
+        }
+      }
+
+      pollThreatIntel();
+      setInterval(pollThreatIntel, 60000); // 1 min
+
+      // Handle resize
+      window.addEventListener('resize', () => {
+        myGlobe.width(globeContainer.clientWidth);
+        myGlobe.height(globeContainer.clientHeight);
+      });
+      // Initial sizing timeout to ensure container is fully rendered
+      setTimeout(() => {
+        myGlobe.width(globeContainer.clientWidth);
+        myGlobe.height(globeContainer.clientHeight);
+      }, 100);
+    }
+
+    // 3D Tilt Init
+    VanillaTilt.init(document.querySelectorAll(".news-card"), {
+      max: 4,
+      speed: 400,
+      glare: true,
+      "max-glare": 0.15,
+      scale: 1.01,
+      easing: "cubic-bezier(.03,.98,.52,.99)"
+    });
+  </script>
+</body>
+</html>

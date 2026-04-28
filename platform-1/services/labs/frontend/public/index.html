@@ -1,0 +1,939 @@
+
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Hunt Labs — Live Cyber Range Simulations</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-fixed-variant": "#26467c",
+            "primary": "#adc7ff",
+            "outline": "#8b90a0",
+            "on-primary-fixed-variant": "#004493",
+            "on-error": "#690005",
+            "surface-container-low": "#1b1b1b",
+            "on-tertiary": "#571e00",
+            "on-primary": "#002e68",
+            "secondary-container": "#29487f",
+            "on-secondary-fixed": "#001a41",
+            "outline-variant": "#414754",
+            "background": "#131313",
+            "on-surface": "#e2e2e2",
+            "primary-container": "#4a8eff",
+            "on-tertiary-container": "#4c1a00",
+            "on-tertiary-fixed-variant": "#7c2e00",
+            "tertiary-fixed": "#ffdbcc",
+            "on-tertiary-fixed": "#351000",
+            "tertiary-fixed-dim": "#ffb695",
+            "inverse-surface": "#e2e2e2",
+            "inverse-on-surface": "#303030",
+            "on-primary-container": "#00285b",
+            "primary-fixed": "#d8e2ff",
+            "tertiary": "#ffb695",
+            "surface-container-lowest": "#0e0e0e",
+            "on-background": "#e2e2e2",
+            "secondary-fixed": "#d8e2ff",
+            "secondary-fixed-dim": "#adc7ff",
+            "tertiary-container": "#ef6719",
+            "on-primary-fixed": "#001a41",
+            "primary-fixed-dim": "#adc7ff",
+            "on-error-container": "#ffdad6",
+            "surface-container-high": "#2a2a2a",
+            "surface-bright": "#393939",
+            "on-secondary-container": "#9bb8f6",
+            "surface-dim": "#131313",
+            "surface": "#131313",
+            "surface-container": "#1f1f1f",
+            "error": "#ffb4ab",
+            "surface-variant": "#353535",
+            "surface-tint": "#adc7ff",
+            "surface-container-highest": "#353535",
+            "on-surface-variant": "#c1c6d7",
+            "on-secondary": "#072f64",
+            "secondary": "#adc7ff",
+            "inverse-primary": "#005bc0",
+            "error-container": "#93000a"
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"],
+            "mono": ["JetBrains Mono"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          keyframes: {
+            'float': {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-20px) rotate(1deg)' },
+            },
+            'float-delayed': {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-15px) rotate(-1deg)' },
+            },
+            'gradient-shift': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+            'pulse-glow': {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(74, 142, 255, 0.3)' },
+              '50%': { boxShadow: '0 0 40px rgba(74, 142, 255, 0.6)' },
+            },
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-delayed': 'float-delayed 8s ease-in-out infinite',
+            'gradient-shift': 'gradient-shift 6s ease infinite',
+            'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { scroll-behavior: smooth; }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .glass-panel {
+      background: rgba(53, 53, 53, 0.35);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #ADC7FF 0%, #4A8EFF 50%, #ADC7FF 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 6s ease infinite;
+    }
+
+    .text-gradient-red {
+      background: linear-gradient(135deg, #ffb4ab 0%, #ff6b6b 50%, #ffb4ab 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 6s ease infinite;
+    }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 2px;
+      background: linear-gradient(90deg, #ADC7FF, #4A8EFF);
+      z-index: 9999; transition: width 0.1s linear;
+    }
+
+    #preloader {
+      position: fixed; inset: 0; background: #131313; z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .loader-ring {
+      width: 50px; height: 50px; border: 2px solid transparent;
+      border-top-color: #ADC7FF; border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .loader-ring::before {
+      content: ''; position: absolute; inset: 4px;
+      border: 2px solid transparent; border-top-color: #4A8EFF;
+      border-radius: 50%; animation: spin 0.6s linear reverse infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(173, 199, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(173, 199, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #131313; }
+    ::-webkit-scrollbar-thumb { background: #353535; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #414754; }
+
+    .stat-number { font-variant-numeric: tabular-nums; }
+
+    .noise::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; opacity: 0.4;
+    }
+
+    .sim-card {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    }
+    .sim-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(173, 199, 255, 0.08), transparent 40%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .sim-card:hover::before {
+      opacity: 1;
+    }
+    .sim-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 60px -15px rgba(74, 142, 255, 0.2);
+    }
+
+    .terminal-text {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .scanline {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(173, 199, 255, 0.3), transparent);
+      animation: scanline 4s linear infinite;
+    }
+    @keyframes scanline {
+      0% { top: -2px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .status-live {
+      animation: pulse-live 2s ease-in-out infinite;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    #particle-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container noise">
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="relative">
+    <div class="loader-ring"></div>
+    <span class="absolute top-16 left-1/2 -translate-x-1/2 text-primary/60 font-mono text-xs tracking-widest whitespace-nowrap">LOADING SYSTEMS</span>
+  </div>
+</div>
+
+<!-- Scroll Progress -->
+<div id="scroll-progress" style="width: 0%"></div>
+
+<!-- TopNavBar -->
+<nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500">
+  <div class="flex justify-between items-center px-6 md:px-10 py-5 max-w-screen-2xl mx-auto">
+    <a href="#" class="flex items-center gap-3 group">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary-container text-lg" style="font-variation-settings: 'FILL' 1;">science</span>
+      </div>
+      <span class="text-xl font-extrabold tracking-tighter text-white font-headline group-hover:text-primary transition-colors duration-300">Deep Hunt Labs</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-1">
+      <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300" href="http://main.com">Main</a>
+      <a class="font-headline font-medium text-sm tracking-tight text-[#C1C6D7] hover:text-white hover:bg-white/5 px-4 py-2 rounded-lg transition-all duration-300" href="http://academy.main.com">Academy</a>
+      <a class="font-headline font-medium text-sm tracking-tight text-primary bg-primary/10 px-4 py-2 rounded-lg transition-all duration-300" href="#">Labs</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-error/10 border border-error/20 rounded-lg">
+        <div class="w-2 h-2 rounded-full bg-error status-live"></div>
+        <span class="text-error text-xs font-mono uppercase tracking-wider">Live Environment</span>
+      </div>
+      <button id="menu-toggle" class="lg:hidden flex flex-col gap-1.5 p-2 group" aria-label="Menu">
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:rotate-45 group-[.active]:translate-y-2"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 group-[.active]:opacity-0"></span>
+        <span class="block w-6 h-0.5 bg-white transition-all duration-300 origin-center group-[.active]:-rotate-45 group-[.active]:-translate-y-2"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 lg:hidden">
+  <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="http://main.com">Main</a>
+  <a class="font-headline text-3xl font-bold text-white hover:text-primary transition-colors" href="http://academy.main.com">Academy</a>
+  <a class="font-headline text-3xl font-bold text-primary" href="#">Labs</a>
+</div>
+
+<main class="pt-0">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HERO SECTION                            -->
+  <!-- ═══════════════════════════════════════ -->
+  <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
+    <!-- Background with particle canvas -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0a0814] via-[#0d0a1a] to-[#131313]">
+      <canvas id="particle-canvas"></canvas>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px]">
+        <div class="absolute inset-[5%] rounded-full bg-gradient-to-br from-error/3 via-transparent to-primary/3 animate-pulse" style="animation-duration: 6s;"></div>
+        <div class="absolute inset-[20%] rounded-full bg-gradient-to-tr from-primary/4 to-transparent animate-pulse" style="animation-duration: 8s;"></div>
+        <div class="absolute inset-[35%] rounded-full border border-primary/5 animate-pulse" style="animation-duration: 5s;"></div>
+        <div class="absolute top-[30%] left-[60%] w-40 h-40 bg-error/5 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[60%] left-[30%] w-32 h-32 bg-primary/5 rounded-full blur-[80px]"></div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-b from-[#131313] via-transparent to-[#131313] z-[1]" style="opacity: 0.5;"></div>
+    </div>
+
+    <div class="absolute inset-0 grid-bg opacity-40 z-[3]"></div>
+    
+    <!-- Scanline effect -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-[4]">
+      <div class="scanline"></div>
+    </div>
+
+    <div class="relative z-10 max-w-screen-2xl mx-auto w-full px-6 md:px-10 grid grid-cols-12 gap-6 items-center pt-24">
+      <div class="col-span-12 lg:col-span-8 lg:col-start-1">
+        <div class="reveal inline-flex items-center gap-3 bg-error/10 border border-error/20 rounded-lg px-4 py-2 mb-8">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
+          </span>
+          <span class="text-error tracking-[0.15em] font-medium uppercase text-xs font-mono">Live Cyber Range Active</span>
+        </div>
+        <h1 class="reveal reveal-delay-1 font-headline text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] font-extrabold tracking-tighter leading-[0.88] mb-8 text-white">
+          REAL <span class="text-gradient-red">THREATS.</span><br/>REAL <span class="text-gradient">TRAINING.</span>
+        </h1>
+        <p class="reveal reveal-delay-2 text-on-surface-variant max-w-xl text-base md:text-lg leading-relaxed mb-12 font-light">
+          Experience live-fire simulations in our isolated cyber range. Execute SOC operations, incident response, and threat hunting against active adversary emulations.
+        </p>
+        <div class="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4">
+          <button onclick="location.href='/simulator/soc-sim-alpha';" class="group relative bg-gradient-to-r from-error to-tertiary-container text-white px-10 py-4 font-headline font-extrabold tracking-tight rounded-lg hover:shadow-[0_0_40px_rgba(255,107,107,0.3)] hover:translate-y-[-2px] transition-all duration-300 active:scale-[0.98] overflow-hidden">
+            <span class="relative z-10 flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg">play_arrow</span>
+              LAUNCH SIMULATOR
+            </span>
+            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          </button>
+          <button onclick="location.href='/#scenarios';" class="group flex items-center justify-center gap-3 text-white font-headline font-bold px-6 py-4 hover:bg-white/5 rounded-lg transition-all duration-300 border border-white/10">
+            VIEW SCENARIOS
+            <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform duration-300">arrow_forward</span>
+          </button>
+        </div>
+        <div class="reveal reveal-delay-4 flex gap-8 md:gap-12 mt-16 pt-8 border-t border-white/10">
+          <div>
+            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number" data-count="4">0</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Live Scenarios</p>
+          </div>
+          <div>
+            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number" data-count="5">0h</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Simulation Time</p>
+          </div>
+          <div>
+            <p class="text-white font-headline font-extrabold text-2xl md:text-3xl stat-number" data-count="99">0%</p>
+            <p class="text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-1">Threat Accuracy</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-4 hidden lg:flex flex-col gap-6 items-end">
+        <div class="reveal reveal-delay-3 animate-float glass-panel border border-error/20 rounded-2xl p-6 w-72 shadow-2xl">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-error text-2xl">warning</span>
+            <span class="text-[10px] text-error/80 font-mono bg-error/10 px-2 py-1 rounded status-live">ACTIVE THREAT</span>
+          </div>
+          <div class="mb-3">
+            <p class="text-white font-headline font-bold text-sm mb-1">Adversary Emulation</p>
+            <p class="text-2xl font-headline font-extrabold text-white font-mono">APT29</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 bg-error/10 text-error text-[9px] font-mono rounded uppercase">Credential Theft</span>
+            <span class="px-2 py-0.5 bg-error/10 text-error text-[9px] font-mono rounded uppercase">Lateral Movement</span>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-4 animate-float-delayed glass-panel border border-white/10 rounded-2xl p-6 w-64 mr-8 shadow-2xl">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">terminal</span>
+            <div class="flex gap-1.5">
+              <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-primary/50 animate-pulse" style="animation-delay: 0.3s;"></div>
+              <div class="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse" style="animation-delay: 0.6s;"></div>
+            </div>
+          </div>
+          <p class="text-white font-headline font-bold text-sm mb-3">System Status</p>
+          <div class="space-y-2 font-mono text-xs">
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">SIEM</span>
+              <span class="text-primary">ONLINE</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">EDR</span>
+              <span class="text-primary">ONLINE</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">FIREWALL</span>
+              <span class="text-primary">ONLINE</span>
+            </div>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-4 animate-float glass-panel border border-white/10 rounded-2xl p-5 w-60 mr-2 shadow-2xl" style="animation-delay: 2s;">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary-container/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">psychology</span>
+            </div>
+            <div>
+              <p class="text-white font-headline font-bold text-xs">AI Analysis</p>
+              <p class="text-primary text-[10px] font-mono">Scoring Active</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce" style="animation-duration: 2s;">
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-[0.3em] font-mono">Scroll</span>
+      <span class="material-symbols-outlined text-primary/60 text-sm">expand_more</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SIMULATIONS SECTION                     -->
+  <!-- ═══════════════════════════════════════ -->
+  <section id="scenarios" class="py-32 px-6 md:px-10 max-w-screen-2xl mx-auto">
+    <div class="reveal mb-20">
+      <span class="text-primary font-mono text-xs tracking-[0.3em] uppercase block mb-4">// Active Scenarios</span>
+      <h2 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6">SIMULATION SCENARIOS</h2>
+      <p class="text-on-surface-variant max-w-2xl text-base leading-relaxed">Enter realistic threat environments and test your skills against active adversary emulations.</p>
+      <div class="h-1 w-24 bg-gradient-to-r from-primary to-primary-container rounded-full mt-6"></div>
+    </div>
+
+    <div class="space-y-6">
+      <!-- Simulation 1: SOC Simulator -->
+      <div class="reveal reveal-delay-1 sim-card bg-surface-container-low border border-white/5 rounded-2xl overflow-hidden group">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          <div class="lg:col-span-4 relative h-48 lg:h-auto bg-gradient-to-br from-primary/10 to-primary-container/5 overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <span class="material-symbols-outlined text-6xl text-primary/60">visibility</span>
+              </div>
+            </div>
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+              <span class="text-[10px] text-primary font-mono uppercase tracking-wider">SOC Operations</span>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+          </div>
+          <div class="lg:col-span-8 p-8 lg:p-10 relative z-10">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+              <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-mono rounded-md uppercase">Intermediate</span>
+              <span class="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                45 minutes
+              </span>
+              <span class="flex items-center gap-1.5 text-primary text-xs">
+                <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                Live
+              </span>
+            </div>
+            <h3 class="font-headline text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-primary transition-colors duration-300">SOC Simulator: Credential Stuffing Attack</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">Analyze high-volume authentication logs to identify credential stuffing patterns. Triage alerts, investigate suspicious accounts, and execute containment procedures in a live banking environment simulation.</p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">SIEM Analysis</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Alert Triage</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Account Lockout</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">MITRE T1110</span>
+            </div>
+            <a href="/simulator/soc-sim-alpha" class="inline-flex items-center gap-3 bg-gradient-to-r from-primary to-primary-container text-on-primary-container px-8 py-3 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(74,142,255,0.3)] hover:translate-y-[-2px] transition-all duration-300 group/btn">
+              <span class="material-symbols-outlined text-lg">play_arrow</span>
+              Open Simulator
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform duration-300">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation 2: IR Ransomware -->
+      <div class="reveal reveal-delay-2 sim-card bg-surface-container-low border border-white/5 rounded-2xl overflow-hidden group">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          <div class="lg:col-span-4 relative h-48 lg:h-auto bg-gradient-to-br from-error/10 to-tertiary-container/5 overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-error/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <span class="material-symbols-outlined text-6xl text-error/60">emergency</span>
+              </div>
+            </div>
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+              <span class="text-[10px] text-error font-mono uppercase tracking-wider">Incident Response</span>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+          </div>
+          <div class="lg:col-span-8 p-8 lg:p-10 relative z-10">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+              <span class="px-3 py-1 bg-error/10 text-error text-[10px] font-mono rounded-md uppercase">Advanced</span>
+              <span class="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                1h 30m
+              </span>
+              <span class="flex items-center gap-1.5 text-error text-xs">
+                <div class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></div>
+                High Severity
+              </span>
+            </div>
+            <h3 class="font-headline text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-error transition-colors duration-300">IR: Ransomware Containment</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">Execute full incident response against an active ransomware attack. Identify patient zero, map lateral movement, contain the threat, and perform forensic analysis while under time pressure.</p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Containment</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Forensics</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Recovery</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">MITRE T1486</span>
+            </div>
+            <a href="/simulator/ir-ransomware" class="inline-flex items-center gap-3 bg-gradient-to-r from-error to-tertiary-container text-white px-8 py-3 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(255,107,107,0.3)] hover:translate-y-[-2px] transition-all duration-300 group/btn">
+              <span class="material-symbols-outlined text-lg">play_arrow</span>
+              Open Simulator
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform duration-300">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation 3: Forensics -->
+      <div class="reveal reveal-delay-3 sim-card bg-surface-container-low border border-white/5 rounded-2xl overflow-hidden group">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          <div class="lg:col-span-4 relative h-48 lg:h-auto bg-gradient-to-br from-tertiary/10 to-tertiary-container/5 overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-tertiary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <span class="material-symbols-outlined text-6xl text-tertiary/60">search</span>
+              </div>
+            </div>
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
+              <span class="text-[10px] text-tertiary font-mono uppercase tracking-wider">Digital Forensics</span>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+          </div>
+          <div class="lg:col-span-8 p-8 lg:p-10 relative z-10">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+              <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-mono rounded-md uppercase">Expert</span>
+              <span class="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                2h 00m
+              </span>
+              <span class="flex items-center gap-1.5 text-tertiary text-xs">
+                <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                Certification
+              </span>
+            </div>
+            <h3 class="font-headline text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-tertiary transition-colors duration-300">Forensics: Data Exfiltration Analysis</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">Analyze PCAP captures and system artifacts to reconstruct a data exfiltration incident. Identify C2 communication, stolen data, and build a complete timeline for executive reporting.</p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">PCAP Analysis</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Wireshark</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Timeline</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">MITRE T1041</span>
+            </div>
+            <a href="/simulator/forensics-pcap" class="inline-flex items-center gap-3 bg-gradient-to-r from-tertiary to-tertiary-container text-on-tertiary px-8 py-3 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(255,182,149,0.3)] hover:translate-y-[-2px] transition-all duration-300 group/btn">
+              <span class="material-symbols-outlined text-lg">play_arrow</span>
+              Open Simulator
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform duration-300">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation 4: Threat Hunting -->
+      <div class="reveal reveal-delay-4 sim-card bg-surface-container-low border border-white/5 rounded-2xl overflow-hidden group">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          <div class="lg:col-span-4 relative h-48 lg:h-auto bg-gradient-to-br from-[#c792ea]/10 to-primary/5 overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-32 h-32 rounded-full bg-[#c792ea]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                <span class="material-symbols-outlined text-6xl text-[#c792ea]/60">radar</span>
+              </div>
+            </div>
+            <div class="absolute top-4 left-4 flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-[#c792ea] animate-pulse"></div>
+              <span class="text-[10px] text-[#c792ea] font-mono uppercase tracking-wider">Threat Hunting</span>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+          </div>
+          <div class="lg:col-span-8 p-8 lg:p-10 relative z-10">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+              <span class="px-3 py-1 bg-[#c792ea]/10 text-[#c792ea] text-[10px] font-mono rounded-md uppercase">Advanced</span>
+              <span class="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                1h 15m
+              </span>
+              <span class="flex items-center gap-1.5 text-[#c792ea] text-xs">
+                <span class="material-symbols-outlined text-sm">psychology</span>
+                AI Scored
+              </span>
+            </div>
+            <h3 class="font-headline text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-[#c792ea] transition-colors duration-300">Threat Hunting: AV Evasion Tactics</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">Hunt for adversaries employing advanced AV evasion techniques. Use hypothesis-driven methodology to uncover process injection, living-off-the-land binaries, and fileless malware.</p>
+            <div class="flex flex-wrap gap-2 mb-8">
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">LOLBins</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">Process Injection</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">EDR Bypass</span>
+              <span class="px-3 py-1.5 bg-surface-container-highest text-on-surface-variant text-xs font-mono rounded-lg">MITRE T1055</span>
+            </div>
+            <a href="/simulator/hunt-av-evasion" class="inline-flex items-center gap-3 bg-gradient-to-r from-[#c792ea] to-primary text-on-primary px-8 py-3 font-headline font-bold text-sm rounded-lg hover:shadow-[0_0_30px_rgba(199,146,234,0.3)] hover:translate-y-[-2px] transition-all duration-300 group/btn">
+              <span class="material-symbols-outlined text-lg">play_arrow</span>
+              Open Simulator
+              <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform duration-300">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- FEATURES STRIP                          -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="py-20 px-6 md:px-10 bg-surface-container-lowest border-y border-white/5">
+    <div class="max-w-screen-2xl mx-auto">
+      <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-4">
+            <span class="material-symbols-outlined text-2xl text-primary">cloud</span>
+          </div>
+          <h4 class="font-headline font-bold text-white text-sm mb-2">Isolated Cloud Range</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Fully sandboxed environments with no risk to production systems.</p>
+        </div>
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-error/10 border border-error/20 mb-4">
+            <span class="material-symbols-outlined text-2xl text-error">bug_report</span>
+          </div>
+          <h4 class="font-headline font-bold text-white text-sm mb-2">Real Adversary TTPs</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Simulations based on documented APT campaigns and MITRE ATT&CK.</p>
+        </div>
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 mb-4">
+            <span class="material-symbols-outlined text-2xl text-primary">psychology</span>
+          </div>
+          <h4 class="font-headline font-bold text-white text-sm mb-2">AI Performance Scoring</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Real-time behavioral analysis and skill assessment by our AI engine.</p>
+        </div>
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-tertiary/10 border border-tertiary/20 mb-4">
+            <span class="material-symbols-outlined text-2xl text-tertiary">verified</span>
+          </div>
+          <h4 class="font-headline font-bold text-white text-sm mb-2">Industry Certifications</h4>
+          <p class="text-on-surface-variant text-xs leading-relaxed">Earn recognized credentials upon scenario completion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- CTA SECTION                             -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="py-32 md:py-40 px-6 md:px-10 relative overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-20"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-error/5 blur-[200px] rounded-full"></div>
+    <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-error/20 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="reveal">
+        <span class="inline-flex items-center gap-2 text-error font-mono text-xs tracking-[0.3em] uppercase mb-8">
+          <span class="w-8 h-px bg-error/40"></span>Ready for combat<span class="w-8 h-px bg-error/40"></span>
+        </span>
+      </div>
+      <h2 class="reveal reveal-delay-1 font-headline text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 tracking-tighter leading-[0.9]">
+        ENTER THE <br/> <span class="text-gradient-red">CYBER RANGE.</span>
+      </h2>
+      <p class="reveal reveal-delay-2 text-on-surface-variant text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed">
+        Stop training against static labs. Face live adversary emulations that adapt to your responses in real-time.
+      </p>
+      <div class="reveal reveal-delay-3 flex flex-col sm:flex-row gap-4 justify-center">
+        <button class="group relative bg-gradient-to-r from-error to-tertiary-container text-white px-12 py-5 font-headline font-extrabold rounded-xl hover:shadow-[0_0_60px_rgba(255,107,107,0.3)] transition-all duration-500 overflow-hidden">
+          <span class="relative z-10 flex items-center gap-2">
+            <span class="material-symbols-outlined">rocket_launch</span>
+            START SIMULATION
+          </span>
+        </button>
+        <a href="http://academy.main.com" class="glass-panel border border-white/10 text-white px-12 py-5 font-headline font-extrabold rounded-xl hover:bg-white/5 hover:border-primary/30 transition-all duration-300 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined">school</span>
+          VIEW COURSES
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- FOOTER                                  -->
+<!-- ═══════════════════════════════════════ -->
+<footer class="bg-[#0a0a0a] w-full pt-20 pb-10 px-6 md:px-10">
+  <div class="max-w-screen-2xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary-container text-lg" style="font-variation-settings: 'FILL' 1;">science</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tighter text-white font-headline">Deep Hunt Labs</span>
+        </div>
+        <p class="text-on-surface-variant/60 text-sm leading-relaxed mb-6">Live-fire cyber range for security professionals. Train against real threats.</p>
+        <div class="flex gap-3">
+          <a href="http://main.com" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
+            <span class="material-symbols-outlined text-on-surface-variant text-lg">home</span>
+          </a>
+          <a href="http://academy.main.com" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
+            <span class="material-symbols-outlined text-on-surface-variant text-lg">school</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Simulations</h4>
+        <ul class="space-y-3">
+          <li><a href="/simulator/soc-sim-alpha" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">SOC Credential Stuffing</a></li>
+          <li><a href="/simulator/ir-ransomware" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Ransomware IR</a></li>
+          <li><a href="/simulator/forensics-pcap" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Data Exfiltration Forensics</a></li>
+          <li><a href="/simulator/hunt-av-evasion" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">AV Evasion Hunting</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-headline font-bold text-white text-sm uppercase tracking-wider mb-6">Platform</h4>
+        <ul class="space-y-3">
+          <li><a href="http://main.com" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Main Site</a></li>
+          <li><a href="http://academy.main.com" class="text-on-surface-variant/60 text-sm hover:text-primary transition-colors duration-300">Academy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="bg-gradient-to-r from-transparent via-white/10 to-transparent h-px mb-8"></div>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-on-surface-variant/40 text-xs font-mono">labs.main.com • Live Cyber Range Platform</p>
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-error/60 animate-pulse"></div>
+        <span class="text-on-surface-variant/40 text-xs font-mono">Threat systems active</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="back-to-top" class="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-xl bg-surface-container border border-white/10 flex items-center justify-center shadow-2xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none" aria-label="Back to top">
+  <span class="material-symbols-outlined text-primary">keyboard_arrow_up</span>
+</button>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCRIPTS                                 -->
+<!-- ═══════════════════════════════════════ -->
+<script>
+  // Preloader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('preloader').classList.add('hidden');
+    }, 800);
+  });
+
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('scroll-progress').style.width = ((scrollTop / docHeight) * 100) + '%';
+  });
+
+  // Navbar
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+    } else {
+      navbar.classList.remove('bg-[#131313]/90', 'backdrop-blur-2xl', 'border-b', 'border-white/5', 'shadow-lg');
+    }
+  });
+
+  // Mobile menu
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  menuToggle.addEventListener('click', () => {
+    menuToggle.classList.toggle('active');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('click', () => {
+      menuToggle.classList.remove('active');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // Scroll reveal
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('active');
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // Card glow
+  document.querySelectorAll('.sim-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+      card.style.setProperty('--mouse-y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+    });
+  });
+
+  // Counter animation
+  const counters = document.querySelectorAll('.stat-number[data-count]');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.getAttribute('data-count'));
+        const suffix = entry.target.textContent.replace(/[0-9]/g, '');
+        let current = 0;
+        const increment = target / 60;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) { current = target; clearInterval(timer); }
+          entry.target.textContent = Math.floor(current) + suffix;
+        }, 20);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+
+  // Back to top
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 600) {
+      backToTop.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      backToTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    } else {
+      backToTop.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      backToTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }
+  });
+  backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // Particle System
+  (function() {
+    const canvas = document.getElementById('particle-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animationId;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.life = Math.random() * 300 + 150;
+        this.maxLife = this.life;
+        const r = Math.random();
+        if (r < 0.5) {
+          this.color = { r: 173, g: 199, b: 255 };
+        } else if (r < 0.8) {
+          this.color = { r: 255, g: 180, b: 171 };
+        } else {
+          this.color = { r: 74, g: 142, b: 255 };
+        }
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life--;
+        this.opacity = (this.life / this.maxLife) * 0.4;
+        if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      resize();
+      particles = [];
+      const count = Math.min(Math.floor((canvas.width * canvas.height) / 6000), 120);
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            const opacity = (1 - dist / 100) * 0.1;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(173, 199, 255, ${opacity})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawConnections();
+      animationId = requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+
+    window.addEventListener('resize', init);
+  })();
+</script>
+
+</body>
+</html>
